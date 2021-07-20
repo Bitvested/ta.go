@@ -53,7 +53,6 @@ func Aad(data []float64, l int) []float64 {
     tmp := append([]float64(nil), data[i-l:i]...);
     m := Sma(tmp, len(tmp));
     var sum float64 = 0;
-    fmt.Println(i)
     for x := 0; x < len(tmp); x++ { sum += math.Abs(float64(tmp[x])-float64(m[0])); }
     med = append(med, sum/float64(l));
   }
@@ -212,7 +211,6 @@ func Hwma(data []float64, l int) []float64 {
     }
     wmaa = append(wmaa, average);
   }
-  fmt.Println(wmaa);
   return wmaa;
 }
 func Vwma(data [][]float64, l int) []float64 {
