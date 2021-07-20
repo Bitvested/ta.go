@@ -98,6 +98,101 @@ func Rsi(data []float64, l int) []float64 {
   }
   return arrsi;
 }
+func Wsma(data []float64, l int) []float64 {
+  var wsm []float64;
+  var weight float64 = 1/float64(l);
+  for i := l; i <= len(data); i++ {
+    if len(wsm) > 0 {
+      wsm = append(wsm, (data[i-1]-wsm[len(wsm)-1])*weight+wsm[len(wsm)-1]);
+      continue;
+    }
+    pl := append([]float64(nil), data[i-l:i]...);
+    var average float64;
+    for q := 0; q < len(pl); q++ { average += pl[q]; }
+    wsm = append(wsm, average/float64(l));
+  }
+  return wsm;
+}
+func Wrsi(data []float64, l int) []float64 {
+  var arrsi []float64; var u []float64; var d []float64;
+  for i := 1; i < len(data); i++ {
+    if(data[i]-data[i-1] < 0) {
+      d = append(d, math.Abs(data[i]-data[i-1]));
+      u = append(u, 0);
+    } else {
+      d = append(d, 0);
+      u = append(u, data[i]-data[i-1]);
+    }
+  }
+  d = Wsma(d, l); u = Wsma(u, l);
+  for i := 0; i < len(d); i++ {
+    arrsi = append(arrsi, 100-100/(1+(u[i]/d[i])));
+  }
+  return arrsi;
+}
+func Ema(data []float64, l int) []float64 {
+  var ema []float64; var weight float64 = 2 / (float64(l)+1);
+  for i := l; i <= len(data); i++ {
+    if len(ema) > 0 {
+      ema = append(ema, (data[i-1] - ema[len(ema)-1]) * weight + ema[len(ema)-1]);
+      continue;
+    }
+    pl := append([]float64(nil), data[i-l:i]...);
+    var average float64;
+    for q := 0; q < len(pl); q++ { average += pl[q]; }
+    ema = append(ema, average/float64(l));
+  }
+  return ema;
+}
+func Smma(data []float64, l int) []float64 {
+  var smma []float64;
+  for i := l; i <= len(data); i++ {
+    pl := append([]float64(nil), data[i-l:i]...);
+    var average float64;
+    for q := 0; q < len(pl); q++ {
+      average += pl[q];
+    }
+    if len(smma) <= 0 {
+      smma = append(smma, average/float64(l));
+    } else {
+      smma = append(smma, (average-smma[len(smma)-1])/float64(l));
+    }
+  }
+  return smma[1:];
+}
+func Wma(data []float64, l int) []float64 {
+  var weight int; var wma []float64;
+  for i := 1; i <= l; i++ { weight += i; }
+  for i := l; i <= len(data); i++ {
+    pl := append([]float64(nil), data[i-l:i]...);
+    var average float64;
+    for q := 0; q < l; q++ { average += (pl[q] * float64(q+1) / float64(weight)) }
+    wma = append(wma, average);
+  }
+  return wma;
+}
+func Pwma(data []float64, l int) []float64 {
+  var weight int; var wmaa []float64; var b int = l; var weights []float64;
+  for i := int(float64(l) / 2); i >= 1; i-- {
+    if(i % 1 != 0) {
+      weight += (i * b);
+    } else {
+      weights = append(weights, float64(i*b));
+      weight += (i*b*2);
+    }
+    weights = append([]float64{float64(i*b)}, weights...);
+    b--;
+  }
+  for i := l; i <= len(data); i++ {
+    var average float64;
+    pl := append([]float64(nil), data[i-l:i]...);
+    for a := l-1; a >= 0; a-- {
+      average += (pl[a]*weights[a]/float64(weight));
+    }
+    wmaa = append(wmaa, average);
+  }
+  return wmaa
+}
 func main() {
   Median([]float64{4,6,3,1,2,5}, 4);
   Normalize([]float64{5,4,9,4}, 0.1);
@@ -107,4 +202,10 @@ func main() {
   Sma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
   Ssd([]float64{7, 6, 5, 7, 9, 8, 3, 5, 4}, 7);
   Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5}, 6);
+  Wsma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
+  Wrsi([]float64{1, 2, 3, 4, 5, 6, 7, 5, 6}, 6);
+  Ema([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
+  Smma([]float64{1, 2, 3, 4, 5, 6, 10}, 5);
+  Wma([]float64{69, 68, 66, 70, 68}, 4);
+  Pwma([]float64{17, 26, 23, 29, 20}, 4);
 }
