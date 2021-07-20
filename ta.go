@@ -311,7 +311,64 @@ func Cor(data1 []float64, data2 []float64) float64 {
 func Dif(n float64, o float64) float64 {
   return (n-o)/o;
 }
+func Drawdown(data []float64) float64 {
+  max := data[0]; min := data[0]; big := 0.0;
+  for y := 1; y < len(data); y++ {
+    if data[y] > max {
+      if min != 0 {
+        diff := Dif(min, max);
+        if diff < big { big = diff; }
+        min = data[y];
+      }
+      max = data[y];
+    }
+    if data[y] < min { min = data[y]; }
+  }
+  diff := Dif(min, max);
+  if diff < big {
+    big = diff
+  }
+  return big;
+}
+func reverse(s []float64) []float64 {
+  for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+    s[i], s[j] = s[j], s[i]
+  }
+  return s;
+}
+func AroonUp(data []float64, l int) []float64 {
+  var aroon []float64;
+  for i := l; i <= len(data); i++ {
+    pl := append([]float64(nil), data[i-l:i]...);
+    hl := append([]float64(nil), data[i-l:i]...);
+    sort.Float64s(hl);
+    index := sort.SearchFloat64s(pl, hl[len(hl)-1]);
+    aroon = append(aroon, (100 * (float64(l)-float64(index))/float64(l)));
+  }
+  return aroon;
+}
+func AroonDown(data []float64, l int) []float64 {
+  var aroon []float64;
+  for i := l; i <= len(data); i++ {
+    pl := append([]float64(nil), data[i-l:i]...);
+    hl := append([]float64(nil), data[i-l:i]...);
+    sort.Float64s(hl);
+    index := sort.SearchFloat64s(pl, hl[0]);
+    aroon = append(aroon, (100 * (float64(l)-float64(index))/float64(l)));
+  }
+  return aroon;
+}
+func AroonOsc(data []float64, l int) []float64 {
+  var aroon []float64;
+  u := AroonUp(data, l); d := AroonDown(data, l);
+  for i := 0; i < len(u); i++ { aroon = append(aroon, u[i]-d[i]) }
+  return aroon;
+}
 func main() {
+  AroonOsc([]float64{2, 5, 4, 5}, 3);
+  AroonDown([]float64{2, 5, 4, 5}, 3);
+  AroonUp([]float64{5, 4, 5, 2}, 3);
+  Drawdown([]float64{1,2,3,4,2,3});
   Dif(0.75, 0.5);
   Median([]float64{4,6,3,1,2,5}, 4);
   Normalize([]float64{5,4,9,4}, 0.1);
