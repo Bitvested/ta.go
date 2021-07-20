@@ -505,7 +505,6 @@ func decimalplaces(n float64) int {
 func Ren(data [][]float64, bs float64) [][]float64 {
   var re [][]float64;
   decimals := float64(decimalplaces(bs));
-  fmt.Println(decimals);
   bh := math.Ceil(data[0][0]/bs*math.Pow(10, decimals))/math.Pow(10, decimals)*bs; bl:=bh-bs;
   for i := 1; i < len(data); i++ {
     if data[i][0] > bh + bs {
@@ -525,7 +524,100 @@ func Ren(data [][]float64, bs float64) [][]float64 {
   }
   return re;
 }
+func Tsi(data []float64, llen int, slen int, sig int) [][]float64 {
+  var mom []float64; var abs []float64; var ts []float64; var tsi [][]float64;
+  for i := 1; i < len(data); i++ {
+    mom = append(mom, data[i]-data[i-1]);
+    abs = append(abs, math.Abs(data[i]-data[i-1]));
+  }
+  sma1 := Ema(mom, llen);
+  sma2 := Ema(abs, llen);
+  ema1 := Ema(sma1, slen);
+  ema2 := Ema(sma2, slen);
+  for i := 0; i < len(ema1); i++ {
+    ts = append(ts, ema1[i] / ema2[i]);
+  }
+  tma := Ema(ts, sig);
+  ts = ts[len(ts)-len(tma):];
+  for i := 0; i < len(tma); i++ {
+    tsi = append(tsi, []float64{tma[i], ts[i]});
+  }
+  return tsi;
+}
+func Bop(data [][]float64, l int) []float64 {
+  var bo []float64;
+  for i := 0; i < len(data); i++ {
+    bo = append(bo, (data[i][3]-data[i][0])/(data[i][1]-data[i][2]));
+  }
+  bo = Sma(bo, l);
+  return bo;
+}
+func Fi(data [][]float64, l int) []float64 {
+  var ff []float64; var pl []float64;
+  for i := 1; i < len(data); i++ {
+    pl = append(pl, (data[i][0]-data[i-1][0])*data[i][1]);
+    if len(pl) >= l {
+      vfi := Ema(pl, l);
+      ff = append(ff, vfi[len(vfi)-1]);
+      pl = pl[1:];
+    }
+  }
+  return ff;
+}
+func Asi(data [][]float64) []float64 {
+  var a []float64;
+  for i := 1; i < len(data); i++ {
+    c := data[i][1]; cy := data[i-1][1]; h := data[i][0]; hy := data[i-1][0];
+    l := data[i][2]; ly := data[i-1][2]; var k float64; if(hy-c>ly-c) {k=hy-c} else {k=ly-c};
+    o := data[i][0]; oy := data[i-1][0]; var r float64; t := maxf([]float64{data[i][0], data[i-1][0]}) - minf([]float64{data[i][2], data[i-1][2]});
+    if(h-cy>l-cy&&h-cy>h-l) {r = h-cy-(l-cy)/2+(cy-oy)/4;}
+    if(l-cy>h-cy&&l-cy>h-l) {r = l-cy-(h-cy)/2+(cy-oy)/4;}
+    if(h-l>h-cy&&h-l>l-cy) {r = h-l+(cy-oy)/4}
+    a = append(a, 50 * ((cy-c+(cy-oy)/2+(c-o)/2)/r)*k/t);
+  }
+  return a;
+}
+func Ao(data [][]float64, l1 int, l2 int) []float64 {
+  var processed []float64; var a []float64;
+  for i := 0; i < len(data); i++ {processed = append(processed, (data[i][0]+data[i][1])/2);}
+  for i := l2; i <= len(processed); i++ {
+    pl := processed[i-l2:i];
+    f := Sma(pl, l1);
+    s := Sma(pl, l2);
+    a = append(a, f[len(f)-1]-s[len(s)-1]);
+  }
+  return a;
+}
+func Pr(data []float64, l int) []float64 {
+  var n []float64;
+  for i := l; i <= len(data); i++ {
+    pl := append([]float64(nil), data[i-l:i]...); highd := maxf(pl); lowd := minf(pl);
+    n = append(n, (highd-data[i-1])/(highd-lowd)*-100);
+  }
+  return n;
+}
+func Don(data [][]float64, l int) [][]float64 {
+  var channel [][]float64;
+  for i := l; i <= len(data); i++ {
+    pl := data[i-l:i]; var highs []float64; var lows []float64;
+    for h := 0; h < len(pl); h++ {
+      highs = append(highs, pl[h][0]);
+      lows = append(lows, pl[h][1]);
+    }
+    max := maxf(highs);
+    min := minf(lows);
+    channel = append(channel, []float64{max, (max+min)/2, min});
+  }
+  return channel;
+}
 func main() {
+  Don([][]float64{{6,2},{5,2},{5,3},{6,3},{7,4},{6,3}}, 5);
+  Pr([]float64{2,1,3,1,2}, 4);
+  Ao([][]float64{{6,5},{8,6},{7,4},{6,5},{7,6},{9,8}}, 2, 5);
+  Asi([][]float64{{7,6,4},{9,7,5},{9,8,6}});
+  Fi([][]float64{{1.4, 200}, {1.5,240}, {1.1,300}, {1.2,240}, {1.5, 400}}, 4);
+  Bop([][]float64{{4,5,4,5}, {5,6,5,6}, {6,8,5,6}}, 2);
+  Tsi([]float64{1.32, 1.27, 1.42, 1.47, 1.42, 1.45, 1.59}, 3, 2, 2);
   Ren([][]float64{{8,6}, {9,7}, {9,8}, {13,10}}, 2);
   Ha([][]float64{{3, 4, 2, 3}, {3, 6, 3, 5}, {5, 5, 2, 3}});
   MomOsc([]float64{1, 1.2, 1.3, 1.3, 1.2, 1.4}, 4);
