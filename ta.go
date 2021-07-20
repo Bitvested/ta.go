@@ -69,6 +69,35 @@ func Sma(data []float64, l int) []float64 {
   }
   return sma;
 }
+func Ssd(data []float64, l int) []float64 {
+  var sd []float64;
+  for i := l; i <= len(data); i++ {
+    tmp := append([]float64(nil), data[i-l:i]...);
+    mean := Sma(tmp, l);
+    var sum float64;
+    for x := 0; x < len(tmp); x++ {
+      sum += math.Pow(tmp[x]-mean[0], 2);
+    }
+    sd = append(sd, math.Pow(sum, 0.5));
+  }
+  return sd;
+}
+func Rsi(data []float64, l int) []float64 {
+  var arrsi []float64;
+  for i := l; i < len(data); i++ {
+    pl := append([]float64(nil), data[i-l:i+1]...); var loss float64; var gain float64;
+    for q := 1; q < len(pl); q++ {
+      if pl[q]-pl[q-1] < 0 {
+        loss += math.Abs(pl[q]-pl[q-1]);
+      } else {
+        gain += pl[q]-pl[q-1];
+      }
+    }
+    var rsi float64 = 100-100/(1+((gain/float64(l))/(loss/float64(l))));
+    arrsi = append(arrsi, rsi);
+  }
+  return arrsi;
+}
 func main() {
   Median([]float64{4,6,3,1,2,5}, 4);
   Normalize([]float64{5,4,9,4}, 0.1);
@@ -76,4 +105,6 @@ func main() {
   Mad([]float64{3, 7, 5, 4, 3, 8, 9}, 6);
   Aad([]float64{4, 6, 8, 6, 8, 9, 10, 11}, 7);
   Sma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
+  Ssd([]float64{7, 6, 5, 7, 9, 8, 3, 5, 4}, 7);
+  Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5}, 6);
 }
