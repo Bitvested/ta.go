@@ -3,6 +3,7 @@ import (
   "fmt"
   "sort"
   "math"
+  "strings"
 )
 func Median(data []float64, l int) []float64  {
   var med []float64;
@@ -396,8 +397,20 @@ func Cop(data []float64, l1 int, l2 int, l3 int) []float64 {
   return co;
 }
 func max(v []int) int {
-    sort.Ints(v);
-    return v[len(v)-1];
+  sort.Ints(v);
+  return v[len(v)-1];
+}
+func min(v []int) int {
+  sort.Ints(v);
+  return v[0];
+}
+func maxf(v []float64) float64 {
+  sort.Float64s(v);
+  return v[len(v)-1];
+}
+func minf(v []float64) float64 {
+  sort.Float64s(v);
+  return v[0];
 }
 func Kst(data []float64, r1 int, r2 int, r3 int, r4 int, s1 int, s2 int, s3 int, s4 int, sig int) [][]float64 {
   var ks []float64; var fs [][]float64; ms := (max([]int{r1,r2,r3,r4}) + max([]int{s4, s3, s2, s1}));
@@ -459,10 +472,63 @@ func Mom(data []float64, l int, p bool) []float64 {
       mom = append(mom, data[i]-data[i-(l-1)]);
     }
   }
-  fmt.Println(mom);
   return mom;
 }
+func MomOsc(data []float64, l int) []float64 {
+  var osc []float64;
+  for i := l; i <= len(data); i++ {
+    var sumh float64; var suml float64;
+    for a := 1; a < l; a++ {
+      if(data[i-l+(a-1)] < data[i-l+a]) {
+        sumh += data[i-l+a];
+      } else {
+        suml += data[i-l+a];
+      }
+    }
+    osc = append(osc, (sumh-suml)/(sumh+suml)*100);
+  }
+  return osc;
+}
+func Ha(data [][]float64) [][]float64 {
+  var ha [][]float64 = [][]float64{{(data[0][0]+data[0][3])/2, data[0][1], data[0][2], (data[0][0]+data[0][1]+data[0][2]+data[0][3])/4}};
+  for i := 1; i < len(data); i++ {
+    ha = append(ha, []float64{(ha[len(ha)-1][0]+ha[len(ha)-1][3])/2, maxf([]float64{ha[len(ha)-1][0], ha[len(ha)-1][3], data[i][1]}), minf([]float64{ha[len(ha)-1][0], ha[len(ha)-1][3], data[i][2]}), (data[i][0]+data[i][1]+data[i][2]+data[i][3])/4});
+  }
+  return ha;
+}
+func decimalplaces(n float64) int {
+  decimalPlaces := fmt.Sprintf("%f", n-math.Floor(n)); // produces 0.xxxx0000
+  decimalPlaces = strings.Replace(decimalPlaces, "0.", "", -1); // remove 0.
+  decimalPlaces = strings.TrimRight(decimalPlaces, "0"); // remove trailing 0s
+  return len(decimalPlaces);
+}
+func Ren(data [][]float64, bs float64) [][]float64 {
+  var re [][]float64;
+  decimals := float64(decimalplaces(bs));
+  fmt.Println(decimals);
+  bh := math.Ceil(data[0][0]/bs*math.Pow(10, decimals))/math.Pow(10, decimals)*bs; bl:=bh-bs;
+  for i := 1; i < len(data); i++ {
+    if data[i][0] > bh + bs {
+      for ok := true; ok == true; ok = (data[i][0]>bh+bs) {
+        re = append(re, []float64{bh,bh+bs,bh,bh+bs});
+        bh+=bs;
+        bl+=bs;
+      }
+    }
+    if data[i][1] < bl - bs {
+      for ok := true; ok == true; ok = (data[i][1]<bl-bs) {
+        re = append(re, []float64{bl,bl,bl-bs,bl-bs});
+        bh-=bs;
+        bl-=bs;
+      }
+    }
+  }
+  return re;
+}
 func main() {
+  Ren([][]float64{{8,6}, {9,7}, {9,8}, {13,10}}, 2);
+  Ha([][]float64{{3, 4, 2, 3}, {3, 6, 3, 5}, {5, 5, 2, 3}});
+  MomOsc([]float64{1, 1.2, 1.3, 1.3, 1.2, 1.4}, 4);
   Mom([]float64{1, 1.1, 1.2, 1.24, 1.34}, 4, false);
   Vwap([][]float64{{127.21, 89329}, {127.17, 16137}, {127.16, 23945}}, 2);
   Obv([][]float64{{25200, 10}, {30000, 10.15}, {25600, 10.17}, {32000, 10.13}});
