@@ -193,6 +193,73 @@ func Pwma(data []float64, l int) []float64 {
   }
   return wmaa
 }
+func Hwma(data []float64, l int) []float64 {
+  var weight int; var wmaa []float64; var b int = l; var weights []float64;
+  for i := 1; i <= int(l / 2); i++ {
+    if(i % 1 != 0) {
+      weight += (i*b);
+    } else {
+      weights = append(weights, float64(i*b));
+      weight += (i*b*2);
+    }
+    weights = append([]float64{float64(i*b)}, weights...);
+    b--;
+  }
+  for i := l; i <= len(data); i++ {
+    var average float64; pl := append([]float64(nil), data[i-l:i]...);
+    for a := l - 1; a >= 0; a-- {
+      average += (pl[a] * weights[a] / float64(weight));
+    }
+    wmaa = append(wmaa, average);
+  }
+  fmt.Println(wmaa);
+  return wmaa;
+}
+func Vwma(data [][]float64, l int) []float64 {
+  var vwma []float64; var weighted [][]float64;
+  for i := 0; i < len(data); i++ { weighted = append(weighted, []float64{data[i][0]*data[i][1], data[i][1]}); }
+  for i := l; i <= len(data); i++ {
+    pl := append([][]float64(nil), weighted[i-l:i]...);
+    var totalv float64; var totalp float64;
+    for o := 0; o < len(pl); o++ {
+      totalv += pl[o][1];
+      totalp += pl[o][0];
+    }
+    vwma = append(vwma, totalp/totalv);
+  }
+  return vwma;
+}
+func Lsma(data []float64, l int) []float64 {
+  var lr []float64;
+  for i := l; i <= len(data); i++ {
+    pl := append([]float64(nil), data[i-l:i]...); var sum_x float64 = 0; var sum_y float64 = 0; var sum_xy float64 = 0; var sum_xx float64 = 0; var sum_yy float64 = 0;
+    for q := 1; q <= l; q++ {
+      sum_x += float64(q);
+      sum_y += pl[q-1];
+      sum_xy += (pl[q-1]*float64(q));
+      sum_xx += (float64(q)*float64(q));
+      sum_yy += (pl[q-1]*pl[q-1]);
+    }
+    m := ((sum_xy-sum_x*sum_y/float64(l))/(sum_xx-sum_x*sum_x/float64(l)));
+    b := sum_y/float64(l)-m*sum_x/float64(l);
+    lr = append(lr, m*float64(l)+b);
+  }
+  return lr;
+}
+func Hull(data []float64, l int) []float64 {
+  var pl []float64; var hma []float64; var ewma []float64 = Wma(data, l); var sqn int = int(math.Pow(float64(l), 0.5));
+  var first []float64 = Wma(data, int(l/2));
+  first = first[len(first)-len(ewma):];
+  for i := 0; i < len(ewma); i++ {
+    pl = append(pl, (first[i]*2)-ewma[i]);
+    if len(pl) >= sqn {
+      var h []float64 = Wma(pl, sqn);
+      hma = append(hma, h[0]);
+      pl = pl[1:];
+    }
+  }
+  return hma;
+}
 func main() {
   Median([]float64{4,6,3,1,2,5}, 4);
   Normalize([]float64{5,4,9,4}, 0.1);
@@ -208,4 +275,8 @@ func main() {
   Smma([]float64{1, 2, 3, 4, 5, 6, 10}, 5);
   Wma([]float64{69, 68, 66, 70, 68}, 4);
   Pwma([]float64{17, 26, 23, 29, 20}, 4);
+  Hwma([]float64{54, 51, 86, 42, 47}, 4);
+  Vwma([][]float64{{1, 59}, {1.1, 82}, {1.21, 27}, {1.42, 73}, {1.32, 42}}, 4);
+  Lsma([]float64{5, 6, 6, 3, 4, 6, 7}, 6);
+  Hull([]float64{6, 7, 5, 6, 7, 4, 5, 7}, 6);
 }
