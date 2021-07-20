@@ -258,7 +258,61 @@ func Hull(data []float64, l int) []float64 {
   }
   return hma;
 }
+func Macd(data []float64, l1 int, l2 int) []float64 {
+  if(l1 > l2) { l1, l2 = l2, l1; }
+  var ema []float64 = Ema(data, l1); var emb []float64 = Ema(data, l2);
+  var macd []float64;
+  ema = ema[l2-l1:];
+  for i := 0; i < len(emb); i++ {
+    macd = append(macd, ema[i]-emb[i]);
+  }
+  return macd;
+}
+func Std(data []float64, l int) float64 {
+  var mean []float64 = Sma(data, l);
+  var average float64;
+  for i := len(data)-l; i < len(data); i++ {
+    average += math.Pow(data[i]-mean[len(mean)-1], 2);
+  }
+  var std float64 = math.Pow(average/float64(l), 0.5);
+  return std;
+}
+func Normsinv(p float64) float64 {
+  a1 := -39.6968302866538; a2 := 220.946098424521; a3 := -275.928510446969; a4 := 138.357751867269; a5 := -30.6647980661472; a6 := 2.50662827745924;
+  b1 := -54.4760987982241; b2 := 161.585836858041; b3 := -155.698979859887; b4 := 66.8013118877197; b5 := -13.2806815528857; c1 := -7.78489400243029E-03;
+  c2 := -0.322396458041136; c3 := -2.40075827716184; c4 := -2.54973253934373; c5 := 4.37466414146497; c6 := 2.93816398269878; d1 := 7.78469570904146E-03;
+  d2 := 0.32246712907004; d3 := 2.445134137143; d4 := 3.75440866190742; p_low := 0.02425; p_high := 1 - p_low;
+  if p < 0 || p > 1 {
+    return 0
+  }
+  if p < p_low {
+    q := math.Pow(-2*math.Log(p), 0.5);
+    return (((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6)/((((d1*q+d2)*q+d3)*q+d4)*q+1);
+  }
+  if p <= p_high {
+    q := p-0.5;
+    r := q*q;
+    return (((((a1*r+a2)*r+a3)*r+a4)*r+a5)*r+a6)*q/(((((b1*r+b2)*r+b3)*r+b4)*r+b5)*r+1);
+  }
+  q := math.Pow(-2*math.Log(1-p), 0.5);
+  return -(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6)/((((d1*q+d2)*q+d3)*q+d4)*q+1);
+}
+func Cor(data1 []float64, data2 []float64) float64 {
+  var d1avg []float64 = Sma(data1, len(data1)); var d2avg []float64 = Sma(data2, len(data2));
+  var sumavg float64; var sx float64; var sy float64;
+  for i := 0; i < len(data1); i++ {
+    x := data1[i]-d1avg[0]; y := data2[i]-d2avg[0];
+    sumavg += (x*y); sx += math.Pow(x, 2); sy += math.Pow(y, 2);
+  }
+  n := float64(len(data1)-1);
+  sx /= n; sy /= n; sx = math.Pow(sx, 0.5); sy = math.Pow(sy, 0.5);
+  return (sumavg/(n*sx*sy));
+}
+func Dif(n float64, o float64) float64 {
+  return (n-o)/o;
+}
 func main() {
+  Dif(0.75, 0.5);
   Median([]float64{4,6,3,1,2,5}, 4);
   Normalize([]float64{5,4,9,4}, 0.1);
   Denormalize([]float64{5,4,9,4}, []float64{0.2222222222222222, 0.06349206349206349, 0.8571428571428571, 0.06349206349206349, 0.4444444444444444}, 0.1);
@@ -277,4 +331,8 @@ func main() {
   Vwma([][]float64{{1, 59}, {1.1, 82}, {1.21, 27}, {1.42, 73}, {1.32, 42}}, 4);
   Lsma([]float64{5, 6, 6, 3, 4, 6, 7}, 6);
   Hull([]float64{6, 7, 5, 6, 7, 4, 5, 7}, 6);
+  Macd([]float64{1, 2, 3, 4, 5, 6, 14}, 3, 6);
+  Std([]float64{1,2,3}, 3);
+  Normsinv(0.4732);
+  Cor([]float64{1, 2, 3, 4, 5, 2}, []float64{1, 3, 2, 4, 6, 3});
 }
