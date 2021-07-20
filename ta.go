@@ -393,10 +393,80 @@ func Cop(data []float64, l1 int, l2 int, l3 int) []float64 {
     tmp = Wma(tmp, l3);
     co = append(co, tmp[len(tmp)-1]);
   }
-  fmt.Println(co);
   return co;
 }
+func max(v []int) int {
+    sort.Ints(v);
+    return v[len(v)-1];
+}
+func Kst(data []float64, r1 int, r2 int, r3 int, r4 int, s1 int, s2 int, s3 int, s4 int, sig int) [][]float64 {
+  var ks []float64; var fs [][]float64; ms := (max([]int{r1,r2,r3,r4}) + max([]int{s4, s3, s2, s1}));
+  for i := ms; i <= len(data); i++ {
+    pl := append([]float64(nil), data[i-ms:i]...);
+    rcma1 := Roc(pl, r1);
+    rcma2 := Roc(pl, r2);
+    rcma3 := Roc(pl, r3);
+    rcma4 := Roc(pl, r4);
+    rcma1 = Sma(rcma1, s1);
+    rcma2 = Sma(rcma2, s2);
+    rcma3 = Sma(rcma3, s3);
+    rcma4 = Sma(rcma4, s4);
+    ks = append(ks, rcma1[len(rcma1)-1] + rcma2[len(rcma2)-1] + rcma3[len(rcma3)-1] +rcma4[len(rcma4)-1]);
+  }
+  sl := Sma(ks, sig);
+  ks = ks[len(ks)-len(sl):];
+  for i := 0; i < len(sl); i++ {
+    fs = append(fs, []float64{ks[i], sl[i]});
+  }
+  return fs;
+}
+func Obv(data [][]float64) []float64 {
+  var obv []float64;
+  obv = append(obv, 0);
+  for i := 1; i < len(data); i++ {
+    if data[i][1] > data[i-1][1] {
+      obv = append(obv, obv[len(obv)-1]+data[i][0]);
+    }
+    if data[i][1] < data[i-1][1] {
+      obv = append(obv, obv[len(obv)-1]-data[i][0]);
+    }
+    if(data[i][1] == data[i-1][1]) {
+      obv = append(obv, obv[len(obv)-1]);
+    }
+  }
+  return obv;
+}
+func Vwap(data [][]float64, l int) []float64 {
+  var vwap []float64; var weighted [][]float64;
+  for i := 0; i < len(data); i++ { weighted = append(weighted, []float64{data[i][0]*data[i][1], data[i][1]}); }
+  for i := l; i <= len(weighted); i++ {
+    pl := append([][]float64(nil), weighted[i-l:i]...);
+    var totalv float64; var totalp float64;
+    for o := 0; o < len(pl); o++ {
+      totalv += pl[o][1];
+      totalp += pl[o][0];
+    }
+    vwap = append(vwap, totalp/totalv);
+  }
+  return vwap;
+}
+func Mom(data []float64, l int, p bool) []float64 {
+  var mom []float64;
+  for i := l-1; i < len(data); i++ {
+    if(p) {
+      mom = append(mom, data[i]/data[i-(l-1)]*100);
+    } else {
+      mom = append(mom, data[i]-data[i-(l-1)]);
+    }
+  }
+  fmt.Println(mom);
+  return mom;
+}
 func main() {
+  Mom([]float64{1, 1.1, 1.2, 1.24, 1.34}, 4, false);
+  Vwap([][]float64{{127.21, 89329}, {127.17, 16137}, {127.16, 23945}}, 2);
+  Obv([][]float64{{25200, 10}, {30000, 10.15}, {25600, 10.17}, {32000, 10.13}});
+  Kst([]float64{8, 6, 7, 6, 8, 9, 7, 5, 6, 7, 6, 8, 6, 7, 6, 8, 9, 9, 8, 6, 4, 6, 5, 6, 7, 8, 9}, 5, 7, 10, 15, 5, 5, 5, 7, 4);
   Cop([]float64{3, 4, 5, 3, 4, 5, 6, 4, 7, 5, 4, 7, 5}, 4, 6, 5);
   Roc([]float64{1, 2, 3, 4}, 3);
   Mfi([][]float64{{19, 13}, {14, 38}, {21, 25}, {32, 17}}, 3);
