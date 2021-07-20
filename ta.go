@@ -330,12 +330,6 @@ func Drawdown(data []float64) float64 {
   }
   return big;
 }
-func reverse(s []float64) []float64 {
-  for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-    s[i], s[j] = s[j], s[i]
-  }
-  return s;
-}
 func AroonUp(data []float64, l int) []float64 {
   var aroon []float64;
   for i := l; i <= len(data); i++ {
@@ -364,7 +358,48 @@ func AroonOsc(data []float64, l int) []float64 {
   for i := 0; i < len(u); i++ { aroon = append(aroon, u[i]-d[i]) }
   return aroon;
 }
+func Mfi(data [][]float64, l int) []float64 {
+  var mfi []float64; var n []float64; var p []float64;
+  for i := 0; i < len(data); i++ {
+    n = append(n, data[i][1]);
+    p = append(p, data[i][0]);
+  }
+  for i := l; i <= len(data); i++ {
+    var pos float64; var neg float64;
+    for q := i-l; q < i; q++ {
+      pos += p[q];
+      neg += n[q];
+    }
+    mfi = append(mfi, 100 - 100 / (1 + pos / neg));
+  }
+  return mfi;
+}
+func Roc(data []float64, l int) []float64 {
+  var roc []float64;
+  for i := l; i <= len(data); i++ {
+    roc = append(roc, (data[i-1]-data[i-l])/data[i-l]);
+  }
+  return roc;
+}
+func Cop(data []float64, l1 int, l2 int, l3 int) []float64 {
+  max := math.Max(float64(l1), float64(l2)); var co []float64;
+  for i := int(max) + l3; i < len(data); i++ {
+    r1 := append([]float64(nil), data[i-(int(max)+l3):i]...); r2 := r1[:]; var tmp []float64;
+    r1 = Roc(r1, l1); r2 = Roc(r2, l2);
+    r1 = r1[len(r1)-len(r2):]; r2 = r2[len(r2)-len(r1):];
+    for a := 0; a < len(r1); a++ {
+      tmp = append(tmp, r1[a]+r2[a]);
+    }
+    tmp = Wma(tmp, l3);
+    co = append(co, tmp[len(tmp)-1]);
+  }
+  fmt.Println(co);
+  return co;
+}
 func main() {
+  Cop([]float64{3, 4, 5, 3, 4, 5, 6, 4, 7, 5, 4, 7, 5}, 4, 6, 5);
+  Roc([]float64{1, 2, 3, 4}, 3);
+  Mfi([][]float64{{19, 13}, {14, 38}, {21, 25}, {32, 17}}, 3);
   AroonOsc([]float64{2, 5, 4, 5}, 3);
   AroonDown([]float64{2, 5, 4, 5}, 3);
   AroonUp([]float64{5, 4, 5, 2}, 3);
