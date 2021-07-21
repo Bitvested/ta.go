@@ -3,6 +3,7 @@ import (
   "fmt"
   "sort"
   "math"
+  "math/rand"
   "strings"
 )
 func Median(data []float64, l int) []float64  {
@@ -681,7 +682,89 @@ func Kama(data []float64, l1 int, l2 int, l3 int) []float64 {
   }
   return ka;
 }
+func Bands(data []float64, l int, dev float64) [][]float64 {
+  var pl []float64; var deviation []float64; var boll [][]float64;
+      sma := Sma(data, l);
+  for i := 0; i < len(data); i++ {
+    pl = append(pl, data[i]);
+    if len(pl) >= l {
+      devi := Std(pl, l);
+      deviation = append(deviation, devi);
+      pl = pl[1:];
+    }
+  }
+  for i := 0; i < len(sma); i++ {
+    boll = append(boll, []float64{sma[i]+deviation[i]*dev, sma[i], sma[i]-deviation[i]*dev});
+  }
+  return boll;
+}
+func Bandwidth(data []float64, l int, dev float64) []float64 {
+  var boll []float64;
+  band := Bands(data, l, dev);
+  for i := 0; i < len(band); i++ {
+    boll = append(boll, (band[i][0]-band[i][2])/band[i][1]);
+  }
+  return boll;
+}
+func Keltner(data [][]float64, l int, dev float64) [][]float64 {
+  var closing []float64; atr := Atr(data, l); var kelt [][]float64;
+  for i := 0; i < len(data); i++ {
+    closing = append(closing, (data[i][0]+data[i][1]+data[i][2])/3);
+  }
+  kma := Sma(closing, l);
+  atr = atr[l-1:];
+  for i := 0; i < len(kma); i++ {
+    kelt = append(kelt, []float64{kma[i]+atr[i]*dev, kma[i], kma[i]-atr[i]*dev});
+  }
+  return kelt;
+}
+func Variance(data []float64, l int) []float64 {
+  var va []float64;
+  for i := l; i <= len(data); i++ {
+    tmp := data[i-l:i]; mean := Sma(tmp, l); var sum float64;
+    for x := 0; x < len(tmp); x++ {
+      sum += math.Pow(tmp[x]-mean[len(mean)-1], 2);
+    }
+    va = append(va, sum/float64(l));
+  }
+  return va;
+}
+func Sim(data []float64, l int, sims int) [][]float64 {
+  var sd [][]float64;
+  for i := 0; i < sims; i++ {
+    projected := append([]float64(nil), data...);
+    for x := 0; x < l; x++ {
+      var change []float64;
+      for y := 1; y < len(projected); y++ {
+        df := Dif(projected[y],projected[y-1]);
+        change = append(change, df);
+      }
+      mean := Sma(change, len(change));
+      std := Std(change, len(change));
+      random := Normsinv(rand.Float64());
+      projected = append(projected, projected[len(projected)-1]*math.Pow(mean[0]-(std*std)/2+std*random, 2));
+    }
+    sd = append(sd, projected);
+  }
+  return sd;
+}
+func Percentile(data [][]float64, l int, perc float64) []float64 {
+  var ret []float64;
+  for i := l; i < len(data[0]); i++ {
+    var tmp []float64;
+    for x := 0; x < len(data); x++ {
+      tmp = append(tmp, data[x][i]);
+    }
+    sort.Float64s(tmp);
+    ret = append(ret, tmp[int(float64(len(tmp))*perc)]);
+  }
+  return ret;
+}
 func main() {
+  Variance([]float64{6, 7, 2, 3, 5, 8, 6, 2}, 7);
+  Keltner([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1},{3,3,1}}, 5, 1);
+  Bandwidth([]float64{1,2,3,4,5,6}, 5, 2);
+  Bands([]float64{1, 2, 3, 4, 5, 6}, 5, 2);
   Kama([]float64{8, 7, 8, 9, 7, 9}, 2, 4, 8);
   Atr([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 3);
   Stoch([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 2, 1, 1);
