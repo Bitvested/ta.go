@@ -610,7 +610,82 @@ func Don(data [][]float64, l int) [][]float64 {
   }
   return channel;
 }
+func Ichimoku(data [][]float64, l1 int, l2 int, l3 int, l4 int) [][]float64 {
+  var pl [][]float64; var cloud [][]float64; var place [][]float64;
+  for i := 0; i < len(data); i++ {
+    pl = append(pl, data[i]);
+    if len(pl) >= l3 {
+      var highs []float64; var lows []float64;
+      for a := 0; a < len(pl); a++ {
+        highs = append(highs, pl[a][0]);
+        lows = append(lows, pl[a][2]);
+      }
+      tsen := (maxf(highs[len(highs)-l1:]) + minf(lows[len(lows)-l1:])) / 2;
+      ksen := (maxf(highs[len(highs)-l2:]) + minf(lows[len(lows)-l2:])) / 2;
+      senka := data[i][1] + ksen;
+      senkb := (maxf(highs[len(highs)-l3:]) + minf(lows[len(lows)-l2:])) / 2;
+      chik := data[i][1];
+      place = append(place, []float64{tsen, ksen, senka, senkb, chik});
+      pl = pl[1:];
+    }
+  }
+  for i := 0; i < len(place)-l4; i++ {
+    cloud = append(cloud, []float64{place[i][0], place[i][1], place[i+l4][2], place[i+(l4)][3], place[i+l4][4]});
+  }
+  return cloud;
+}
+func Stoch(data [][]float64, l int, sd int, sk int) [][]float64 {
+  var stoch [][]float64; var high []float64; var low []float64; var ka []float64;
+  if l < sd { l, sd = sd, l }
+  if sk > sd { sk, sd = sd, sk }
+  for i := 0; i < len(data); i++ {
+    high = append(high, data[i][0]);
+    low = append(low, data[i][2]);
+    if len(high) >= l {
+      highd := maxf(high);
+      lowd := minf(low);
+      k := 100 * (data[i][1]-lowd)/(highd-lowd);
+      ka = append(ka, k);
+    }
+    if(sk > 0 && len(ka) > sk) {
+      smoothedk := Sma(ka, sk);
+      ka = append(ka, smoothedk[len(smoothedk)-1]);
+    }
+    if len(ka) - sk >= sd {
+      d := Sma(ka, sd);
+      stoch = append(stoch, []float64{ka[len(ka)-1], d[len(d)-1]});
+      high = high[1:];
+      low = low[1:];
+      ka = ka[1:];
+    }
+  }
+  return stoch;
+}
+func Atr(data [][]float64, l int) []float64 {
+  var atr = []float64{data[0][0]-data[0][2]};
+  for i := 1; i < len(data); i++ {
+    t0 := maxf([]float64{data[i][0]-data[i-1][1], data[i][2]-data[i-1][1], data[i][0]-data[i][2]});
+    atr = append(atr, (atr[len(atr)-1]*(float64(l)-1)+t0)/float64(l));
+  }
+  return atr;
+}
+func Kama(data []float64, l1 int, l2 int, l3 int) []float64 {
+  ka := Sma(data, l1); ka = []float64{ka[len(ka)-1]};
+  for i := l1+1; i < len(data); i++ {
+    var vola float64; change := math.Abs(data[i]-data[i-l1]);
+    for a := 1; a < l1; a++ {
+      vola += math.Abs(data[i-a]-data[i-a-1]);
+    }
+    sc := math.Pow(change/vola*(2/(float64(l2)+1)-2/(float64(l3)+1)+2/(float64(l3)+1)), 2);
+    ka = append(ka, ka[len(ka)-1]+sc*(data[i]-ka[len(ka)-1]));
+  }
+  return ka;
+}
 func main() {
+  Kama([]float64{8, 7, 8, 9, 7, 9}, 2, 4, 8);
+  Atr([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 3);
+  Stoch([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 2, 1, 1);
+  Ichimoku([][]float64{{6,3,2}, {5,4,2}, {5,4,3}, {6,4,3}, {7,6,4}, {6,5,3}, {7,6,5}, {7,5,3}, {8,6,5}, {9,7,6}, {8,7,6}, {7,5,5}, {6,5,4}, {6,5,3}, {6,3,2}, {5,4,2}},2,4,6,4);
   Don([][]float64{{6,2},{5,2},{5,3},{6,3},{7,4},{6,3}}, 5);
   Pr([]float64{2,1,3,1,2}, 4);
   Ao([][]float64{{6,5},{8,6},{7,4},{6,5},{7,6},{9,8}}, 2, 5);
