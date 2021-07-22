@@ -809,6 +809,5 @@ func Kmeans(data []float64, clusters int) [][]float64 {
     }
     for x := 0; x < clusters; x++ { if centers[x] != old[x] { break; } }
   }
-  fmt.Println(means);
   return means;
 }
