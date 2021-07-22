@@ -761,25 +761,24 @@ func Sim(data []float64, l int, sims int) [][]float64 {
       mean := Sma(change, len(change));
       std := Std(change, len(change));
       random := Normsinv(rand.Float64());
-      projected = append(projected, projected[len(projected)-1]*math.Pow(mean[0]-(std*std)/2+std*random, 2));
+      projected = append(projected, projected[len(projected)-1]*math.Exp((mean[0]-(std*std)/2)+std*random));
     }
     sd = append(sd, projected);
   }
   return sd;
 }
-func Percentile(data [][]float64, l int, perc float64) []float64 {
+func Percentile(data [][]float64, perc float64) []float64 {
   var ret []float64;
-  for i := l; i < len(data[0]); i++ {
+  for i := 0; i < len(data[0]); i++ {
     var tmp []float64;
     for x := 0; x < len(data); x++ {
       tmp = append(tmp, data[x][i]);
     }
     sort.Float64s(tmp);
-    ret = append(ret, tmp[int(float64(len(tmp))*perc)]);
+    ret = append(ret, tmp[int(float64(len(tmp)-1)*perc)]);
   }
   return ret;
 }
-
 func Kmeans(data []float64, clusters int) [][]float64 {
   var means [][]float64; var n int; var centers []float64; var old []float64; changed := false; init := int(math.Round(float64(len(data))/float64(clusters+1)));
   for i := 0; i < clusters; i++ { centers = append(centers, data[init*(1+i)]) }
@@ -812,8 +811,4 @@ func Kmeans(data []float64, clusters int) [][]float64 {
   }
   fmt.Println(means);
   return means;
-}
-
-func main() {
-  Kmeans([]float64{2, 3, 4, 5, 3, 5, 7, 8, 6, 8, 6, 4, 2, 6}, 4);
 }
