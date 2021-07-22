@@ -347,7 +347,10 @@ func AroonUp(data []float64, l int) []float64 {
     sort.Float64s(hl);
     //pl = reverseFloats(pl);
     index := sort.SearchFloat64s(pl, hl[len(hl)-1]);
+    fmt.Println(index);
     fmt.Println(100 * (float64(l)-1-float64(index))/(float64(l)-1));
+    fmt.Println(pl);
+    fmt.Println("--------------------------------");
     aroon = append(aroon, (100 * (float64(l)-1-float64(index))/(float64(l)-1)));
   }
   fmt.Println(aroon);
