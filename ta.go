@@ -339,21 +339,26 @@ func reverseFloats(data []float64) []float64 {
   }
   return ret;
 }
+func indexOf(data []float64, index float64) int {
+  var ret int;
+  for i := len(data)-1; i >= 0; i-- {
+    if data[i] == index {
+      ret = i;
+      break;
+    }
+  }
+  return ret;
+}
 func AroonUp(data []float64, l int) []float64 {
   var aroon []float64;
   for i := l; i <= len(data); i++ {
     pl := append([]float64(nil), data[i-l:i]...);
     hl := append([]float64(nil), data[i-l:i]...);
     sort.Float64s(hl);
-    //pl = reverseFloats(pl);
-    index := sort.SearchFloat64s(pl, hl[len(hl)-1]);
-    fmt.Println(index);
-    fmt.Println(100 * (float64(l)-1-float64(index))/(float64(l)-1));
-    fmt.Println(pl);
-    fmt.Println("--------------------------------");
-    aroon = append(aroon, (100 * (float64(l)-1-float64(index))/(float64(l)-1)));
+    pl = reverseFloats(pl);
+    index := indexOf(pl, hl[len(hl)-1]);
+    aroon = append(aroon, (100 * (float64(index))/(float64(l)-1)));
   }
-  fmt.Println(aroon);
   return aroon;
 }
 func AroonDown(data []float64, l int) []float64 {
@@ -362,8 +367,9 @@ func AroonDown(data []float64, l int) []float64 {
     pl := append([]float64(nil), data[i-l:i]...);
     hl := append([]float64(nil), data[i-l:i]...);
     sort.Float64s(hl);
-    index := sort.SearchFloat64s(pl, hl[0]);
-    aroon = append(aroon, (100 * (float64(l)-float64(index))/float64(l)));
+    //pl = reverseFloats(pl);
+    index := indexOf(pl, hl[0]);
+    aroon = append(aroon, (100 * (float64(index))/(float64(l)-1)));
   }
   return aroon;
 }
@@ -643,8 +649,8 @@ func Ichimoku(data [][]float64, l1 int, l2 int, l3 int, l4 int) [][]float64 {
       pl = pl[1:];
     }
   }
-  for i := 0; i < len(place)-l4; i++ {
-    cloud = append(cloud, []float64{place[i][0], place[i][1], place[i+l4][2], place[i+(l4)][3], place[i+l4][4]});
+  for i := l4; i < len(place)-l4; i++ {
+    cloud = append(cloud, []float64{place[i][0], place[i][1], place[i+l4][2], place[i+(l4)][3], place[i-l4][4]});
   }
   return cloud;
 }

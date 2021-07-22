@@ -245,7 +245,7 @@ func TestMom(t *testing.T) {
 }
 func TestMomOsc(t *testing.T) {
   have := MomOsc([]float64{1, 1.2, 1.3, 1.3, 1.2, 1.4}, 4);
-  want := []float64{31.57894736842105, -31.57894736842105};
+  want := []float64{31.57894736842105, -31.57894736842105, -28.20512820512821};
   if !assert.Equal(t, want, have) {
     t.Fatalf("MomOsc Failed!");
   }
@@ -357,7 +357,7 @@ func TestBandwidth(t *testing.T) {
 }
 func TestKeltner(t *testing.T) {
   have := Keltner([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1},{3,3,1}}, 5, 1);
-  want := []float64{3.932266666666667, 2.066666666666667, 0.20106666666666695};
+  want := [][]float64{{3.932266666666667, 2.066666666666667, 0.20106666666666695}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Keltner Failed!");
   }
