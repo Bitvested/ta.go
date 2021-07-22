@@ -1,4 +1,4 @@
-package main
+package ta
 import (
   "fmt"
   "sort"
@@ -332,15 +332,25 @@ func Drawdown(data []float64) float64 {
   }
   return big;
 }
+func reverseFloats(data []float64) []float64 {
+  var ret []float64;
+  for i := len(data)-1; i >= 0; i-- {
+    ret = append(ret, data[i])
+  }
+  return ret;
+}
 func AroonUp(data []float64, l int) []float64 {
   var aroon []float64;
   for i := l; i <= len(data); i++ {
     pl := append([]float64(nil), data[i-l:i]...);
     hl := append([]float64(nil), data[i-l:i]...);
     sort.Float64s(hl);
+    //pl = reverseFloats(pl);
     index := sort.SearchFloat64s(pl, hl[len(hl)-1]);
-    aroon = append(aroon, (100 * (float64(l)-float64(index))/float64(l)));
+    fmt.Println(100 * (float64(l)-1-float64(index))/(float64(l)-1));
+    aroon = append(aroon, (100 * (float64(l)-1-float64(index))/(float64(l)-1)));
   }
+  fmt.Println(aroon);
   return aroon;
 }
 func AroonDown(data []float64, l int) []float64 {
@@ -760,57 +770,40 @@ func Percentile(data [][]float64, l int, perc float64) []float64 {
   }
   return ret;
 }
-func main() {
-  Variance([]float64{6, 7, 2, 3, 5, 8, 6, 2}, 7);
-  Keltner([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1},{3,3,1}}, 5, 1);
-  Bandwidth([]float64{1,2,3,4,5,6}, 5, 2);
-  Bands([]float64{1, 2, 3, 4, 5, 6}, 5, 2);
-  Kama([]float64{8, 7, 8, 9, 7, 9}, 2, 4, 8);
-  Atr([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 3);
-  Stoch([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 2, 1, 1);
-  Ichimoku([][]float64{{6,3,2}, {5,4,2}, {5,4,3}, {6,4,3}, {7,6,4}, {6,5,3}, {7,6,5}, {7,5,3}, {8,6,5}, {9,7,6}, {8,7,6}, {7,5,5}, {6,5,4}, {6,5,3}, {6,3,2}, {5,4,2}},2,4,6,4);
-  Don([][]float64{{6,2},{5,2},{5,3},{6,3},{7,4},{6,3}}, 5);
-  Pr([]float64{2,1,3,1,2}, 4);
-  Ao([][]float64{{6,5},{8,6},{7,4},{6,5},{7,6},{9,8}}, 2, 5);
-  Asi([][]float64{{7,6,4},{9,7,5},{9,8,6}});
-  Fi([][]float64{{1.4, 200}, {1.5,240}, {1.1,300}, {1.2,240}, {1.5, 400}}, 4);
-  Bop([][]float64{{4,5,4,5}, {5,6,5,6}, {6,8,5,6}}, 2);
-  Tsi([]float64{1.32, 1.27, 1.42, 1.47, 1.42, 1.45, 1.59}, 3, 2, 2);
-  Ren([][]float64{{8,6}, {9,7}, {9,8}, {13,10}}, 2);
-  Ha([][]float64{{3, 4, 2, 3}, {3, 6, 3, 5}, {5, 5, 2, 3}});
-  MomOsc([]float64{1, 1.2, 1.3, 1.3, 1.2, 1.4}, 4);
-  Mom([]float64{1, 1.1, 1.2, 1.24, 1.34}, 4, false);
-  Vwap([][]float64{{127.21, 89329}, {127.17, 16137}, {127.16, 23945}}, 2);
-  Obv([][]float64{{25200, 10}, {30000, 10.15}, {25600, 10.17}, {32000, 10.13}});
-  Kst([]float64{8, 6, 7, 6, 8, 9, 7, 5, 6, 7, 6, 8, 6, 7, 6, 8, 9, 9, 8, 6, 4, 6, 5, 6, 7, 8, 9}, 5, 7, 10, 15, 5, 5, 5, 7, 4);
-  Cop([]float64{3, 4, 5, 3, 4, 5, 6, 4, 7, 5, 4, 7, 5}, 4, 6, 5);
-  Roc([]float64{1, 2, 3, 4}, 3);
-  Mfi([][]float64{{19, 13}, {14, 38}, {21, 25}, {32, 17}}, 3);
-  AroonOsc([]float64{2, 5, 4, 5}, 3);
-  AroonDown([]float64{2, 5, 4, 5}, 3);
-  AroonUp([]float64{5, 4, 5, 2}, 3);
-  Drawdown([]float64{1,2,3,4,2,3});
-  Dif(0.75, 0.5);
-  Median([]float64{4,6,3,1,2,5}, 4);
-  Normalize([]float64{5,4,9,4}, 0.1);
-  Denormalize([]float64{5,4,9,4}, []float64{0.2222222222222222, 0.06349206349206349, 0.8571428571428571, 0.06349206349206349, 0.4444444444444444}, 0.1);
-  Mad([]float64{3, 7, 5, 4, 3, 8, 9}, 6);
-  Aad([]float64{4, 6, 8, 6, 8, 9, 10, 11}, 7);
-  Sma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
-  Ssd([]float64{7, 6, 5, 7, 9, 8, 3, 5, 4}, 7);
-  Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5}, 6);
-  Wsma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
-  Wrsi([]float64{1, 2, 3, 4, 5, 6, 7, 5, 6}, 6);
-  Ema([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
-  Smma([]float64{1, 2, 3, 4, 5, 6, 10}, 5);
-  Wma([]float64{69, 68, 66, 70, 68}, 4);
-  Pwma([]float64{17, 26, 23, 29, 20}, 4);
-  Hwma([]float64{54, 51, 86, 42, 47}, 4);
-  Vwma([][]float64{{1, 59}, {1.1, 82}, {1.21, 27}, {1.42, 73}, {1.32, 42}}, 4);
-  Lsma([]float64{5, 6, 6, 3, 4, 6, 7}, 6);
-  Hull([]float64{6, 7, 5, 6, 7, 4, 5, 7}, 6);
-  Macd([]float64{1, 2, 3, 4, 5, 6, 14}, 3, 6);
-  Std([]float64{1,2,3}, 3);
-  Normsinv(0.4732);
-  Cor([]float64{1, 2, 3, 4, 5, 2}, []float64{1, 3, 2, 4, 6, 3});
+/*
+func Kmeans(data []float64, clusters int) [][]float64 {
+  var means [][]float64; var n int; var centers []float64; var old []float64; changed := false; init := int(len(data)/(clusters+1));
+  for i := 0; i < clusters; i++ { centers = append(centers, []float64{data[init*(1+i)])} }
+  for ok := true; ok == true; ok = changed { // do while
+    for i := 0; i < clusters; i++ { means = append(means, []float64{}) }
+    for x := 0; x < len(data); x++ {
+      var oldrange float64 = -1;
+      for y := 0; y < clusters; y++ {
+        r := math.Abs(centers[y]-data[x]);
+        if oldrange == -1 {
+          oldrange = r;
+          n = y;
+        } else if r <= oldrange {
+          oldrange = r;
+          n = y;
+        }
+      }
+      means[n] = append(means[n], data[x]);
+    }
+    old = centers;
+    for x := 0; x < clusters; x++ {
+      var sum float64;
+      for y := 0; y < len(means[x]); y++ { sum += means[x][y]; }
+      m := sum / float64(len(means[n]));
+      centers[x] = m;
+    }
+    for x := 0; x < clusters; x++ { if centers[x] != old[x] { break; } }
+  }
+  fmt.Println(means);
+  return means;
 }
+*/
+
+//func main() {
+  //Kmeans([]float64{2, 3, 4, 5, 3, 5, 7, 8, 6, 8, 6, 4, 2, 6}, 4);
+//}
