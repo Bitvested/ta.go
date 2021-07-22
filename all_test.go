@@ -369,17 +369,10 @@ func TestVariance(t *testing.T) {
     t.Fatalf("Variance Failed!");
   }
 }
-/*
-func TestSim(t *Sim) {
-
-  if !assert.Equal(t, want, have) {
-    t.Fatalf("Sim Failed!");
-  }
-}
-func TestPercentile(t *Percentile) {
-
+func TestPercentile(t *testing.T) {
+  have := Percentile([][]float64{{6,4,7},{5,3,6},{7,5,8}}, 0.5);
+  want := []float64{6,4,7};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Percentile Failed!");
   }
 }
-*/
