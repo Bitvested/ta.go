@@ -779,11 +779,11 @@ func Percentile(data [][]float64, l int, perc float64) []float64 {
   }
   return ret;
 }
-/*
+
 func Kmeans(data []float64, clusters int) [][]float64 {
-  var means [][]float64; var n int; var centers []float64; var old []float64; changed := false; init := int(len(data)/(clusters+1));
-  for i := 0; i < clusters; i++ { centers = append(centers, []float64{data[init*(1+i)])} }
-  for ok := true; ok == true; ok = changed { // do while
+  var means [][]float64; var n int; var centers []float64; var old []float64; changed := false; init := int(math.Round(float64(len(data))/float64(clusters+1)));
+  for i := 0; i < clusters; i++ { centers = append(centers, data[init*(1+i)]) }
+  for ok := true; ok == true; ok = changed {
     for i := 0; i < clusters; i++ { means = append(means, []float64{}) }
     for x := 0; x < len(data); x++ {
       var oldrange float64 = -1;
@@ -802,7 +802,9 @@ func Kmeans(data []float64, clusters int) [][]float64 {
     old = centers;
     for x := 0; x < clusters; x++ {
       var sum float64;
-      for y := 0; y < len(means[x]); y++ { sum += means[x][y]; }
+      for y := 0; y < len(means[x]); y++ {
+        sum += means[x][y];
+      }
       m := sum / float64(len(means[n]));
       centers[x] = m;
     }
@@ -811,8 +813,7 @@ func Kmeans(data []float64, clusters int) [][]float64 {
   fmt.Println(means);
   return means;
 }
-*/
 
-//func main() {
-  //Kmeans([]float64{2, 3, 4, 5, 3, 5, 7, 8, 6, 8, 6, 4, 2, 6}, 4);
-//}
+func main() {
+  Kmeans([]float64{2, 3, 4, 5, 3, 5, 7, 8, 6, 8, 6, 4, 2, 6}, 4);
+}
