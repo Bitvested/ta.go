@@ -1,6 +1,7 @@
-package ta
+package ta_test
 
 import (
+  ta "github.com/Bitvested/ta.go"
   "testing"
   "github.com/stretchr/testify/assert"
 )
