@@ -5,13 +5,13 @@ ta.go is a go module for dealing with financial technical analysis.
 ## Installation
 
 ```bash
-go get github.com/bitvested/ta.go
+go get github.com/Bitvested/ta.go
 ```
 
 ## Usage
 ```go
 import(
-  "github.com/bitvested/ta.go"
+  ta "github.com/Bitvested/ta.go"
 )
 ```
 
