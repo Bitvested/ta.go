@@ -1,4 +1,4 @@
-module github.com/bitvested/ta.go/v2
+module github.com/bitvested/ta.go
 
 go 1.16
 
