@@ -37,6 +37,15 @@ func Denormalize(norm []float64, data []float64, m float64) []float64 {
   }
   return denormal;
 }
+func Standardize(data []float64) []float64 {
+  var mean []float64 = Sma(data, len(data));
+  var std float64 = Std(data, len(data));
+  var res []float64;
+  for i := 0; i < len(data); i++ {
+    res = append(res, (data[i]-mean[0])/std);
+  }
+  return res;
+}
 func Mad(data []float64, l int) []float64 {
   var med []float64;
   for i := l; i <= len(data); i++ {

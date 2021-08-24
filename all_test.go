@@ -27,6 +27,13 @@ func TestDenormalize(t *testing.T) {
     t.Fatalf("Denormalize Failed!");
   }
 }
+func TestStandardize(t *testing.T) {
+  have := ta.Standardize([]float64{6, 4, 6, 8, 6});
+  want := []float64{0, -1.5811388300841895, 0, 1.5811388300841895, 0};
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Standardize Failed!");
+  }
+}
 func TestMad(t *testing.T) {
   have := ta.Mad([]float64{3, 7, 5, 4, 3, 8, 9}, 6);
   want := []float64{1,2};
