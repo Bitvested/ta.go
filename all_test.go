@@ -7,371 +7,371 @@ import (
 )
 
 func TestMedian(t *testing.T) {
-  have := Median([]float64{4, 6, 3, 1, 2, 5}, 4);
+  have := ta.Median([]float64{4, 6, 3, 1, 2, 5}, 4);
   want := []float64{3,2,2};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Median Failed!");
   }
 }
 func TestNormalize(t *testing.T) {
-  have := Normalize([]float64{5,4,9,4}, 0.1);
+  have := ta.Normalize([]float64{5,4,9,4}, 0.1);
   want := []float64{0.2222222222222222, 0.06349206349206349, 0.8571428571428571, 0.06349206349206349};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Normalize Failed!");
   }
 }
 func TestDenormalize(t *testing.T) {
-  have := Denormalize([]float64{0.2222222222222222, 0.06349206349206349, 0.8571428571428571, 0.06349206349206349, 0.4444444444444444}, []float64{5,4,9,4}, 0.1);
+  have := ta.Denormalize([]float64{0.2222222222222222, 0.06349206349206349, 0.8571428571428571, 0.06349206349206349, 0.4444444444444444}, []float64{5,4,9,4}, 0.1);
   want := []float64{5,4,9,4,6.4};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Denormalize Failed!");
   }
 }
 func TestMad(t *testing.T) {
-  have := Mad([]float64{3, 7, 5, 4, 3, 8, 9}, 6);
+  have := ta.Mad([]float64{3, 7, 5, 4, 3, 8, 9}, 6);
   want := []float64{1,2};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Mad Failed!");
   }
 }
 func TestAad(t *testing.T) {
-  have := Aad([]float64{4, 6, 8, 6, 8, 9, 10, 11}, 7);
+  have := ta.Aad([]float64{4, 6, 8, 6, 8, 9, 10, 11}, 7);
   want := []float64{1.6734693877551021, 1.469387755102041};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Aad Failed!");
   }
 }
 func TestSma(t *testing.T) {
-  have := Sma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
+  have := ta.Sma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
   want := []float64{3.5, 5};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Sma Failed!");
   }
 }
 func TestSsd(t *testing.T) {
-  have := Ssd([]float64{7, 6, 5, 7, 9, 8, 3, 5, 4}, 7);
+  have := ta.Ssd([]float64{7, 6, 5, 7, 9, 8, 3, 5, 4}, 7);
   want := []float64{4.869731585445518, 4.9856938190329, 5.3718844791323335};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Ssd Failed!");
   }
 }
 func TestRsi(t *testing.T) {
-  have := Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5}, 6);
+  have := ta.Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5}, 6);
   want := []float64{100, 71.42857142857143};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Rsi Failed!");
   }
 }
 func TestWsma(t *testing.T) {
-  have := Wsma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
+  have := ta.Wsma([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
   want := []float64{3.5, 4.583333333333333};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Wsma Failed!");
   }
 }
 func TestWrsi(t *testing.T) {
-  have := Wrsi([]float64{1, 2, 3, 4, 5, 6, 7, 5, 6}, 6);
+  have := ta.Wrsi([]float64{1, 2, 3, 4, 5, 6, 7, 5, 6}, 6);
   want := []float64{100, 71.42857142857143, 75.60975609756098};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Wrsi Failed!");
   }
 }
 func TestEma(t *testing.T) {
-  have := Ema([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
+  have := ta.Ema([]float64{1, 2, 3, 4, 5, 6, 10}, 6);
   want := []float64{3.5, 5.357142857142857};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Ema Failed!");
   }
 }
 func TestSmma(t *testing.T) {
-  have := Smma([]float64{1, 2, 3, 4, 5, 6, 10}, 5);
+  have := ta.Smma([]float64{1, 2, 3, 4, 5, 6, 10}, 5);
   want := []float64{3.4, 4.92};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Smma Failed!");
   }
 }
 func TestWma(t *testing.T) {
-  have := Wma([]float64{69, 68, 66, 70, 68}, 4);
+  have := ta.Wma([]float64{69, 68, 66, 70, 68}, 4);
   want := []float64{68.3, 68.2};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Wma Failed!");
   }
 }
 func TestPwma(t *testing.T) {
-  have := Pwma([]float64{17, 26, 23, 29, 20}, 4);
+  have := ta.Pwma([]float64{17, 26, 23, 29, 20}, 4);
   want := []float64{24.090909090909093, 25.18181818181818};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Pwma Failed!");
   }
 }
 func TestHwma(t *testing.T) {
-  have := Hwma([]float64{54, 51, 86, 42, 47}, 4);
+  have := ta.Hwma([]float64{54, 51, 86, 42, 47}, 4);
   want := []float64{56.2, 55};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Hwma Failed!");
   }
 }
 func TestVwma(t *testing.T) {
-  have := Vwma([][]float64{{1, 59}, {1.1, 82}, {1.21, 27}, {1.42, 73}, {1.32, 42}}, 4);
+  have := ta.Vwma([][]float64{{1, 59}, {1.1, 82}, {1.21, 27}, {1.42, 73}, {1.32, 42}}, 4);
   want := []float64{1.184771784232365, 1.258794642857143};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Vwma Failed!");
   }
 }
 func TestLsma(t *testing.T) {
-  have := Lsma([]float64{5, 6, 6, 3, 4, 6, 7}, 6);
+  have := ta.Lsma([]float64{5, 6, 6, 3, 4, 6, 7}, 6);
   want := []float64{4.714285714285714, 5.761904761904762};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Lsma Failed!");
   }
 }
 func TestHull(t *testing.T) {
-  have := Hull([]float64{6, 7, 5, 6, 7, 4, 5, 7}, 6);
+  have := ta.Hull([]float64{6, 7, 5, 6, 7, 4, 5, 7}, 6);
   want := []float64{4.761904761904762, 5.476190476190476};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Hull Failed!");
   }
 }
 func TestMacd(t *testing.T) {
-  have := Macd([]float64{1, 2, 3, 4, 5, 6, 14}, 3, 6);
+  have := ta.Macd([]float64{1, 2, 3, 4, 5, 6, 14}, 3, 6);
   want := []float64{1.5,3};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Macd Failed!");
   }
 }
 func TestStd(t *testing.T) {
-  have := Std([]float64{1,2,3}, 3);
+  have := ta.Std([]float64{1,2,3}, 3);
   want := 0.816496580927726;
   if !assert.Equal(t, want, have) {
     t.Fatalf("Std Failed!");
   }
 }
 func TestNormsinv(t *testing.T) {
-  have := Normsinv(0.4732);
+  have := ta.Normsinv(0.4732);
   want := -0.06722824471054376;
   if !assert.Equal(t, want, have) {
     t.Fatalf("Normsinv Failed!");
   }
 }
 func TestCor(t *testing.T) {
-  have := Cor([]float64{1, 2, 3, 4, 5, 2}, []float64{1, 3, 2, 4, 6, 3});
+  have := ta.Cor([]float64{1, 2, 3, 4, 5, 2}, []float64{1, 3, 2, 4, 6, 3});
   want := 0.8808929232684737;
   if !assert.Equal(t, want, have) {
     t.Fatalf("Cor Failed!");
   }
 }
 func TestDif(t *testing.T) {
-  have := Dif(0.75, 0.5);
+  have := ta.Dif(0.75, 0.5);
   want := 0.5;
   if !assert.Equal(t, want, have) {
     t.Fatalf("Dif Failed!");
   }
 }
 func TestDrawdown(t *testing.T) {
-  have := Drawdown([]float64{1,2,3,4,2,3});
+  have := ta.Drawdown([]float64{1,2,3,4,2,3});
   want := -0.5;
   if !assert.Equal(t, want, have) {
     t.Fatalf("Drawdown Failed!");
   }
 }
 func TestAroonUp(t *testing.T) {
-  have := AroonUp([]float64{5, 4, 5, 2}, 3);
+  have := ta.AroonUp([]float64{5, 4, 5, 2}, 3);
   want := []float64{100, 50};
   if !assert.Equal(t, want, have) {
     t.Fatalf("AroonUp Failed!");
   }
 }
 func TestAroonDown(t *testing.T) {
-  have := AroonDown([]float64{2, 5, 4, 5}, 3);
+  have := ta.AroonDown([]float64{2, 5, 4, 5}, 3);
   want := []float64{0, 50};
   if !assert.Equal(t, want, have) {
     t.Fatalf("AroonDown Failed!");
   }
 }
 func TestAroonOsc(t *testing.T) {
-  have := AroonOsc([]float64{2, 5, 4, 5}, 3);
+  have := ta.AroonOsc([]float64{2, 5, 4, 5}, 3);
   want := []float64{50, 50};
   if !assert.Equal(t, want, have) {
     t.Fatalf("AroonOsc Failed!");
   }
 }
 func TestMfi(t *testing.T) {
-  have := Mfi([][]float64{{19, 13}, {14, 38}, {21, 25}, {32, 17}}, 3);
+  have := ta.Mfi([][]float64{{19, 13}, {14, 38}, {21, 25}, {32, 17}}, 3);
   want := []float64{41.53846153846154, 45.578231292517};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Mfi Failed!");
   }
 }
 func TestRoc(t *testing.T) {
-  have := Roc([]float64{1, 2, 3, 4}, 3);
+  have := ta.Roc([]float64{1, 2, 3, 4}, 3);
   want := []float64{2, 1};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Roc Failed!");
   }
 }
 func TestCop(t *testing.T) {
-  have := Cop([]float64{3, 4, 5, 3, 4, 5, 6, 4, 7, 5, 4, 7, 5}, 4, 6, 5);
+  have := ta.Cop([]float64{3, 4, 5, 3, 4, 5, 6, 4, 7, 5, 4, 7, 5}, 4, 6, 5);
   want := []float64{0.3755555555555556, 0.23666666666666666};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Cop Failed!");
   }
 }
 func TestKst(t *testing.T) {
-  have := Kst([]float64{8, 6, 7, 6, 8, 9, 7, 5, 6, 7, 6, 8, 6, 7, 6, 8, 9, 9, 8, 6, 4, 6, 5, 6, 7, 8, 9}, 5, 7, 10, 15, 5, 5, 5, 7, 4);
+  have := ta.Kst([]float64{8, 6, 7, 6, 8, 9, 7, 5, 6, 7, 6, 8, 6, 7, 6, 8, 9, 9, 8, 6, 4, 6, 5, 6, 7, 8, 9}, 5, 7, 10, 15, 5, 5, 5, 7, 4);
   want := [][]float64{{-0.6828231292517006, -0.5174886621315192}, {-0.2939342403628118, -0.5786281179138322}, {0.3517800453514739, -0.35968820861678}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Kst Failed!");
   }
 }
 func TestObv(t *testing.T) {
-  have := Obv([][]float64{{25200, 10}, {30000, 10.15}, {25600, 10.17}, {32000, 10.13}});
+  have := ta.Obv([][]float64{{25200, 10}, {30000, 10.15}, {25600, 10.17}, {32000, 10.13}});
   want := []float64{0, 30000, 55600, 23600};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Obv Failed!");
   }
 }
 func TestVwap(t *testing.T) {
-  have := Vwap([][]float64{{127.21, 89329}, {127.17, 16137}, {127.16, 23945}}, 2);
+  have := ta.Vwap([][]float64{{127.21, 89329}, {127.17, 16137}, {127.16, 23945}}, 2);
   want := []float64{127.20387973375304, 127.16402599670675};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Vwap Failed!");
   }
 }
 func TestMom(t *testing.T) {
-  have := Mom([]float64{1, 1.1, 1.2, 1.24, 1.34}, 4, false);
+  have := ta.Mom([]float64{1, 1.1, 1.2, 1.24, 1.34}, 4, false);
   want := []float64{0.24, 0.24};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Mom Failed!");
   }
 }
 func TestMomOsc(t *testing.T) {
-  have := MomOsc([]float64{1, 1.2, 1.3, 1.3, 1.2, 1.4}, 4);
+  have := ta.MomOsc([]float64{1, 1.2, 1.3, 1.3, 1.2, 1.4}, 4);
   want := []float64{31.57894736842105, -31.57894736842105, -28.20512820512821};
   if !assert.Equal(t, want, have) {
     t.Fatalf("MomOsc Failed!");
   }
 }
 func TestHa(t *testing.T) {
-  have := Ha([][]float64{{3, 4, 2, 3}, {3, 6, 3, 5}, {5, 5, 2, 3}});
+  have := ta.Ha([][]float64{{3, 4, 2, 3}, {3, 6, 3, 5}, {5, 5, 2, 3}});
   want := [][]float64{{3, 4, 2, 3}, {3, 6, 3, 4.25}, {3.625, 5, 2, 3.75}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Ha Failed!");
   }
 }
 func TestRen(t *testing.T) {
-  have := Ren([][]float64{{8,6}, {9,7}, {9,8}, {13,10}}, 2);
+  have := ta.Ren([][]float64{{8,6}, {9,7}, {9,8}, {13,10}}, 2);
   want := [][]float64{{8,10,8,10}, {10,12,10,12}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Ren Failed!");
   }
 }
 func TestTsi(t *testing.T) {
-  have := Tsi([]float64{1.32, 1.27, 1.42, 1.47, 1.42, 1.45, 1.59}, 3, 2, 2);
+  have := ta.Tsi([]float64{1.32, 1.27, 1.42, 1.47, 1.42, 1.45, 1.59}, 3, 2, 2);
   want := [][]float64{{0.3268608414239478, 0.32038834951456274}, {0.5795418491021003, 0.7058823529411765}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Tsi Failed!");
   }
 }
 func TestBop(t *testing.T) {
-  have := Bop([][]float64{{4,5,4,5}, {5,6,5,6}, {6,8,5,6}}, 2);
+  have := ta.Bop([][]float64{{4,5,4,5}, {5,6,5,6}, {6,8,5,6}}, 2);
   want := []float64{1, 0.5};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Bop Failed!");
   }
 }
 func TestFi(t *testing.T) {
-  have := Fi([][]float64{{1.4, 200}, {1.5,240}, {1.1,300}, {1.2,240}, {1.5, 400}}, 4);
+  have := ta.Fi([][]float64{{1.4, 200}, {1.5,240}, {1.1,300}, {1.2,240}, {1.5, 400}}, 4);
   want := []float64{12.00000000000001};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Fi Failed!");
   }
 }
 func TestAsi(t *testing.T) {
-  have := Asi([][]float64{{7,6,4},{9,7,5},{9,8,6}});
+  have := ta.Asi([][]float64{{7,6,4},{9,7,5},{9,8,6}});
   want := []float64{0, -12.5};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Asi Failed!");
   }
 }
 func TestAo(t *testing.T) {
-  have := Ao([][]float64{{6,5},{8,6},{7,4},{6,5},{7,6},{9,8}}, 2, 5);
+  have := ta.Ao([][]float64{{6,5},{8,6},{7,4},{6,5},{7,6},{9,8}}, 2, 5);
   want := []float64{0.0, 0.9000000000000004};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Ao Failed!");
   }
 }
 func TestPr(t *testing.T) {
-  have := Pr([]float64{2,1,3,1,2}, 4);
+  have := ta.Pr([]float64{2,1,3,1,2}, 4);
   want := []float64{-100, -50};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Pr Failed!");
   }
 }
 func TestDon(t *testing.T) {
-  have := Don([][]float64{{6,2},{5,2},{5,3},{6,3},{7,4},{6,3}}, 5);
+  have := ta.Don([][]float64{{6,2},{5,2},{5,3},{6,3},{7,4},{6,3}}, 5);
   want := [][]float64{{7,4.5,2},{7,4.5,2}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Don Failed!");
   }
 }
 func TestIchimoku(t *testing.T) {
-  have := Ichimoku([][]float64{{6,3,2}, {5,4,2}, {5,4,3}, {6,4,3}, {7,6,4}, {6,5,3}, {7,6,5}, {7,5,3}, {8,6,5}, {9,7,6}, {8,7,6}, {7,5,5}, {6,5,4}, {6,5,3}, {6,3,2}, {5,4,2}},2,4,6,4);
+  have := ta.Ichimoku([][]float64{{6,3,2}, {5,4,2}, {5,4,3}, {6,4,3}, {7,6,4}, {6,5,3}, {7,6,5}, {7,5,3}, {8,6,5}, {9,7,6}, {8,7,6}, {7,5,5}, {6,5,4}, {6,5,3}, {6,3,2}, {5,4,2}},2,4,6,4);
   want := [][]float64{{7, 6, 10.5, 6, 5}, {7.5, 6, 7.5, 5.5, 6}, {6.5, 7, 8, 5, 5}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Ichimoku Failed!");
   }
 }
 func TestStoch(t *testing.T) {
-  have := Stoch([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 2, 1, 1);
+  have := ta.Stoch([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 2, 1, 1);
   want := [][]float64{{66.66666666666667, 66.66666666666667}, {33.333333333333336, 33.333333333333336}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Stoch Failed!");
   }
 }
 func TestAtr(t *testing.T) {
-  have := Atr([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 3);
+  have := ta.Atr([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 3);
   want := []float64{2.0, 1.6666666666666667, 2.111111111111111, 1.7407407407407407};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Atr Failed!");
   }
 }
 func TestKama(t *testing.T) {
-  have := Kama([]float64{8, 7, 8, 9, 7, 9}, 2, 4, 8);
+  have := ta.Kama([]float64{8, 7, 8, 9, 7, 9}, 2, 4, 8);
   want := []float64{8, 8.64, 8.377600000000001, 8.377600000000001};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Kama Failed!");
   }
 }
 func TestBands(t *testing.T) {
-  have := Bands([]float64{1, 2, 3, 4, 5, 6}, 5, 2);
+  have := ta.Bands([]float64{1, 2, 3, 4, 5, 6}, 5, 2);
   want := [][]float64{{5.82842712474619, 3.0, 0.1715728752538097}, {6.82842712474619, 4.0, 1.1715728752538097}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Bands Failed!");
   }
 }
 func TestBandwidth(t *testing.T) {
-  have := Bandwidth([]float64{1,2,3,4,5,6}, 5, 2);
+  have := ta.Bandwidth([]float64{1,2,3,4,5,6}, 5, 2);
   want := []float64{1.8856180831641265, 1.414213562373095};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Bandwidth Failed!");
   }
 }
 func TestKeltner(t *testing.T) {
-  have := Keltner([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1},{3,3,1}}, 5, 1);
+  have := ta.Keltner([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1},{3,3,1}}, 5, 1);
   want := [][]float64{{3.932266666666667, 2.066666666666667, 0.20106666666666695}};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Keltner Failed!");
   }
 }
 func TestVariance(t *testing.T) {
-  have := Variance([]float64{6, 7, 2, 3, 5, 8, 6, 2}, 7);
+  have := ta.Variance([]float64{6, 7, 2, 3, 5, 8, 6, 2}, 7);
   want := []float64{3.918367346938776, 5.061224489795919};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Variance Failed!");
   }
 }
 func TestPercentile(t *testing.T) {
-  have := Percentile([][]float64{{6,4,7},{5,3,6},{7,5,8}}, 0.5);
+  have := ta.Percentile([][]float64{{6,4,7},{5,3,6},{7,5,8}}, 0.5);
   want := []float64{6,4,7};
   if !assert.Equal(t, want, have) {
     t.Fatalf("Percentile Failed!");
