@@ -405,3 +405,10 @@ func TestFractals(t *testing.T) {
     t.Fatalf("Fractals Failed!");
   }
 }
+func TestChaikinOsc(t *testing.T) {
+  have := ta.ChaikinOsc([][]float64{{2,3,4,6},{5,5,5,4},{5,4,3,7},{4,3,3,4},{6,5,4,6},{7,4,3,6}}, 2, 4);
+  want := []float64{-1.6666666666666665, -0.28888888888888886, -0.7362962962962962};
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("ChaikinOsc Failed!");
+  }
+}
