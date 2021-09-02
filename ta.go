@@ -836,3 +836,15 @@ func Gator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [][]f
   }
   return ret;
 }
+func Fractals(data [][]float64) [][]bool {
+  var fractals = [][]bool{{false,false},{false,false}};
+  for i := 2; i < len(data)-2; i++ {
+    var up bool; var down bool;
+    if(data[i-2][0] < data[i][0] && data[i-1][0] < data[i][0] && data[i][0] > data[i+1][0] && data[i][0] > data[i+2][0]) { up = true; } else { up = false; }
+    if(data[i-2][1] > data[i][1] && data[i-1][1] > data[i][1] && data[i][1] < data[i+1][1] && data[i][1] < data[i+2][1]) { down = true; } else { down = false; }
+    fractals = append(fractals, []bool{up, down});
+  }
+  fractals = append(fractals, []bool{false, false});
+  fractals = append(fractals, []bool{false, false});
+  return fractals;
+}

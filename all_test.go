@@ -398,3 +398,10 @@ func TestGator(t *testing.T) {
     t.Fatalf("Gator Failed!");
   }
 }
+func TestFractals(t *testing.T) {
+  have := ta.Fractals([][]float64{{7,6},{8,6},{9,6},{8,5},{7,4},{6,3},{7,4},{8,5}});
+  want := [][]bool{{false,false},{false,false},{true,false},{false,false},{false,false},{false,true},{false,false},{false,false}};
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Fractals Failed!");
+  }
+}
