@@ -828,3 +828,11 @@ func Alligator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [
   }
   return ret;
 }
+func Gator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [][]float64 {
+  var ret [][]float64; var jaw []float64 = Smma(data, jl); var teeth []float64 = Smma(data, tl); var lips []float64 = Smma(data, ll);
+  teeth = teeth[len(teeth)-len(jaw):]; lips = lips[len(lips)-len(jaw):];
+  for i := len(jaw)-1; i >= (js-1); i-- {
+    ret = append(ret, []float64{jaw[i-(js-1)]-teeth[i-(ts-1)], -(math.Abs(teeth[i-(ts-1)]-lips[i-(ls-1)]))})
+  }
+  return ret;
+}
