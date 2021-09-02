@@ -419,3 +419,17 @@ func TestEnvelope(t *testing.T) {
     t.Fatalf("Envelope Failed!");
   }
 }
+func TestRecentHigh(t *testing.T) {
+  have := ta.RecentHigh([]float64{4,5,6,7,8,9,8,7,8,9,10,3,2,1},3);
+  want := ta.RecentHighLow(10, 10);
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Recent High Failed!");
+  }
+}
+func TestRecentLow(t *testing.T) {
+  have := ta.RecentLow([]float64{1,4,5,6,4,3,2,3,4,3,5,7,8,8,5},4);
+  want := ta.RecentHighLow(6, 2);
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Recent Low Failed!");
+  }
+}

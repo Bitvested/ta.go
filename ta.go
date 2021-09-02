@@ -871,3 +871,38 @@ func Envelope(data []float64, l int, p float64) [][]float64 {
   }
   return enve;
 }
+type recentHighLow struct {
+  Index int
+  Value float64
+}
+func RecentHighLow(index int, value float64) recentHighLow {
+  return recentHighLow{Index: index, Value: value};
+}
+func RecentHigh(data []float64, lb int) recentHighLow {
+  xback := lb; hindex := 0; highest := data[len(data)-1];
+  for i := len(data)-2; i >= 0; i-- {
+    if(data[i] >= highest && xback > 0) {
+      highest = data[i];
+      hindex = i;
+      xback = lb;
+    } else {
+      xback--;
+    }
+    if(xback <= 0) {break;}
+  }
+  return recentHighLow{Index: hindex, Value: highest};
+}
+func RecentLow(data []float64, lb int) recentHighLow {
+  xback := lb; lindex := 0; lowest := data[len(data)-1];
+  for i := len(data)-2; i >= 0; i-- {
+    if(data[i] <= lowest && xback > 0) {
+      lowest = data[i];
+      lindex = i;
+      xback = lb;
+    } else {
+      xback--;
+    }
+    if(xback <= 0) {break;}
+  }
+  return recentHighLow{Index: lindex, Value: lowest};
+}
