@@ -863,3 +863,11 @@ func ChaikinOsc(data [][]float64, ema1 int, ema2 int) []float64 {
   for i := 0; i < len(ef); i++ { cha = append(cha, ef[i]-es[i]); }
   return cha;
 }
+func Envelope(data []float64, l int, p float64) [][]float64 {
+  var enve [][]float64;
+  for i := l; i < len(data); i++ {
+    sm := Sma(data[i-l:i], l);
+    enve = append(enve, []float64{sm[0]*(1+p),sm[0],sm[0]*(1-p)});
+  }
+  return enve;
+}

@@ -412,3 +412,10 @@ func TestChaikinOsc(t *testing.T) {
     t.Fatalf("ChaikinOsc Failed!");
   }
 }
+func TestEnvelope(t *testing.T) {
+  have := ta.Envelope([]float64{6,7,8,7,6,7,8,7,8,7,8,7,8}, 11, 0.05);
+  want := [][]float64{{7.540909090909091, 7.181818181818182, 6.822727272727272},{7.636363636363637, 7.2727272727272725, 6.909090909090908}};
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Envelope Failed!");
+  }
+}
