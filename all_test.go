@@ -384,3 +384,10 @@ func TestPercentile(t *testing.T) {
     t.Fatalf("Percentile Failed!");
   }
 }
+func TestAlligator(t *testing.T) {
+  have:= ta.Alligator([]float64{8,7,8,9,7,8,9,6,7,8,6,8,10,8,7,9,8,7,9,6,7,9}, 13, 8, 5, 8, 5, 3);
+  want := [][]float64{{7.217569412835686, 6.985078985569999, 6.456171046541722}, {7.171597633136094, 7.119368115440011, 6.719144767291392}};
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Alligator Failed!");
+  }
+}
