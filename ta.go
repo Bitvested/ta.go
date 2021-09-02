@@ -906,3 +906,18 @@ func RecentLow(data []float64, lb int) recentHighLow {
   }
   return recentHighLow{Index: lindex, Value: lowest};
 }
+func Fib(start float64, end float64) []float64 {
+  return []float64{start, (end-start)*.236+start, (end-start)*.382+start, (end-start)*.5+start, (end-start)*.618+start, (end-start)*.786+start, end, (end-start)*1.618+start, (end-start)*2.618+start, (end-start)*3.618+start, (end-start)*4.236+start}
+}
+func Ac(data [][]float64, len1 int, len2 int) []float64 {
+  a := Ao(data, len1, len2); sm := Sma(a, len1); var acr []float64;
+  if(len(a) > len(sm)) {
+    a = a[len(a)-len(sm):];
+  } else {
+    sm = sm[len(sm)-len(a):];
+  }
+  for i := 0; i < len(a); i++ {
+    acr = append(acr, a[i]-sm[i]);
+  }
+  return acr;
+}

@@ -433,3 +433,17 @@ func TestRecentLow(t *testing.T) {
     t.Fatalf("Recent Low Failed!");
   }
 }
+func TestFib(t *testing.T) {
+  have := ta.Fib(1, 2);
+  want := []float64{1,1.236,1.3820000000000001,1.5,1.6179999999999999,1.786,2,2.6180000000000003,3.618,4.618,5.236};
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Fib Failed!");
+  }
+}
+func TestAc(t *testing.T) {
+  have := ta.Ac([][]float64{{6,5},{8,6},{7,4},{6,5},{7,6},{9,8}}, 2, 4);
+  want := []float64{0.125, 0.5625};
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Ac Failed!");
+  }
+}
