@@ -447,3 +447,24 @@ func TestAc(t *testing.T) {
     t.Fatalf("Ac Failed!");
   }
 }
+func TestSupport(t *testing.T) {
+  hl := ta.RecentLow([]float64{4,3,2,5,7,6,5,4,7,8,5,4,6,7,5}, 20);
+  have := ta.Support([]float64{4,3,2,5,7,6,5,4,7,8,5,4,6,7,5}, hl);
+  want := ta.Line(2,0.2222222222222222,2);
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Support Failed!");
+  }
+}
+func TestResistance(t *testing.T) {
+  hl := ta.RecentHigh([]float64{5,7,5,5,4,6,5,4,6,5,4,3,2,4,3,2,1}, 20);
+  have := ta.Resistance([]float64{5,7,5,5,4,6,5,4,6,5,4,3,2,4,3,2,1}, hl);
+  want := ta.Line(1,-0.14285714285714285,7);
+  if !assert.Equal(t, want, have) {
+    t.Fatalf("Resistance Failed!");
+  }
+  have2 := ta.LineCalc(4, have);
+  want2 := 6.428571428571429;
+  if !assert.Equal(t, want2, have2) {
+    t.Fatalf("LineCalc failed!");
+  }
+}

@@ -921,3 +921,70 @@ func Ac(data [][]float64, len1 int, len2 int) []float64 {
   }
   return acr;
 }
+type line struct {
+  Slope float64
+  Value float64
+  Index int
+}
+func Line(index int, slope float64, value float64) line {
+  return line{Slope: slope, Value: value, Index: index};
+}
+func LineCalc(pos int, calc line) float64 {
+  return float64(pos)*calc.Slope+calc.Value;
+}
+func Support(d []float64, hl recentHighLow) line {
+  var index2 int; var findex bool = false; lowform := hl.Value;
+  for do := true; do; do = !findex {
+    for i := hl.Index; i < len(d); i++ {
+      newlow := (hl.Value-d[i])/float64(hl.Index-i);
+      if(newlow < lowform) {
+        lowform = newlow;
+        index2 = i;
+      }
+    }
+    if(hl.Index + 1 == index2 && index2 != len(d)-1) {
+      hl.Index = index2;
+      lowform = minf(d[:]);
+      hl.Value = d[hl.Index];
+      findex = true;
+    } else  {
+      findex = true;
+    }
+    if(hl.Index == len(d)-1) {
+      findex = true;
+    }
+  }
+  if(index2 == len(d)-1 || hl.Index == len(d)-1) {
+    return line{Slope: 0, Value: hl.Value, Index: hl.Index};
+  } else {
+    return line{Slope: lowform, Value: hl.Value, Index: hl.Index};
+  }
+}
+func Resistance(d []float64, hl recentHighLow) line {
+  var index2 int; var findex bool = false; highform := hl.Value;
+  for do := true; do; do = !findex {
+    for i := hl.Index; i < len(d); i++ {
+      newhigh := (d[i]-hl.Value)/float64(hl.Index-i);
+      if(newhigh < highform) {
+        highform = newhigh;
+        index2 = i;
+      }
+    }
+    if(hl.Index+1 == index2 && index2 != len(d)-1) {
+      hl.Index = index2;
+      highform = maxf(d[:]);
+      hl.Value = d[hl.Index];
+      findex = false;
+    } else {
+      findex = true;
+    }
+    if(hl.Index == len(d)-1) {
+      findex = true;
+    }
+  }
+  if(index2 == len(d)-1 || hl.Index == len(d)-1) {
+    return line{Slope:0, Value: hl.Value, Index: hl.Index};
+  } else {
+    return line{Slope: -highform, Value: hl.Value, Index: hl.Index};
+  }
+}
