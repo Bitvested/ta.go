@@ -465,6 +465,13 @@ func TestResistance(t *testing.T) {
 	have2 := ta.LineCalc(4, have)
 	want2 := 6.428571428571429
 	if !assert.Equal(t, want2, have2) {
-		t.Fatalf("LineCalc failed!")
+		t.Fatalf("LineCalc Failed!")
+	}
+}
+func TestEr(t *testing.T) {
+	have := ta.Er([]float64{0.02, -0.01, 0.03, 0.05, -0.03});
+	want := 0.011934565489708282;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Er Failed!")
 	}
 }

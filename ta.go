@@ -100,6 +100,25 @@ func Ssd(data []float64, l int) []float64 {
 	}
 	return sd
 }
+func Er(data []float64) float64 {
+	var wins []float64; var losses []float64; wp := 1.0; lp := 1.0;
+	for i := 0; i < len(data); i++ {
+		if(data[i] >= 0) {
+			wins = append(wins, 1+data[i]);
+		} else {
+			losses = append(losses, 1+data[i]);
+		}
+	}
+	var datlen float64 = float64(len(data));
+	var loslen float64 = float64(len(losses));
+	var winlen float64 = float64(len(wins));
+	win := winlen / datlen;
+	loss := loslen / datlen;
+	for i := 0; i < int(loslen); i++ { lp = lp * losses[i];	}
+	for i := 0; i < int(winlen); i++ { wp = wp * wins[i]; }
+	var fw float64 = (1.0 / winlen); var fl float64 = (1.0 / loslen);
+	return ((((math.Pow(wp, fw))-1)*100) * win + (((math.Pow(lp, fl))-1)*100) * loss) / 100;
+}
 func Rsi(data []float64, l int) []float64 {
 	var arrsi []float64
 	for i := l; i < len(data); i++ {
