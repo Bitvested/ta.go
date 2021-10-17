@@ -447,7 +447,7 @@ func reverseFloats(data []float64) []float64 {
 	return ret
 }
 func indexOf(data []float64, index float64) int {
-	var ret int
+	var ret int = -1;
 	for i := len(data) - 1; i >= 0; i-- {
 		if data[i] == index {
 			ret = i
