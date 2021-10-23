@@ -474,7 +474,6 @@ func AroonDown(data []float64, l int) []float64 {
 		pl := append([]float64(nil), data[i-l:i]...)
 		hl := append([]float64(nil), data[i-l:i]...)
 		sort.Float64s(hl)
-		//pl = reverseFloats(pl);
 		index := indexOf(pl, hl[0])
 		aroon = append(aroon, (100 * (float64(index)) / (float64(l) - 1)))
 	}
@@ -642,9 +641,9 @@ func Ha(data [][]float64) [][]float64 {
 	return ha
 }
 func decimalplaces(n float64) int {
-	decimalPlaces := fmt.Sprintf("%f", n-math.Floor(n))          // produces 0.xxxx0000
-	decimalPlaces = strings.Replace(decimalPlaces, "0.", "", -1) // remove 0.
-	decimalPlaces = strings.TrimRight(decimalPlaces, "0")        // remove trailing 0s
+	decimalPlaces := fmt.Sprintf("%f", n-math.Floor(n))
+	decimalPlaces = strings.Replace(decimalPlaces, "0.", "", -1)
+	decimalPlaces = strings.TrimRight(decimalPlaces, "0")
 	return len(decimalPlaces)
 }
 func Ren(data [][]float64, bs float64) [][]float64 {
