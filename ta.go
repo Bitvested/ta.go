@@ -119,6 +119,29 @@ func Er(data []float64) float64 {
 	var fw float64 = (1.0 / winlen); var fl float64 = (1.0 / loslen);
 	return ((((math.Pow(wp, fw))-1)*100) * win + (((math.Pow(lp, fl))-1)*100) * loss) / 100;
 }
+func Winratio(data []float64) float64 {
+	var wins int = 0; var losses int = 0;
+	for i := 0; i < len(data); i++ {
+		if data[i] >= 0 { wins++ } else { losses++ }
+	}
+	return wins / (losses + wins);
+}
+func WinAverage(data []float64) float64 {
+	var wins []float64;
+	for i := 0; i < len(data); i++ {
+		if data[i] >= 0 { wins = append(wins, data[i]) }
+	}
+	avg := Sma(wins, len(wins));
+	return avg[0];
+}
+func LossAverage(data []float64) float64 {
+	var losses []float64;
+	for i := 0; i < len(data); i++ {
+		if data[i] < 0 { losses = append(losses, data[i]) }
+	}
+	avg := Sma(losses, len(losses));
+	return avg[0];
+}
 func Rsi(data []float64, l int) []float64 {
 	var arrsi []float64
 	for i := l; i < len(data); i++ {
