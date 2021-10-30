@@ -124,7 +124,7 @@ func Winratio(data []float64) float64 {
 	for i := 0; i < len(data); i++ {
 		if data[i] >= 0 { wins++ } else { losses++ }
 	}
-	return wins / (losses + wins);
+	return float64(wins) / float64(losses + wins);
 }
 func WinAverage(data []float64) float64 {
 	var wins []float64;
