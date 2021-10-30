@@ -475,3 +475,10 @@ func TestEr(t *testing.T) {
 		t.Fatalf("Er Failed!")
 	}
 }
+func Fisher(t *testing.T) {
+	have := ta.Fisher([]float64{8,6,8,9,7,8,9,8,7,8,6,7}, 9);
+	want := [][]float64{{-0.20692076425551026, 0.11044691579009712},{-0.3930108381942109, -0.20692076425551026}};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Fisher Failed!")
+	}
+}

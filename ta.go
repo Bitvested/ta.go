@@ -1231,3 +1231,16 @@ func Resistance(d []float64, hl recentHighLow) line {
 		return line{Slope: -highform, Value: hl.Value, Index: hl.Index}
 	}
 }
+func Fisher(data []float64, l int) [][]float64 {
+	var out [][]float64; var fish, v1 float64 = 0, 0;
+	for i := l; i < len(data); i++ {
+		pl := data[i-l:i]; pf := fish;
+		mn := minf(pl);
+		v1 = .33*2*((data[i]-mn)/maxf(pl)-.5)+.67*v1;
+		if v1 > 0.99 { v1 = 0.999 }
+		if v1 < -0.99 { v1 = -0.999 }
+		fish = 0.5 * math.Log((1+v1)/(1-v1)) + 0.5 * pf;
+		out = append(out, []float64{fish, pf});
+	}
+	return out[1:];
+}
