@@ -489,3 +489,10 @@ func Ar(t *testing.T) {
 		t.Fatalf("Ar Failed!");
 	}
 }
+func Kelly(t *testing.T) {
+	have := ta.Kelly([]float64{0.01,0.02,-0.01,-0.03,-0.015,0.045,0.005});
+	want := 0.14434748152632182;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Kelly Failed!");
+	}
+}

@@ -75,6 +75,7 @@ import(
 - [Percentage Difference](#dif)
 - [Expected Return](#er)
 - [Abnormal Return](#ar)
+- [Kelly Criterion](#kelly)
 - [Drawdown](#drawdown)
 - [Median](#median)
 - [Recent High](#rh)
@@ -573,6 +574,13 @@ length := 3;
 ta.Ar(data, length);
 // output float64
 // [0.037, -0.053]
+```
+#### <a name="kelly"></a>Kelly Criterion
+```go
+data := []float64{0.01, 0.02, -0.01, -0.03, -0.015, 0.045, 0.005};
+ta.Kelly(data);
+// output float64
+// 0.1443
 ```
 ```
 #### <a name="drawdown"></a>Drawdown

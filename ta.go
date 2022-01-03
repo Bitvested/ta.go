@@ -1252,3 +1252,8 @@ func Ar(data []float64, l int) []float64 {
 	}
 	return out;
 }
+func Kelly(data []float64) float64 {
+	exp := Er(data) + 1;
+	winr := Winratio(data);
+	return winr - (1-winr) / exp;
+}
