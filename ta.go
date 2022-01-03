@@ -1268,6 +1268,10 @@ func Avgloss(data []float64) float64 {
 	avg := Sma(loss, len(loss));
 	return avg[0];
 }
+func Se(data []float64, l int) float64 {
+	stdv := Std(data, len(data));
+	return stdv / math.Pow(float64(l), 0.5);
+}
 func Kelly(data []float64) float64 {
 	exp := Er(data) + 1;
 	winr := Winratio(data);

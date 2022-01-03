@@ -503,6 +503,13 @@ func Avgloss(t *testing.T) {
 		t.Fatalf("Avgloss Failed!");
 	}
 }
+func Se(t *testing.T) {
+	have := ta.Se([]float64{34,54,45,43,57,38,49}, 10);
+	want := 2.4243661069253055;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Se Failed!");
+	}
+}
 func Kelly(t *testing.T) {
 	have := ta.Kelly([]float64{0.01,0.02,-0.01,-0.03,-0.015,0.045,0.005});
 	want := 0.14434748152632182;

@@ -85,6 +85,7 @@ import(
 - [Recent Low](#rl)
 - [Median Absolute Deviation](#mad)
 - [Average Absolute Deviation](#aad)
+- [Standard Error](#stderr)
 - [Sum Squared Differences](#ssd)
 - [Normalize](#norm)
 - [Denormalize](#dnorm)
@@ -652,6 +653,14 @@ length := 7;
 ta.Aad(data, length);
 // output []float64
 // {1.673, 1.468}
+```
+#### <a name="stderr"></a>Standard Error
+```go
+data := []float64{34, 54, 45, 43, 57, 38, 49};
+size := 10;
+ta.Se(data, size);
+// output (float)
+// 2.424
 ```
 #### <a name="ssd"></a>Sum Squared Differences
 ```go
