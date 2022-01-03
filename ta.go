@@ -1260,6 +1260,14 @@ func Avgwin(data []float64) float64 {
 	avg := Sma(wins, len(wins));
 	return avg[0];
 }
+func Avgloss(data []float64) float64 {
+	var loss []float64;
+	for i := 0; i < len(data); i++ {
+		if data[i] < 0 { loss = append(loss, data[i]) }
+	}
+	avg := Sma(loss, len(loss));
+	return avg[0];
+}
 func Kelly(data []float64) float64 {
 	exp := Er(data) + 1;
 	winr := Winratio(data);

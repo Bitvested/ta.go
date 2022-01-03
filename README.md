@@ -78,6 +78,7 @@ import(
 - [Kelly Criterion](#kelly)
 - [Winratio](#winratio)
 - [Average Win](#avgwin)
+- [Average Loss](#avgloss)
 - [Drawdown](#drawdown)
 - [Median](#median)
 - [Recent High](#rh)
@@ -598,6 +599,12 @@ ta.Avgwin(data);
 // output float64
 // 0.012
 ```
+#### <a name="avgloss"></a>Average Loss
+```go
+data := []float64{0.01, 0.02, -0.01, -0.03, -0.015, 0.005};
+ta.Avgloss(data);
+// output float64
+// -0.018
 ```
 #### <a name="drawdown"></a>Drawdown
 ```go
