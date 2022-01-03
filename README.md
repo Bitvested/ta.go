@@ -662,7 +662,7 @@ ta.Aad(data, length);
 data := []float64{34, 54, 45, 43, 57, 38, 49};
 size := 10;
 ta.Se(data, size);
-// output (float)
+// output float64
 // 2.424
 ```
 #### <a name="ssd"></a>Sum Squared Differences
@@ -717,7 +717,7 @@ ta.Standardize(data);
 data := []float64{34,54,45,43,57,38,49};
 length := 5;
 ta.Zscore(data, length);
-// output (array)
+// output []float64
 // [1.266, -1.331, 0.408]
 ```
 #### <a name="kmeans"></a>K-means Clustering
