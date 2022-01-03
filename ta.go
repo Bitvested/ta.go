@@ -1277,3 +1277,13 @@ func Kelly(data []float64) float64 {
 	winr := Winratio(data);
 	return winr - (1-winr) / exp;
 }
+func Zscore(data []float64, l int) []float64 {
+	var out []float64;
+	for i := l; i < len(data); i++ {
+		pl := data[i-l:i];
+		mean := Sma(pl, l);
+		stdv := Std(pl, l);
+		out = append(out, (data[i]-mean[0])/stdv);
+	}
+	return out;
+}

@@ -517,3 +517,10 @@ func Kelly(t *testing.T) {
 		t.Fatalf("Kelly Failed!");
 	}
 }
+func Zscore(t *testing.T) {
+	have := ta.Zscore([]float64{34,54,45,43,57,38,49}, 5);
+	want := []float64{1.2664106627730554, -1.3314928442246727, 0.4078462733398033}
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Zscore Failed!");
+	}
+}

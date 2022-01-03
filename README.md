@@ -90,6 +90,7 @@ import(
 - [Normalize](#norm)
 - [Denormalize](#dnorm)
 - [Standardize](#standard)
+- [Z-Score](#zscore)
 - [K-means Clustering](#kmeans)
 #### Chart Types
 - [Heikin Ashi](#ha)
@@ -693,6 +694,14 @@ data := []float64{6,4,6,8,6};
 ta.Standardize(data);
 // output []float64
 // {0, -1.581, 0, 1.581, 0}
+```
+#### <a name="zscore"></a>Z-Score
+```go
+data := []float64{34,54,45,43,57,38,49};
+length := 5;
+ta.Zscore(data, length);
+// output (array)
+// [1.266, -1.331, 0.408]
 ```
 #### <a name="kmeans"></a>K-means Clustering
 ```go
