@@ -89,6 +89,7 @@ import(
 - [Sum Squared Differences](#ssd)
 - [Normalize](#norm)
 - [Denormalize](#dnorm)
+- [Normalize Pair](#normp)
 - [Standardize](#standard)
 - [Z-Score](#zscore)
 - [K-means Clustering](#kmeans)
@@ -687,6 +688,15 @@ margin := 0.1;
 ta.Denormalize(data, norm, margin);
 // output []float64
 // {5 ,4, 9, 4, 6.4}
+```
+#### <a name="normp"></a>Normalize Pair
+```go
+pair1 := []float64{10,12,11,13};
+pair2 := []float64{100,130,100,140};
+ta.NormalizePair(pair1, pair2);
+// output [][]float64
+// [[55, 55], [66, 71.5], [60.5, 54.99], [71.5, 76.99]]
+```
 ```
 #### <a name="standard"></a>Standardize
 ```go

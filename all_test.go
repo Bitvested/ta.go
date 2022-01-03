@@ -524,3 +524,10 @@ func Zscore(t *testing.T) {
 		t.Fatalf("Zscore Failed!");
 	}
 }
+func NormalizePair(t *testing.T) {
+	have := ta.NormalizePair([]float64{10,12,11,13}, []float64{100,130,100,140});
+	want := [][]float64{{55,55},{66,71.5},{60.5,54.99999999999999},{71.5,76.99999999999999}};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("NormalizePair Failed!");
+	}
+}

@@ -1287,3 +1287,12 @@ func Zscore(data []float64, l int) []float64 {
 	}
 	return out;
 }
+func NormalizePair(data1 []float64, data2 []float64) [][]float64 {
+	f := (data1[0] + data2[0]) / 2;
+	var ret [][]float64;
+	ret = append(ret, []float64{f,f});
+	for i := 1; i < len(data1); i++ {
+		ret = append(ret, []float64{ret[len(ret)-1][0]*((data1[i]-data1[i-1])/data1[i-1]+1),ret[len(ret)-1][1]*((data2[i]-data2[i-1])/data2[i-1]+1)});
+	}
+	return ret;
+}
