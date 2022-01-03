@@ -1244,3 +1244,11 @@ func Fisher(data []float64, l int) [][]float64 {
 	}
 	return out[1:];
 }
+func Ar(data []float64, l int) []float64 {
+	var out []float64;
+	for i := l; i < len(data); i++ {
+		exp := Er(data[i-l:i]);
+		out = append(out, data[i]-exp);
+	}
+	return out;
+}

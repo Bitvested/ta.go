@@ -74,6 +74,7 @@ import(
 - [Correlation](#cor)
 - [Percentage Difference](#dif)
 - [Expected Return](#er)
+- [Abnormal Return](#ar)
 - [Drawdown](#drawdown)
 - [Median](#median)
 - [Recent High](#rh)
@@ -564,6 +565,15 @@ data := []float64{0.02, -0.01, 0.03, 0.05, -0.03}; // historical return data
 ta.Er(data);
 // output float64
 // 0.0119
+```
+#### <a name="ar"></a>Abnormal Return
+```go
+data := []float64{0.02, -0.01, 0.03, 0.05, -0.03}; // historical return data
+length := 3;
+ta.Ar(data, length);
+// output float64
+// [0.037, -0.053]
+```
 ```
 #### <a name="drawdown"></a>Drawdown
 ```go

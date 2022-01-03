@@ -482,3 +482,10 @@ func Fisher(t *testing.T) {
 		t.Fatalf("Fisher Failed!")
 	}
 }
+func Ar(t *testing.T) {
+	have := ta.Ar([]float64{0.02, -0.01, 0.03, 0.05, -0.03}, 3);
+	want := []float64{0.03667479679633267, -0.053301281310417566};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Ar Failed!");
+	}
+}
