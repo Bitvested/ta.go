@@ -1296,3 +1296,10 @@ func NormalizePair(data1 []float64, data2 []float64) [][]float64 {
 	}
 	return ret;
 }
+func NormalizeFrom(data []float64, value float64) []float64 {
+	var ret = []float64{value};
+	for i := 1; i < len(data); i++ {
+		ret = append(ret, ret[len(ret)-1]*((data[i]-data[i-1])/data[i-1]+1));
+	}
+	return ret;
+}

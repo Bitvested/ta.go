@@ -90,6 +90,7 @@ import(
 - [Normalize](#norm)
 - [Denormalize](#dnorm)
 - [Normalize Pair](#normp)
+- [Normalize From](#normf)
 - [Standardize](#standard)
 - [Z-Score](#zscore)
 - [K-means Clustering](#kmeans)
@@ -697,6 +698,12 @@ ta.NormalizePair(pair1, pair2);
 // output [][]float64
 // [[55, 55], [66, 71.5], [60.5, 54.99], [71.5, 76.99]]
 ```
+#### <a name="normf"></a>Normalize From
+```go
+data := []float64{8,12,10,11};
+baseline := 100;
+// output []float64
+// [100, 150, 125, 137.5]
 ```
 #### <a name="standard"></a>Standardize
 ```go

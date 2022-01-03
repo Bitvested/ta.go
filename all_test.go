@@ -531,3 +531,10 @@ func NormalizePair(t *testing.T) {
 		t.Fatalf("NormalizePair Failed!");
 	}
 }
+func NormalizeFrom(t *testing.T) {
+	have := ta.NormalizeFrom([]float64{8,12,10,11}, 100);
+	want := []float64{100,150,125,137.5};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("NormalizeFrom Failed!");
+	}
+}
