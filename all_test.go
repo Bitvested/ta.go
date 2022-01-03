@@ -489,6 +489,13 @@ func Ar(t *testing.T) {
 		t.Fatalf("Ar Failed!");
 	}
 }
+func Avgwin(t *testing.T) {
+	have := ta.Avgwin([]float64{0.01,0.02,-0.01,-0.03,-0.015,0.005});
+	want := 0.011666666666666665;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Avgwin Failed!");
+	}
+}
 func Kelly(t *testing.T) {
 	have := ta.Kelly([]float64{0.01,0.02,-0.01,-0.03,-0.015,0.045,0.005});
 	want := 0.14434748152632182;

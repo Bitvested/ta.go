@@ -77,6 +77,7 @@ import(
 - [Abnormal Return](#ar)
 - [Kelly Criterion](#kelly)
 - [Winratio](#winratio)
+- [Average Win](#avgwin)
 - [Drawdown](#drawdown)
 - [Median](#median)
 - [Recent High](#rh)
@@ -589,6 +590,13 @@ data := []float64{0.01, 0.02, -0.01, -0.03, -0.015, 0.005};
 ta.Winratio(data);
 // output float64
 // 0.5
+```
+#### <a name="avgwin"></a>Average Win
+```go
+data := []float64{0.01, 0.02, -0.01, -0.03, -0.015, 0.005};
+ta.Avgwin(data);
+// output float64
+// 0.012
 ```
 ```
 #### <a name="drawdown"></a>Drawdown

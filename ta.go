@@ -1252,6 +1252,14 @@ func Ar(data []float64, l int) []float64 {
 	}
 	return out;
 }
+func Avgwin(data []float64) float64 {
+	var wins []float64;
+	for i := 0; i < len(data); i++ {
+		if data[i] >= 0 { wins = append(wins, data[i]) }
+	}
+	avg := Sma(wins, len(wins));
+	return avg[0];
+}
 func Kelly(data []float64) float64 {
 	exp := Er(data) + 1;
 	winr := Winratio(data);
