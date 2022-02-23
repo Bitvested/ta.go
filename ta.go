@@ -1233,10 +1233,10 @@ func Resistance(d []float64, hl recentHighLow) line {
 }
 func Fisher(data []float64, l int) [][]float64 {
 	var out [][]float64; var fish, v1 float64 = 0, 0;
-	for i := l; i < len(data); i++ {
+	for i := l; i <= len(data); i++ {
 		pl := data[i-l:i]; pf := fish;
 		mn := minf(pl);
-		v1 = .33*2*((data[i]-mn)/maxf(pl)-.5)+.67*v1;
+		v1 = .33*2*((data[i-1]-mn)/maxf(pl)-.5)+.67*v1;
 		if v1 > 0.99 { v1 = 0.999 }
 		if v1 < -0.99 { v1 = -0.999 }
 		fish = 0.5 * math.Log((1+v1)/(1-v1)) + 0.5 * pf;
@@ -1279,11 +1279,11 @@ func Kelly(data []float64) float64 {
 }
 func Zscore(data []float64, l int) []float64 {
 	var out []float64;
-	for i := l; i < len(data); i++ {
+	for i := l; i <= len(data); i++ {
 		pl := data[i-l:i];
 		mean := Sma(pl, l);
 		stdv := Std(pl, l);
-		out = append(out, (data[i]-mean[0])/stdv);
+		out = append(out, (data[i-1]-mean[0])/stdv);
 	}
 	return out;
 }

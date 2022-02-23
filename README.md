@@ -60,6 +60,7 @@ import(
 - [Aroon Oscillator](#aroon-osc)
 - [Awesome Oscillator](#ao)
 - [Accelerator Oscillator](#ac)
+- [Fisher Transform](#fish)
 #### Bands
 - [Bollinger Bands](#bands)
 - [Keltner Channels](#kelt)
@@ -469,6 +470,14 @@ longlength := 4;
 ta.Ac(data, shortlength, longlength);
 // output []float64
 // {-5.875, -6.125, -6.5}
+```
+#### <a name="fish"></a>Fisher Transform
+```go
+data := []float64{8,6,8,9,7,8,9,8,7,8,6,7};
+length := 9;
+ta.Fisher(data, length);
+// output [][]float64
+// [[-0.318, -0.11], [-0.449, -0.318], [-0.616, -0.449]] // [fisher, trigger]
 ```
 ### Bands
 #### <a name="bands"></a>Bollinger Bands

@@ -475,63 +475,63 @@ func TestEr(t *testing.T) {
 		t.Fatalf("Er Failed!")
 	}
 }
-func Fisher(t *testing.T) {
+func TestFisher(t *testing.T) {
 	have := ta.Fisher([]float64{8,6,8,9,7,8,9,8,7,8,6,7}, 9);
-	want := [][]float64{{-0.20692076425551026, 0.11044691579009712},{-0.3930108381942109, -0.20692076425551026}};
+	want := [][]float64{[]float64{-0.3181527308248248, -0.1104469157900972}, []float64{-0.4491605923903109, -0.3181527308248248}, []float64{-0.6158050492824234, -0.4491605923903109}};
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Fisher Failed!")
 	}
 }
-func Ar(t *testing.T) {
+func TestAr(t *testing.T) {
 	have := ta.Ar([]float64{0.02, -0.01, 0.03, 0.05, -0.03}, 3);
 	want := []float64{0.03667479679633267, -0.053301281310417566};
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Ar Failed!");
 	}
 }
-func Avgwin(t *testing.T) {
+func TestAvgwin(t *testing.T) {
 	have := ta.Avgwin([]float64{0.01,0.02,-0.01,-0.03,-0.015,0.005});
 	want := 0.011666666666666665;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Avgwin Failed!");
 	}
 }
-func Avgloss(t *testing.T) {
+func TestAvgloss(t *testing.T) {
 	have := ta.Avgloss([]float64{0.01,0.02,-0.01,-0.03,-0.015,0.005});
 	want := -0.018333333333333333;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Avgloss Failed!");
 	}
 }
-func Se(t *testing.T) {
+func TestSe(t *testing.T) {
 	have := ta.Se([]float64{34,54,45,43,57,38,49}, 10);
 	want := 2.4243661069253055;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Se Failed!");
 	}
 }
-func Kelly(t *testing.T) {
+func TestKelly(t *testing.T) {
 	have := ta.Kelly([]float64{0.01,0.02,-0.01,-0.03,-0.015,0.045,0.005});
 	want := 0.14434748152632182;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Kelly Failed!");
 	}
 }
-func Zscore(t *testing.T) {
+func TestZscore(t *testing.T) {
 	have := ta.Zscore([]float64{34,54,45,43,57,38,49}, 5);
 	want := []float64{1.2664106627730554, -1.3314928442246727, 0.4078462733398033}
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Zscore Failed!");
 	}
 }
-func NormalizePair(t *testing.T) {
+func TestNormalizePair(t *testing.T) {
 	have := ta.NormalizePair([]float64{10,12,11,13}, []float64{100,130,100,140});
 	want := [][]float64{{55,55},{66,71.5},{60.5,54.99999999999999},{71.5,76.99999999999999}};
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("NormalizePair Failed!");
 	}
 }
-func NormalizeFrom(t *testing.T) {
+func TestNormalizeFrom(t *testing.T) {
 	have := ta.NormalizeFrom([]float64{8,12,10,11}, 100);
 	want := []float64{100,150,125,137.5};
 	if !assert.Equal(t, want, have) {
