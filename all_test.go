@@ -538,3 +538,10 @@ func TestNormalizeFrom(t *testing.T) {
 		t.Fatalf("NormalizeFrom Failed!");
 	}
 }
+func TestLog(t *testing.T) {
+	have := ta.Log([]float64{5, 14, 18, 28, 68, 103});
+	want := []float64{1.6094379124341003, 2.639057329615259, 2.8903717578961645, 3.332204510175204, 4.219507705176107, 4.634728988229636};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Log Failed!");
+	}
+}

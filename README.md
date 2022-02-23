@@ -88,6 +88,7 @@ import(
 - [Average Absolute Deviation](#aad)
 - [Standard Error](#stderr)
 - [Sum Squared Differences](#ssd)
+- [Logarithm](#log)
 - [Normalize](#norm)
 - [Denormalize](#dnorm)
 - [Normalize Pair](#normp)
@@ -681,6 +682,13 @@ length := 7;
 ta.Ssd(data, length);
 // output []float64
 // {4.87, 4.986, 5.372}
+```
+#### <a id="log"></a>Logarithm
+```go
+data := []float64{5, 14, 18, 28, 68, 103};
+ta.Log(data);
+// output (array)
+// [1.61, 2.64, 2.89, 3.33, 4.22, 4.63]
 ```
 #### <a name="norm"></a>Normalize
 ```go

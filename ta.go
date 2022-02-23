@@ -1303,3 +1303,10 @@ func NormalizeFrom(data []float64, value float64) []float64 {
 	}
 	return ret;
 }
+func Log(data []float64) []float64 {
+	var ret []float64;
+	for i := 0; i < len(data); i++ {
+		ret = append(ret, math.Log(data[i]));
+	}
+	return ret;
+}
