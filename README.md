@@ -493,7 +493,7 @@ data := []float64{8,6,8,9,7,8,9,8,7,8,6,7};
 length := 9;
 ta.Fisher(data, length);
 // output [][]float64
-// [[-0.318, -0.11], [-0.449, -0.318], [-0.616, -0.449]] // [fisher, trigger]
+// {{-0.318, -0.11}, {-0.449, -0.318}, {-0.616, -0.449}} // [fisher, trigger]
 ```
 ### Bands
 #### <a name="bands"></a>Bollinger Bands
