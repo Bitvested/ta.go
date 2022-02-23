@@ -1317,3 +1317,86 @@ func Exp(data []float64) []float64 {
 	}
 	return ret;
 }
+func map2d(data [][]float64, key int) []float64 {
+	var ret []float64;
+	for i := 0; i < len(data); i++ {
+		ret = append(ret, data[i][key]);
+	}
+	return ret;
+}
+func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [][]interface{} {
+	out := make([][]interface{}, 0); nexttrend := []int{0}; trend := []int{0};
+	var up []float64; var down []float64; var direction string;
+	for i := atrlen; i <= len(data); i++ {
+		pl := data[i-atrlen:i];
+		maxlow := pl[len(pl)-2][2];
+		minhigh := pl[len(pl)-2][0];
+		atr2 := Atr(pl, atrlen);
+		atr2 = []float64{atr2[len(atr2)-1] / 2};
+		dev := deviation * atr2[len(atr2)-1];
+		highprice := maxf([]float64{pl[len(pl)-1][0],pl[len(pl)-2][0]});
+		lowprice := minf([]float64{pl[len(pl)-1][2],pl[len(pl)-2][2]});
+		highs := map2d(pl[len(pl)-amplitude:len(pl)], 0);
+		lows := map2d(pl[len(pl)-amplitude:len(pl)], 2);
+		highma := Sma(highs, amplitude);
+		lowma := Sma(lows, amplitude);
+		var atrHigh float64;
+		var atrLow float64;
+		if nexttrend[len(nexttrend)-1] == 1 {
+			maxlow = maxf([]float64{lowprice, maxlow});
+			if highma[0] < maxlow && pl[len(pl)-1][1] < pl[len(pl)-2][2] {
+				trend = append(trend, 1);
+				nexttrend = append(nexttrend, 0);
+				minhigh = pl[len(pl)-2][0]
+			}
+		} else {
+			minhigh = minf([]float64{highprice, minhigh});
+			if lowma[0] > minhigh && pl[len(pl)-1][1] < pl[len(pl)-2][0] {
+				trend = append(trend, 0);
+				nexttrend = append(nexttrend, 1);
+				maxlow = lowprice;
+			}
+		}
+		if trend[len(trend)-1] == 0 {
+			if len(trend) > 1 && trend[len(trend)-2] != 0 {
+				if len(down) < 2 {
+					up = append(up, down[len(down)-1]);
+				} else {
+					up = append(up, down[len(down)-2]);
+				}
+			} else {
+				if len(up) < 2 {
+					up = append(up, maxlow);
+				} else {
+					up = append(up, maxf([]float64{up[len(up)-2], maxlow}));
+				}
+			}
+			direction = "long";
+			atrHigh = up[len(up)-1] + dev;
+			atrLow = up[len(up)-1] - dev;
+		} else {
+			if len(trend) > 2 && trend[len(trend)-2] != 1 {
+				if len(up) < 2 {
+					down = append(down, up[len(up)-1]);
+				} else {
+					down = append(down, up[len(up)-2]);
+				}
+			} else {
+				if len(down) < 2 {
+					down = append(down, minhigh);
+				} else {
+					down = append(down, minf([]float64{minhigh, down[len(down)-2]}))
+				}
+			}
+			direction = "long";
+			atrHigh = down[len(down)-1] + dev;
+			atrLow = down[len(down)-1] - dev;
+		}
+		if trend[len(trend)-1] == 0 {
+			out = append(out, []interface{}{atrHigh, up[len(up)-1], atrLow, direction});
+		} else {
+			out = append(out, []interface{}{atrHigh, down[len(down)-1], atrLow});
+		}
+	}
+	return out;
+}

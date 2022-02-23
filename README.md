@@ -53,6 +53,7 @@ import(
 - [Volume-Weighted Average Price](#vwap)
 - [Fractals](#fractals)
 - [Momentum](#mom)
+- [HalfTrend](#half)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -415,6 +416,19 @@ percentage := false;
 ta.Mom(data, length, percentage);
 // output []float64
 // {0.24, 0.24}
+```
+#### <a id="half"></a>HalfTrend
+```go
+// experimental (untested) function (may change in the future), ported from:
+// https://www.tradingview.com/script/U1SJ8ubc-HalfTrend/
+// data = [high, close, low]
+data := [][]float64{{100,97,90},{101,98,94},{103,96,92},{106,100,95},{110,101,100},{112,110,105},{110,100,90},{103,100,97},{95,90,85},{94,80,80},{90,82,81},{85,80,70}};
+atrlen := 6;
+amplitude := 3;
+deviation := 2;
+ta.HalfTrend(data, atrlen, amplitude, deviation);
+// output [][]interface{}
+// {high, halftrend, low, signal}
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
