@@ -89,6 +89,7 @@ import(
 - [Standard Error](#stderr)
 - [Sum Squared Differences](#ssd)
 - [Logarithm](#log)
+- [Exponent](#exp)
 - [Normalize](#norm)
 - [Denormalize](#dnorm)
 - [Normalize Pair](#normp)
@@ -689,6 +690,13 @@ data := []float64{5, 14, 18, 28, 68, 103};
 ta.Log(data);
 // output (array)
 // [1.61, 2.64, 2.89, 3.33, 4.22, 4.63]
+```
+#### <a id="exp"></a>Exponent
+```go
+data := []float64{1.6, 2.63, 2.89, 3.33, 4.22, 4.63};
+ta.Exp(data);
+// output (array)
+// [4.95, 13.87, 17.99, 27.94, 68.03, 102.51]
 ```
 #### <a name="norm"></a>Normalize
 ```go

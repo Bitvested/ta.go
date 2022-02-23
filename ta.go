@@ -1310,3 +1310,10 @@ func Log(data []float64) []float64 {
 	}
 	return ret;
 }
+func Exp(data []float64) []float64 {
+	var ret []float64;
+	for i := 0; i < len(data); i++ {
+		ret = append(ret, math.Exp(data[i]));
+	}
+	return ret;
+}

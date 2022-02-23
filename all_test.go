@@ -545,3 +545,10 @@ func TestLog(t *testing.T) {
 		t.Fatalf("Log Failed!");
 	}
 }
+func TestExp(t *testing.T) {
+	have := ta.Exp([]float64{1.6, 2.63, 2.89, 3.33, 4.22, 4.63});
+	want := []float64{4.953032424395115, 13.873769902129904, 17.993309601550315, 27.938341703236507, 68.03348428941966, 102.51406411049346};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Exp Failed!");
+	}
+}
