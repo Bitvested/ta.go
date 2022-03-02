@@ -64,7 +64,7 @@ func TestSsd(t *testing.T) {
 }
 func TestRsi(t *testing.T) {
 	have := ta.Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5}, 6)
-	want := []float64{100, 71.42857142857143}
+	want := []float64{100, 100, 66.66666666666666}
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Rsi Failed!")
 	}

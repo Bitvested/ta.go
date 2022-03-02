@@ -144,8 +144,8 @@ func LossAverage(data []float64) float64 {
 }
 func Rsi(data []float64, l int) []float64 {
 	var arrsi []float64
-	for i := l; i < len(data); i++ {
-		pl := append([]float64(nil), data[i-l:i+1]...)
+	for i := l; i <= len(data); i++ {
+		pl := append([]float64(nil), data[i-l:i]...)
 		var loss float64
 		var gain float64
 		for q := 1; q < len(pl); q++ {
