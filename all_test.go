@@ -566,3 +566,10 @@ func TestNcdf(t *testing.T) {
 		t.Fatalf("Ncdf Failed!");
 	}
 }
+func TestZigZag(t *testing.T) {
+	have := ta.ZigZag([][]float64{[]float64{10,9},[]float64{12,10},[]float64{14,12},[]float64{15,13},[]float64{16,15},[]float64{11,10},[]float64{18,15}}, 0.25);
+	want := []float64{9, 10.75, 12.5, 14.25, 16, 10, 18};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("ZigZag Failed!");
+	}
+}

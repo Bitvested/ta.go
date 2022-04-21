@@ -54,6 +54,7 @@ import(
 - [Fractals](#fractals)
 - [Momentum](#mom)
 - [HalfTrend](#half)
+- [ZigZag](#zigzag)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -430,6 +431,14 @@ deviation := 2;
 ta.HalfTrend(data, atrlen, amplitude, deviation);
 // output [][]interface{}
 // {high, halftrend, low, signal}
+```
+#### <a id="zigzag"></a>ZigZag
+```go
+data := [][]float64{[]float64{10,9},[]float64{12,10},[]float64{14,12},[]float64{15,13},[]float64{16,15},[]float64{11,10},[]float64{18,15}};
+percentage := 0.25;
+ta.ZigZag(data, percentage);
+// output []float64
+// []float64{9, 10.75, 12.5, 14.25, 16, 10, 18}
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
