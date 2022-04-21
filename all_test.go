@@ -559,3 +559,10 @@ func TestHalfTrend(t *testing.T) {
 		t.Fatalf("HalfTrend Failed!");
 	}
 }
+func TestNcdf(t *testing.T) {
+	have := ta.Ncdf(13, 10, 2);
+	want := 0.9331737996110652;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Ncdf Failed!");
+	}
+}

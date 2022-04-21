@@ -70,6 +70,7 @@ import(
 #### Statistics
 - [Standard Deviation](#std)
 - [Variance](#variance)
+- [Normal CDF](#ncdf)
 - [Inverse Normal Distribution](#normsinv)
 - [Monte Carlo Simulation](#sim)
 - [Percentile](#perc)
@@ -551,6 +552,15 @@ length := 7;
 ta.Variance(data, length);
 // output []float64
 // {3.918, 5.061}
+```
+#### <a name="ncdf"></a>Normal CDF
+```go
+sample := 13;
+mean := 10;
+stdv := 2;
+ta.Ncdf(sample, mean, stdv);
+// output float64
+// 0.9331737996110652
 ```
 #### <a name="normsinv"></a>Inverse Normal Distribution
 ```go

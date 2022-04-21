@@ -1400,3 +1400,14 @@ func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [
 	}
 	return out;
 }
+func Ncdf(x float64, mean float64, std float64) float64 {
+	x = (x - mean) / std;
+	t := 1 / (1+.2315419*math.Abs(x));
+	d := .3989423*math.Exp(-x*x/2);
+	p := d*t*(.3193815 + t * (-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+	if x > 0 {
+		return 1-p;
+	} else {
+		return p;
+	}
+}
