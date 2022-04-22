@@ -559,6 +559,20 @@ func TestHalfTrend(t *testing.T) {
 		t.Fatalf("HalfTrend Failed!");
 	}
 }
+func TestNcdf(t *testing.T) {
+	have := ta.Ncdf(13, 10, 2);
+	want := 0.9331737996110652;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Ncdf Failed!");
+	}
+}
+func TestZigZag(t *testing.T) {
+	have := ta.ZigZag([][]float64{[]float64{10,9},[]float64{12,10},[]float64{14,12},[]float64{15,13},[]float64{16,15},[]float64{11,10},[]float64{18,15}}, 0.25);
+	want := []float64{9, 10.75, 12.5, 14.25, 16, 10, 18};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("ZigZag Failed!");
+	}
+}
 func TestPsar(t *testing.T) {
 	have := ta.Psar([][]float64{[]float64{82.15,81.29},[]float64{81.89,80.64},[]float64{83.03,81.31},[]float64{83.30,82.65},[]float64{83.85,83.07},[]float64{83.90,83.11},[]float64{83.33,82.49},[]float64{84.30,82.3},[]float64{84.84,84.15},[]float64{85,84.11},[]float64{75.9,74.03},[]float64{76.58,75.39},[]float64{76.98,75.76},[]float64{78,77.17},[]float64{70.87,70.01}}, 0.02, 0.2);
 	want := []float64{81.29,82.15,80.64,80.64,80.7464,80.932616,81.17000672,81.3884061824,81.67956556416,82.0588176964608,85,85,84.7806,84.565588,84.35487624000001};

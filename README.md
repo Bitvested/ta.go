@@ -54,6 +54,7 @@ import(
 - [Fractals](#fractals)
 - [Momentum](#mom)
 - [HalfTrend](#half)
+- [ZigZag](#zigzag)
 - [Parabolic SAR](#psar)
 #### Oscillators
 - [Alligator Oscillator](#gator)
@@ -71,6 +72,7 @@ import(
 #### Statistics
 - [Standard Deviation](#std)
 - [Variance](#variance)
+- [Normal CDF](#ncdf)
 - [Inverse Normal Distribution](#normsinv)
 - [Monte Carlo Simulation](#sim)
 - [Percentile](#perc)
@@ -431,6 +433,14 @@ ta.HalfTrend(data, atrlen, amplitude, deviation);
 // output [][]interface{}
 // {high, halftrend, low, signal}
 ```
+#### <a id="zigzag"></a>ZigZag
+```go
+data := [][]float64{[]float64{10,9},[]float64{12,10},[]float64{14,12},[]float64{15,13},[]float64{16,15},[]float64{11,10},[]float64{18,15}};
+percentage := 0.25;
+ta.ZigZag(data, percentage);
+// output []float64
+// []float64{9, 10.75, 12.5, 14.25, 16, 10, 18}
+```
 #### <a id="psar"></a>Parabolic SAR
 ```go
 data := [][]float64{[]float64{82.15,81.29},[]float64{81.89,80.64},[]float64{83.03,81.31},[]float64{83.30,82.65},[]float64{83.85,83.07},[]float64{83.90,83.11},[]float64{83.33,82.49},[]float64{84.30,82.3},[]float64{84.84,84.15},[]float64{85,84.11},[]float64{75.9,74.03},[]float64{76.58,75.39},[]float64{76.98,75.76},[]float64{78,77.17},[]float64{70.87,70.01}}
@@ -561,6 +571,15 @@ length := 7;
 ta.Variance(data, length);
 // output []float64
 // {3.918, 5.061}
+```
+#### <a name="ncdf"></a>Normal CDF
+```go
+sample := 13;
+mean := 10;
+stdv := 2;
+ta.Ncdf(sample, mean, stdv);
+// output float64
+// 0.9331737996110652
 ```
 #### <a name="normsinv"></a>Inverse Normal Distribution
 ```go

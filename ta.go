@@ -1400,6 +1400,81 @@ func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [
 	}
 	return out;
 }
+func Ncdf(x float64, mean float64, std float64) float64 {
+	x = (x - mean) / std;
+	t := 1 / (1+.2315419*math.Abs(x));
+	d := .3989423*math.Exp(-x*x/2);
+	p := d*t*(.3193815 + t * (-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+	if x > 0 {
+		return 1-p;
+	} else {
+		return p;
+	}
+}
+func ZigZag(data [][]float64, perc float64) []float64 {
+	var indexes []recentHighLow; min := math.Inf(1); max := math.Inf(-1);
+	lmin := false; lmax := false;
+	for i := 0; i < len(data); i++ {
+		if lmin {
+			if indexes[len(indexes)-1].Value >= data[i][1] {
+				indexes[len(indexes)-1].Value = data[i][1];
+				indexes[len(indexes)-1].Index = i;
+			}
+			if min >= data[i][1] { min = data[i][1]; }
+			hdif := (data[i][0]-min)/min;
+			if hdif > perc {
+				indexes = append(indexes, RecentHighLow(i, data[i][0]));
+				lmax = true;
+				lmin = false;
+				min = math.Inf(1);
+			}
+		} else if lmax {
+			if indexes[len(indexes)-1].Value <= data[i][0] {
+				indexes[len(indexes)-1].Value = data[i][0];
+				indexes[len(indexes)-1].Index = i;
+			}
+			if max <= data[i][1] { max = data[i][1]; }
+			ldif := (max-data[i][1])/data[i][1];
+			if ldif > perc {
+				indexes = append(indexes, RecentHighLow(i, data[i][1]));
+				lmin = true;
+				lmax = false;
+				max = math.Inf(-1);
+			}
+		} else {
+			if min >= data[i][1] {min = data[i][1];}
+			if max <= data[i][0] {max = data[i][0];}
+			hdif := (data[i][0]-min)/min;
+			ldif := (max-data[i][1])/max;
+			if ldif > perc && hdif < perc {
+				lmin = true;
+				indexes = append(indexes, RecentHighLow(0, data[0][0]));
+				indexes = append(indexes, RecentHighLow(i, data[i][1]));
+			} else if hdif > perc && ldif < perc {
+				lmax = true;
+				indexes = append(indexes, RecentHighLow(0, data[0][1]));
+				indexes = append(indexes, RecentHighLow(i, data[i][0]));
+			} else {
+				if ldif > hdif {
+					lmin = true;
+					indexes = append(indexes, RecentHighLow(0, data[0][0]));
+					indexes = append(indexes, RecentHighLow(i, data[i][0]));
+				} else {
+					lmax = true;
+					indexes = append(indexes, RecentHighLow(0, data[0][1]));
+					indexes = append(indexes, RecentHighLow(i, data[i][0]));
+				}
+			}
+		}
+	}
+	final := []float64{indexes[0].Value};
+	for i := 1; i < len(indexes); i++ {
+		len := indexes[i].Index - indexes[i-1].Index;
+		delta := (indexes[i].Value - indexes[i-1].Value) / float64(len);
+		for z := 1; z <= len; z++ { final = append(final, float64(z)*delta+indexes[i-1].Value); }
+	}
+	return final;
+}
 func Psar(data [][]float64, step float64, max float64) []float64 {
 	furthest := data[0]; up := true; accel := step; prev := data[0];
 	sar := data[0][1]; extreme := data[0][0]; final := []float64{sar};
