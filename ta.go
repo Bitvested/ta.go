@@ -1400,3 +1400,37 @@ func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [
 	}
 	return out;
 }
+func Psar(data [][]float64, step float64, max float64) []float64 {
+	furthest := data[0]; up := true; accel := step; prev := data[0];
+	sar := data[0][1]; extreme := data[0][0]; final := []float64{sar};
+	for i := 1; i < len(data); i++ {
+		sar = sar + accel * (extreme - sar);
+		if up {
+			sar = minf([]float64{sar, furthest[1], prev[1]});
+			if data[i][0] > extreme {
+				extreme = data[i][0];
+				accel = minf([]float64{accel+step, max});
+			}
+		} else {
+			sar = maxf([]float64{sar, furthest[0], prev[0]});
+			if data[i][1] < extreme {
+				extreme = data[i][0];
+				accel = minf([]float64{accel + step, max});
+			}
+		}
+		if (up && data[i][1] < sar) || (!up && data[i][0] > sar) {
+			accel = step;
+			sar = extreme;
+			up = !up;
+			if !up {
+				extreme = data[i][1];
+			} else {
+				extreme = data[i][0];
+			}
+		}
+		furthest = prev;
+		prev = data[i];
+		final = append(final, sar);
+	}
+	return final;
+}

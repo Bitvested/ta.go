@@ -54,6 +54,7 @@ import(
 - [Fractals](#fractals)
 - [Momentum](#mom)
 - [HalfTrend](#half)
+- [Parabolic SAR](#psar)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -429,6 +430,15 @@ deviation := 2;
 ta.HalfTrend(data, atrlen, amplitude, deviation);
 // output [][]interface{}
 // {high, halftrend, low, signal}
+```
+#### <a id="psar"></a>Parabolic SAR
+```go
+data := [][]float64{[]float64{82.15,81.29},[]float64{81.89,80.64},[]float64{83.03,81.31},[]float64{83.30,82.65},[]float64{83.85,83.07},[]float64{83.90,83.11},[]float64{83.33,82.49},[]float64{84.30,82.3},[]float64{84.84,84.15},[]float64{85,84.11},[]float64{75.9,74.03},[]float64{76.58,75.39},[]float64{76.98,75.76},[]float64{78,77.17},[]float64{70.87,70.01}}
+step := 0.02;
+max := 0.2;
+ta.Psar(data, step, max);
+// output []float64{}
+// []float64{81.29,82.15,80.64,80.64,80.7464,80.932616,81.17000672,81.3884061824,81.67956556416,82.0588176964608,85,85,84.7806,84.565588,84.35487624000001}
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
