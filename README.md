@@ -68,6 +68,7 @@ import(
 - [Bollinger Bands](#bands)
 - [Keltner Channels](#kelt)
 - [Donchian Channels](#don)
+- [Fibonacci Bollinger Bands](#fibbands)
 - [Envelope](#env)
 #### Statistics
 - [Standard Deviation](#std)
@@ -544,6 +545,16 @@ ta.Don(data, length);
 // output []float64
 // {{7, 4.5, 2}, {7, 4.5, 2}}
 // {upper band, base line, lower band}
+```
+#### <a name="fibbands"></a>Fibonacci Bollinger Bands
+```go
+// created from: https://tradingview.com/script/qIKR3tbN-Fibonacci-Bollinger-Bands/
+data := [][]float64{{1, 59}, {1.1, 82}, {1.21, 27}, {1.42, 73}, {1.32, 42}};
+length := 4; // default = 20
+deviations := 3; // default = 3
+ta.Fibbands(data, length, deviations);
+// output []float64
+// {{upper band -> fibonacci levels -> lower band}}
 ```
 #### <a name="env"></a>Envelope
 ```go

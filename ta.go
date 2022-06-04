@@ -1509,3 +1509,30 @@ func Psar(data [][]float64, step float64, max float64) []float64 {
 	}
 	return final;
 }
+func Fibbands(data [][]float64, length int, deviations float64) [][]float64 {
+	var pl []float64; var deviation []float64; ma := Vwma(data, length); var boll [][]float64;
+	for i := 0; i < len(data); i++ {
+		pl = append(pl, data[i][0]);
+		if len(pl) >= length {
+			devi := Std(pl, length);
+			deviation = append(deviation, devi * deviations);
+			pl = pl[1:];
+		}
+	}
+	for i := 0; i < len(ma); i++ {
+		upper1 := ma[i] + (0.236 * deviation[i]);
+		upper2 := ma[i] + 0.382 * deviation[i];
+		upper3 := ma[i] + 0.5 * deviation[i];
+		upper4 := ma[i] + 0.618 * deviation[i];
+		upper5 := ma[i] + 0.764 * deviation[i];
+		upper6 := ma[i] + deviation[i];
+		lower1 := ma[i] - 0.236 * deviation[i];
+		lower2 := ma[i] - 0.382 * deviation[i];
+		lower3 := ma[i] - 0.5 * deviation[i];
+		lower4 := ma[i] - 0.618 * deviation[i];
+		lower5 := ma[i] - 0.764 * deviation[i];
+		lower6 := ma[i] - deviation[i];
+		boll = append(boll, []float64{upper6, upper5, upper4, upper3, upper2, upper1, ma[i], lower1, lower2, lower3, lower4, lower5, lower6});
+	}
+	return boll;
+}
