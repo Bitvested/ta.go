@@ -1565,6 +1565,14 @@ func Sum(data []float64) float64 {
 	}
 	return sum;
 }
+func Supertrend(data [][]float64, l int, multiplier float64) [][]float64 {
+	atr := Atr(data, l);
+	var trend [][]float64;
+	for i := l-1; i < len(data); i++ {
+		trend = append(trend, []float64{(data[i][0] + data[i][2]) / 2 + multiplier * atr[i], (data[i][0] + data[i][2]) / 2 - multiplier * atr[i]});
+	}
+	return trend;
+}
 var Fibnumbers []float64 = []float64{0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181};
 func Permutations(data []float64) float64 {
 	var total float64 = 1;

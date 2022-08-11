@@ -629,3 +629,10 @@ func TestCum(t *testing.T) {
 		t.Fatalf("Cum Failed!");
 	}
 }
+func TestSupertrend(t *testing.T) {
+	have := ta.Supertrend([][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}, 3, 0.5);
+	want := [][]float64{{3.5555555555555554, 1.4444444444444444},{2.3703703703703702, 0.6296296296296297}};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Supertrend Failed!");
+	}
+}
