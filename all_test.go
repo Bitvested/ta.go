@@ -587,3 +587,10 @@ func TestFibbands(t *testing.T) {
 		t.Fatalf("Fibbands Failed!");
 	}
 }
+func TestMartingale(t *testing.T) {
+	have := ta.Martingale([]float64{1,1,-1,-1,1,1}, 5);
+	want := 20;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Martingale Failed!");
+	}
+}

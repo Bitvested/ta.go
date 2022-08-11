@@ -1536,3 +1536,14 @@ func Fibbands(data [][]float64, length int, deviations float64) [][]float64 {
 	}
 	return boll;
 }
+func Martingale(data []float64, bet float64, max float64, multiplier float64) float64 {
+	current := bet;
+	for i := 0; i < len(data); i++ {
+		if data[i] < 0 {
+			current *= multiplier;
+		} else if data[i] > 0 {
+			current = bet;
+		}
+	}
+	return current;
+}
