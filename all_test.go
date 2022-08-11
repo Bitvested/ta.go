@@ -594,3 +594,10 @@ func TestMartingale(t *testing.T) {
 		t.Fatalf("Martingale Failed!");
 	}
 }
+func TestAntimartingale(t *testing.T) {
+	have := ta.Antimartingale([]float64{1,1,-1,-1,1,1}, 5);
+	want := 20;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Antimartingale Failed!");
+	}
+}
