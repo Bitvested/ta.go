@@ -1550,9 +1550,9 @@ func Martingale(data []float64, bet float64, max float64, multiplier float64) fl
 func Antimartingale(data []float64, bet float64, max float64, multiplier float64) float64 {
 	current := bet;
 	for i := 0; i < len(data); i++ {
-		if data[i] < 0 {
+		if data[i] > 0 {
 			current *= multiplier;
-		} else if data[i] > 0 {
+		} else if data[i] < 0 {
 			current = bet;
 		}
 	}
