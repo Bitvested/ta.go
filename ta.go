@@ -1580,3 +1580,10 @@ func Mse(data1 []float64, data2 []float64) float64 {
 	}
 	return err / float64(len(data1));
 }
+func Cum(data []float64, l int) []float64 {
+	var res []float64;
+	for i := l; i <= len(data); i++ {
+		res = append(res, Sum(data[i-l:i]));
+	}
+	return res;
+}

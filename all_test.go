@@ -612,13 +612,20 @@ func TestMse(t *testing.T) {
 	have := ta.Mse([]float64{7,8,7,8,6,9}, []float64{6,8,8,9,6,8});
 	want := 0.6666666666666666;
 	if !assert.Equal(t, want, have) {
-		t.Fatalf("MSE Failed");
+		t.Fatalf("MSE Failed!");
 	}
 }
 func TestSum(t *testing.T) {
 	have := ta.Sum([]float64{2,2,4,2});
 	want := float64(10);
 	if !assert.Equal(t, want, have) {
-		t.Fatalf("Sum Failed");
+		t.Fatalf("Sum Failed!");
+	}
+}
+func TestCum(t *testing.T) {
+	have := ta.Cum([]float64{3,5,7,5,10}, 4);
+	want := []float64{20,27};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Cum Failed!");
 	}
 }
