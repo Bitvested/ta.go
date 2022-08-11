@@ -1573,6 +1573,18 @@ func Supertrend(data [][]float64, l int, multiplier float64) [][]float64 {
 	}
 	return trend;
 }
+func Cwma(data []float64, weights []float64) []float64 {
+	var ma []float64;
+	for i := len(weights); i <= len(data); i++ {
+		pl := data[i-len(weights):i]; var sum float64 = 0; var weight float64 = 0;
+		for q := 0; q < len(weights); q++ {
+			sum += pl[q] * weights[q];
+			weight += weights[q];
+		}
+		ma = append(ma, sum / float64(weight));
+	}
+	return ma;
+}
 var Fibnumbers []float64 = []float64{0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181};
 func Permutations(data []float64) float64 {
 	var total float64 = 1;

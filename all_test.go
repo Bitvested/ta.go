@@ -636,3 +636,10 @@ func TestSupertrend(t *testing.T) {
 		t.Fatalf("Supertrend Failed!");
 	}
 }
+func TestCwma(t *testing.T) {
+	have := ta.Cwma([]float64{69,68,66,70,68,69}, []float64{1,2,3,5,8});
+	want := []float64{68.26315789473684, 68.52631578947368};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Cwma Failed!");
+	}
+}
