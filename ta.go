@@ -1565,3 +1565,10 @@ func Permutations(data []float64) float64 {
 	}
 	return total;
 }
+func Mse(data1 []float64, data2 []float64) float64 {
+	var err float64 = 0;
+	for i := 0; i < len(data1); i++ {
+		err += math.Pow(data2[i]-data1[i], 2);
+	}
+	return err / float64(len(data1));
+}

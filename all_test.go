@@ -608,3 +608,10 @@ func TestPermutations(t *testing.T) {
 		t.Fatalf("Permutations Failed!");
 	}
 }
+func TestMse(t *testing.T) {
+	have := ta.Mse([]float64{7,8,7,8,6,9}, []float64{6,8,8,9,6,8});
+	want := 0.6666666666666666;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("MSE Failed")
+	}
+}
