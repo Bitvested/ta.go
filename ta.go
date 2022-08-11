@@ -1558,6 +1558,13 @@ func Antimartingale(data []float64, bet float64, max float64, multiplier float64
 	}
 	return current;
 }
+func Sum(data []float64) float64 {
+	var sum float64 = 0;
+	for i := 0; i < len(data); i++ {
+		sum += data[i];
+	}
+	return sum;
+}
 func Permutations(data []float64) float64 {
 	var total float64 = 1;
 	for i := 0; i < len(data); i++ {
