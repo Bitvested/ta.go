@@ -601,3 +601,10 @@ func TestAntimartingale(t *testing.T) {
 		t.Fatalf("Antimartingale Failed!");
 	}
 }
+func TestPermutations(t *testing.T) {
+	have := ta.Permutations([]float64{10,10,10});
+	want := 1000;
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Permutations Failed!");
+	}
+}
