@@ -588,22 +588,22 @@ func TestFibbands(t *testing.T) {
 	}
 }
 func TestMartingale(t *testing.T) {
-	have := ta.Martingale([]float64{1,1,-1,-1,1,1}, 5);
-	want := 20;
+	have := ta.Martingale([]float64{-1,-1,1,1,-1,-1}, 5, 200, 2);
+	var want float64 = 20;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Martingale Failed!");
 	}
 }
 func TestAntimartingale(t *testing.T) {
-	have := ta.Antimartingale([]float64{1,1,-1,-1,1,1}, 5);
-	want := 20;
+	have := ta.Antimartingale([]float64{1,1,-1,-1,1,1}, 5, 200, 2);
+	var want float64 = 20;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Antimartingale Failed!");
 	}
 }
 func TestPermutations(t *testing.T) {
 	have := ta.Permutations([]float64{10,10,10});
-	want := 1000;
+	var want float64 = 1000;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Permutations Failed!");
 	}
