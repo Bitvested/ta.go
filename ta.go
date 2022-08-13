@@ -1607,3 +1607,22 @@ func Cum(data []float64, l int) []float64 {
 	}
 	return res;
 }
+func Vwwma(data [][]float64, l int) []float64 {
+	var vwma []float64; var weight float64 = 0;
+	var weighted [][]float64;
+	for i := 0; i < len(data); i++ {
+		weighted = append(weighted, []float64{data[i][0] * data[i][1], data[i][1]});
+	}
+	for i := 1; i <= l; i++ { weight += float64(i); }
+	for i := l; i <= len(data); i++ {
+		pl := append([][]float64(nil), weighted[i-l:i]...);
+		var totalv float64;
+		var totalp float64;
+		for o := 0; o < len(pl); o++ {
+			totalv += pl[o][1] * float64(o+1) / weight;
+			totalp += pl[o][0] * float64(o+1) / weight;
+		}
+		vwma = append(vwma, totalp/totalv);
+	}
+	return vwma
+}
