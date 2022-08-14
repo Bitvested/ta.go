@@ -24,10 +24,12 @@ import(
 - [Hull Moving Average](#hull)
 - [Least Squares Moving Average](#lsma)
 - [Volume Weighted Moving Average](#vwma)
+- [Volume Weighted Weighted Moving Average](#vwwma)
 - [Wilder's Smoothing Moving Average](#wsma)
 - [Parabolic Weighted Moving Average](#pwma)
 - [Hyperbolic Weighted Moving Average](#hwma)
 - [Kaufman Adaptive Moving Average](#kama)
+- [Custom Weighted Moving Average](#cwma)
 #### Indicators
 - [Moving Average Convergence / Divergence](#macd)
 - [Relative Strength Index](#rsi)
@@ -56,6 +58,7 @@ import(
 - [HalfTrend](#half)
 - [ZigZag](#zigzag)
 - [Parabolic SAR](#psar)
+- [SuperTrend](#supertrend)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -71,6 +74,7 @@ import(
 - [Fibonacci Bollinger Bands](#fibbands)
 - [Envelope](#env)
 #### Statistics
+- [Sum](#sum)
 - [Standard Deviation](#std)
 - [Variance](#variance)
 - [Normal CDF](#ncdf)
@@ -82,6 +86,9 @@ import(
 - [Expected Return](#er)
 - [Abnormal Return](#ar)
 - [Kelly Criterion](#kelly)
+- [Martingale](#martin)
+- [Anti-Martingale](#amartin)
+- [Permutations](#perm)
 - [Winratio](#winratio)
 - [Average Win](#avgwin)
 - [Average Loss](#avgloss)
@@ -102,9 +109,13 @@ import(
 - [Standardize](#standard)
 - [Z-Score](#zscore)
 - [K-means Clustering](#kmeans)
+- [Mean Squared Error](#mse)
+- [Cumulative](#cum)
 #### Chart Types
 - [Heikin Ashi](#ha)
 - [Renko](#ren)
+#### Miscellaneous
+- [Fibonacci Sequence](#fibnumbers)
 #### Experimental
 - [Support Line](#sup)
 - [Resistance Line](#res)
@@ -164,6 +175,14 @@ ta.Vwma(data, length);
 // output []float64
 // {1.185, 1.259}
 ```
+#### <a name="vwwma"></a>Volume Weighted Weighted Moving Average (VWWMA)
+```go
+data := [][]float64{{1, 59}, {1.1, 82}, {1.21, 27}, {1.42, 73}, {1.32, 42}}; // {price, volume}
+length := 4;
+ta.Vwwma(data, length);
+// output []float64
+// {1.262, 1.316}
+```
 #### <a name="wsma"></a>Wilder's Smoothing Moving Average
 ```go
 data := []float64{1, 2, 3, 4, 5, 6, 10};
@@ -197,6 +216,14 @@ length3 := 8;
 ta.Kama(data, length1, length2, length3);
 // output []float64
 // {8, 8.64, 8.57, 8.57}
+```
+#### <a name="cwma"></a>Custom Weighted Moving Average
+```go
+data := []float64{69,68,66,70,68,69};
+weights := []float64{1,2,3,5,8};
+ta.Cwma(data, weights);
+// output []float64
+// {68.26315789473684, 68.52631578947368}
 ```
 #### <a name="macd"></a>Moving Average Convergence / Divergence (MACD)
 ```go
@@ -451,6 +478,16 @@ ta.Psar(data, step, max);
 // output []float64{}
 // []float64{81.29,82.15,80.64,80.64,80.7464,80.932616,81.17000672,81.3884061824,81.67956556416,82.0588176964608,85,85,84.7806,84.565588,84.35487624000001}
 ```
+#### <a id="supertrend"></a>SuperTrend
+```go
+data := [][]float64{{3,2,1},{2,2,1},{4,3,1},{2,2,1}}; // {high, close, low}
+length := 3;
+multiplier := 0.5;
+ta.Supertrend(data, length, multiplier);
+// output [][]float64{}
+// {{5.56, 1.44}, {3.37, 0.63}}
+// {up, down}
+```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
 ```go
@@ -567,6 +604,13 @@ ta.Envelope(data, length, percentage);
 // {upper band, base line, lower band}
 ```
 ### Statistics
+#### <a name="sum"></a>Sum
+```go
+data := []float64{1,2,3};
+ta.Sum(data);
+// output (float64)
+// 6
+```
 #### <a name="std"></a>Standard Deviation
 ```go
 data := []float64{1, 2, 3};
@@ -653,6 +697,33 @@ data := []float64{0.01, 0.02, -0.01, -0.03, -0.015, 0.045, 0.005};
 ta.Kelly(data);
 // output float64
 // 0.1443
+```
+#### <a name="martin"></a>Martingale
+```go
+data := []float64{-1,1,1,1,-1,-1};
+var bet float64 = 5;
+var max float64 = 20;
+var multiplier float64 = 2;
+ta.Martingale(data, bet, max, multiplier)
+// output float64
+// 20
+```
+#### <a name="amartin"></a>Anti-Martingale
+```go
+data := []float64{1,1,-1,-1,1,1};
+var bet float64 = 5;
+var max float64 = 20;
+var multiplier float64 = 2;
+ta.Antimartingale(data, bet, max, multiplier);
+// output float64
+// 20
+```
+#### <a name="permutations"></a>Permutations
+```go
+data := []float64{10,10,10};
+ta.Permutations(data);
+// output float64
+// 1000
 ```
 #### <a name="winratio"></a>Winratio
 ```go
@@ -807,6 +878,22 @@ ta.Kmeans(data, length);
 // output [][]float64
 // {{ 4, 5, 5, 4 }, { 7, 6, 6, 6 }, { 8, 8 }, { 2, 3, 3, 2 }}
 ```
+#### <a name="mse"></a>Mean Squared Error
+```go
+data1 := []float64{7,8,7,8,6,9};
+data2 := []float64{6,8,8,9,6,8};
+ta.Mse(data1, data2);
+// output float64
+// 0.6666666666666666
+```
+#### <a name="cum"></a>Cumulative
+```go
+data := []float64{3,5,7,5,10};
+length := 4;
+ta.Cum(data, length);
+// output float64
+// []float64{ 20, 27 }
+```
 ### Chart Types
 #### <a name="ha"></a>Heikin Ashi
 ```go
@@ -823,6 +910,13 @@ bricksize := 3;
 ta.Ren(data, bricksize);
 // output []float64
 // {open, high, low, close}
+```
+### Miscellaneous
+#### <a id="fibnumbers"></a>Fibonacci Sequence
+```go
+ta.Fibnumbers;
+// output []float64{}
+// {0, 1, 1, 2, 3, 5, 8...}
 ```
 ### Experimental Functions
 #### <a id="sup"></a>Support Line
