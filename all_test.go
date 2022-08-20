@@ -643,3 +643,10 @@ func TestCwma(t *testing.T) {
 		t.Fatalf("Cwma Failed!");
 	}
 }
+func TestVwwma(t *testing.T) {
+	have := ta.Vwwma([][]float64{{1,59},{1.1,82},{1.21,27},{1.42,73},{1.32,42}}, 4);
+	want := []float64{1.2618288590604028, 1.3160229445506693};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Vwwma Failed!");
+	}
+}
