@@ -798,7 +798,7 @@ func Don(data [][]float64, l int) [][]float64 {
 		pl := data[i-l : i]
 		var highs []float64
 		var lows []float64
-		for h := 0; h < len(pl); h++ {
+		for h := 0; h < len(pl); h++ { // todo: optimize
 			highs = append(highs, pl[h][0])
 			lows = append(lows, pl[h][1])
 		}
