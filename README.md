@@ -59,6 +59,7 @@ import(
 - [ZigZag](#zigzag)
 - [Parabolic SAR](#psar)
 - [SuperTrend](#supertrend)
+- [Elder Ray Index](#elderray)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -487,6 +488,15 @@ ta.Supertrend(data, length, multiplier);
 // output [][]float64{}
 // {{5.56, 1.44}, {3.37, 0.63}}
 // {up, down}
+```
+#### <a id="elderray"></a>Elder Ray Index
+```go
+data := []float64{6,5,4,7,8,9,6,8};
+length := 7;
+ta.Elderray(data, length);
+// output (array)
+// [[2.57,-2.43],[2.29,-2.71]]
+// [bull, bear]
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator

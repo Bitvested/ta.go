@@ -1626,3 +1626,13 @@ func Vwwma(data [][]float64, l int) []float64 {
 	}
 	return vwma
 }
+func Elderray(data []float64, l int) [][]float64 {
+	var eld [][]float64;
+	for i := l; i <= len(data); i++ {
+		pl := append([]float64{}, data[i-l:i]...);
+		sort.Float64s(pl);
+		em := Ema(data[i-l:i], l);
+		eld = append(eld, []float64{pl[len(pl)-1]-em[0],pl[0]-em[0]});
+	}
+	return eld;
+}
