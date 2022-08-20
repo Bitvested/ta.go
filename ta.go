@@ -1636,3 +1636,12 @@ func Elderray(data []float64, l int) [][]float64 {
 	}
 	return eld;
 }
+func Hv(data []float64, l int) []float64 {
+	var hv []float64;
+	for i := l; i <= len(data); i++ {
+		ss := Ssd(data[i-l:i], l);
+		vari := ss[0] / float64(l);
+		hv = append(hv, math.Sqrt(vari));
+	}
+	return hv;
+}

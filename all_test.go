@@ -657,3 +657,10 @@ func TestElderray(t *testing.T) {
 		t.Fatalf("Elderray Failed!");
 	}
 }
+func TestHv(t *testing.T) {
+	have := ta.Hv([]float64{7,6,5,7,8,9,7,6,5}, 8);
+	want := []float64{0.6420403501307599,0.6823595190987881};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Hv Failed!");
+	}
+}
