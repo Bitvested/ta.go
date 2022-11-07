@@ -5,7 +5,7 @@ ta.go is a go module for dealing with financial technical analysis.
 ## Installation
 
 ```bash
-go install github.com/Bitvested/ta.go@latest
+go get github.com/Bitvested/ta.go@latest
 ```
 
 ## Usage
