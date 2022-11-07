@@ -110,6 +110,7 @@ import(
 - [Normalize From](#normf)
 - [Standardize](#standard)
 - [Z-Score](#zscore)
+- [P-Value](#pvalue)
 - [K-means Clustering](#kmeans)
 - [Mean Squared Error](#mse)
 - [Cumulative](#cum)
@@ -888,6 +889,14 @@ length := 5;
 ta.Zscore(data, length);
 // output []float64
 // [1.266, -1.331, 0.408]
+```
+#### <a name="pvalue"></a>P-Value
+```go
+t_stat := 2.0;
+df := 4;
+ta.Pvalue(t_stat, df);
+// output float64
+// 0.075
 ```
 #### <a name="kmeans"></a>K-means Clustering
 ```go
