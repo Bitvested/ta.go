@@ -666,7 +666,7 @@ func TestHv(t *testing.T) {
 }
 func TestPvalue(t *testing.T) {
 	have := ta.Pvalue(2.0, 4);
-	want := 0.075;
+	want := 0.061018363939899845;
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Pvalue Failed!");
 	}

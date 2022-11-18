@@ -1663,7 +1663,7 @@ func Pvalue(t float64, df int) float64 {
 	if df > 25 || df < 1 { return 1; } // todo err
 	for x := 0; x < len(t_table)-1; x++ {
 		if(t >= t_table[x][df-1] && t <= t_table[x+1][df-1]) {
-			return math.Round((v_table[x] + v_table[x+1]) / 2 * 1e5) / 1e5;
+			return v_table[x+1] + (v_table[x+1]-v_table[x]) * (t_table[x+1][df-1] - t) / (t_table[x][df-1] - t_table[x+1][df-1]);
 		}
 	}
 	return 0.0005;
