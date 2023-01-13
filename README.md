@@ -61,6 +61,7 @@ import(
 - [SuperTrend](#supertrend)
 - [Elder Ray Index](#elderray)
 - [Historical Volatility](#hv)
+- [Relative Vigor Index](#rvi)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -496,17 +497,26 @@ ta.Supertrend(data, length, multiplier);
 data := []float64{6,5,4,7,8,9,6,8};
 length := 7;
 ta.Elderray(data, length);
-// output (array)
-// [[2.57,-2.43],[2.29,-2.71]]
-// [bull, bear]
+// output []float64
+// {{2.57,-2.43},{2.29,-2.71}}
+// {bull, bear}
 ```
 #### <a id="hv"></a>Historical Volatility
 ```go
 data := []float64{7,6,5,7,8,9,7,6,5};
 length := 8;
 ta.Hv(data, length);
+// output []float64
+// {0.642, 0.682}
+```
+#### <a id="rvi"></a>Relative Vigor Index
+```GO
+// data = [[open,high,low,close]] (requires at least 4 + length values)
+data := [][]float64{{4,6,3,3}, {3,5,2,2}, {2,5,2,4}, {4,6,4,5}, {5,7,4,4}, {4,6,3,4}, {4,7,3,5}, {5,7,5,6}, {6,8,6,6}, {6,9,5,6}, {6,8,6,7}, {7,9,5,6},{6,7,4,5},{5,6,5,6},{6,8,5,5},{5,7,2,6}};
+length := 8;
+ta.Rvi(data, length);
 // output (array)
-// [0.642, 0.682]
+// {0.29,0.21,0.15,0.16,0.09,0.05}
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
