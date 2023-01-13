@@ -1668,3 +1668,18 @@ func Pvalue(t float64, df int) float64 {
 	}
 	return 0.0005;
 }
+func Rvi(data [][]float64, ln int) []float64 {
+	var num []float64; var dnom []float64; var rv []float64;
+	for i := 3; i < len(data); i++ {
+		num = append(num, (data[i][3]-data[i][0]+2*(data[i][3]-data[i-1][0])+2*(data[i][3]-data[i-2][0])+(data[i][3]-data[i-3][0]))/6);
+		dnom = append(dnom, (data[i][1]-data[i][2]+2*(data[i][1]-data[i-1][2])+2*(data[i][1]-data[i-2][2])+(data[i][1]-data[i-3][2]))/6);
+		if len(num) >= ln {
+			sn := Sma(num, ln);
+			dn := Sma(dnom, ln);
+			rv = append(rv, sn[0]/dn[0]);
+			num = num[1:];
+			dnom = dnom[1:];
+		}
+	}
+	return rv;
+}
