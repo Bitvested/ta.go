@@ -62,6 +62,8 @@ import(
 - [Elder Ray Index](#elderray)
 - [Historical Volatility](#hv)
 - [Relative Vigor Index](#rvi)
+- [Relative Vigor Index Signal](#rvi_signal)
+- [RSI Divergence](#rsi_divergence)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -524,6 +526,18 @@ rvi := []float64{0.29,0.21,0.15,0.16,0.09,0.05}; // requires at least 4 values
 ta.Rvi_signal(rvi);
 // output []float64
 // {0.20,0.15,0.12}
+```
+#### <a id="rsi_divergence"></a>RSI Divergence
+Experimental function: https://github.com/Bitvested/ta.js/issues/18
+```go
+data := []float64{74,83,66,78,69,70,84,73,74,73,83};
+rsi_length := 5;
+rsi_function := ta.Wrsi; // The tradingview RSI
+ta.Rsi_divergence(data, rsi_length, rsi_function);
+// output []float64
+// 1 = RSI is in divergence
+// 0 = RSI is not in divergence
+// [0, 0, 1, 0, 1, 0] (better to quantify if needed)
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
