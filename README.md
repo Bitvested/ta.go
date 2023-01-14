@@ -515,8 +515,15 @@ ta.Hv(data, length);
 data := [][]float64{{4,6,3,3}, {3,5,2,2}, {2,5,2,4}, {4,6,4,5}, {5,7,4,4}, {4,6,3,4}, {4,7,3,5}, {5,7,5,6}, {6,8,6,6}, {6,9,5,6}, {6,8,6,7}, {7,9,5,6},{6,7,4,5},{5,6,5,6},{6,8,5,5},{5,7,2,6}};
 length := 8;
 ta.Rvi(data, length);
-// output (array)
+// output []float64
 // {0.29,0.21,0.15,0.16,0.09,0.05}
+```
+#### <a id="rvi_signal"></a>Relative Vigor Index Signal
+```go
+rvi := []float64{0.29,0.21,0.15,0.16,0.09,0.05}; // requires at least 4 values
+ta.Rvi_signal(rvi);
+// output []float64
+// {0.20,0.15,0.12}
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
