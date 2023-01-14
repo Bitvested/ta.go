@@ -64,6 +64,7 @@ import(
 - [Relative Vigor Index](#rvi)
 - [Relative Vigor Index Signal](#rvi_signal)
 - [RSI Divergence](#rsi_divergence)
+- [Divergence](#divergence)
 #### Oscillators
 - [Alligator Oscillator](#gator)
 - [Chande Momentum Oscillator](#mom_osc)
@@ -538,6 +539,16 @@ ta.Rsi_divergence(data, rsi_length, rsi_function);
 // 1 = RSI is in divergence
 // 0 = RSI is not in divergence
 // [0, 0, 1, 0, 1, 0] (better to quantify if needed)
+```
+#### <a id="divergence"></a>Universal Divergence
+```go
+data1 := []float64{48,34,43,54,56,64,43};
+data2 := []float64{76,74,43,55,34,32,45,47};
+ta.Divergence(data1, data2);
+// output []float64]
+// 1 = RSI is in divergence
+// 0 = RSI is not in divergence
+// [0, 0, 1, 1, 0, 1] (better to quantify if needed)
 ```
 ### Oscillators
 #### <a id="gator"></a>Alligator Oscillator
