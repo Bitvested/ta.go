@@ -1690,3 +1690,15 @@ func Rvi_signal(rv []float64) []float64 {
 	}
 	return sig;
 }
+func Rsi_divergence(data []float64, ln int, rs func([]float64, int) []float64) []float64 {
+	rd := rs(data, ln); var out []float64;
+	data = Mom(data[ln-1:len(data)], 2, false);
+	for i := 0; i < len(data); i++ {
+		if (data[i] > 0 && rd[i] < 0) || (data[i] < 0 && rd[i] > 0) {
+			out = append(out, 1);
+		} else {
+			out = append(out, 0);
+		}
+	}
+	return out;
+}
