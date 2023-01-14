@@ -685,3 +685,10 @@ func TestRviSignal(t *testing.T) {
 		t.Fatalf("Rvi Signal Failed!")
 	}
 }
+func TestRsiDivergence(t *testing.T) {
+	have := ta.Rsi_divergence([]float64{74,83,66,78,69,70,84,73,74,73,83},5,ta.Wrsi);
+	want := []float64{0,0,1,0,1,0};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("RSI Divergence Failed!")
+	}
+}
