@@ -1683,3 +1683,10 @@ func Rvi(data [][]float64, ln int) []float64 {
 	}
 	return rv;
 }
+func Rvi_signal(rv []float64) []float64 {
+	var sig []float64;
+	for i := 3; i < len(rv); i++ {
+		sig = append(sig,(rv[i]+2*rv[i-1]+2*rv[i-2]+rv[i-3])/6);
+	}
+	return sig;
+}
