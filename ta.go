@@ -1702,3 +1702,16 @@ func Rsi_divergence(data []float64, ln int, rs func([]float64, int) []float64) [
 	}
 	return out;
 }
+func Divergence(data1 []float64, data2 []float64) []float64 {
+	if len(data1) > len(data2) { data1 = data1[len(data1)-len(data2):]; }
+	if len(data2) > len(data1) { data2 = data2[len(data2)-len(data1):]; }
+	var out []float64;
+	for i := 1; i < len(data1); i++ {
+		if (data1[i] > data1[i-1] && data2[i] < data2[i-1]) || (data1[i] < data1[i-1] && data2[i] > data2[i-1]) {
+			out = append(out, 1);
+		} else {
+			out = append(out, 0);
+		}
+	}
+	return out;
+}
