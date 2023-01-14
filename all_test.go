@@ -678,3 +678,10 @@ func TestRvi(t *testing.T) {
 		t.Fatalf("Rvi Failed!");
 	}
 }
+func TestRviSignal(t *testing.T) {
+	have := ta.Rvi_signal([]float64{0.29878048780487804,0.21951219512195122,0.1589403973509934,0.16083916083916086,0.09859154929577463,0.05109489051094891});
+	want := []float64{0.2027541389316547,0.1596104767996724,0.12148278468863555};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Rvi Signal Failed!")
+	}
+}
