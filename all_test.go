@@ -692,3 +692,10 @@ func TestRsiDivergence(t *testing.T) {
 		t.Fatalf("RSI Divergence Failed!")
 	}
 }
+func TestDivergence(t *testing.T) {
+	have := ta.Divergence([]float64{48,34,43,54,56,64,43},[]float64{76,74,43,55,34,32,45,47});
+	want := []float64{0, 0, 1, 1, 0, 1};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Divergence Failed!")
+	}
+}
