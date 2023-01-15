@@ -706,3 +706,10 @@ func TestTimesUp(t *testing.T) {
 		t.Fatalf("TimesUp Failed!")
 	}
 }
+func TestTimesDown(t *testing.T) {
+	have := ta.Times_down([]float64{5,6,7,8,7,6,5},3);
+	want := []float64{0, 0, 0, 1};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("TimesDown Failed!")
+	}
+}

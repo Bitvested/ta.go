@@ -124,6 +124,7 @@ import(
 #### Miscellaneous
 - [Fibonacci Sequence](#fibnumbers)
 - [Times Up](#times_up)
+- [Times Down](#times_dn)
 #### Experimental
 - [Support Line](#sup)
 - [Resistance Line](#res)
@@ -996,6 +997,14 @@ l := 3;
 ta.Times_up(data, length);
 // output []float64{}
 // {1, 0, 0, 0}
+```
+#### <a id="times_dn"></a>Times Down
+```go
+data := []float64{5,6,7,8,7,6,5};
+l := 3;
+ta.Times_down(data, l);
+// output []float64{}
+// {0, 0, 0, 1}
 ```
 ### Experimental Functions
 #### <a id="sup"></a>Support Line
