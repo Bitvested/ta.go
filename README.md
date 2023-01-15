@@ -123,6 +123,7 @@ import(
 - [Renko](#ren)
 #### Miscellaneous
 - [Fibonacci Sequence](#fibnumbers)
+- [Times Up](#times_up)
 #### Experimental
 - [Support Line](#sup)
 - [Resistance Line](#res)
@@ -987,6 +988,14 @@ ta.Ren(data, bricksize);
 ta.Fibnumbers;
 // output []float64{}
 // {0, 1, 1, 2, 3, 5, 8...}
+```
+#### <a id="times_up"></a>Times Up
+```go
+data := []float64{5,6,7,8,7,6,5};
+l := 3;
+ta.Times_up(data, length);
+// output []float64{}
+// {1, 0, 0, 0}
 ```
 ### Experimental Functions
 #### <a id="sup"></a>Support Line

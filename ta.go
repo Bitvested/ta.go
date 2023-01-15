@@ -1715,3 +1715,17 @@ func Divergence(data1 []float64, data2 []float64) []float64 {
 	}
 	return out;
 }
+func Times_up(data []float64, l int) []float64 {
+	var out []float64;
+	for i := l; i < len(data); i++ {
+		var up float64 = 1;
+		for x := i-l+1; x <= i; x++ {
+			if data[x-1] > data[x] {
+				up = 0;
+				break;
+			}
+		}
+		out = append(out, up);
+	}
+	return out;
+}

@@ -699,3 +699,10 @@ func TestDivergence(t *testing.T) {
 		t.Fatalf("Divergence Failed!")
 	}
 }
+func TestTimesUp(t *testing.T) {
+	have := ta.Times_up([]float64{5,6,7,8,7,6,5},3);
+	want := []float64{1, 0, 0, 0};
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("TimesUp Failed!")
+	}
+}
