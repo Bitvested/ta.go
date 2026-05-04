@@ -1,12 +1,22 @@
 package statistics_test
 
 import (
+	"math"
 	"testing"
 
 	tu "github.com/Bitvested/ta.go/internal/testutil"
 	stats "github.com/Bitvested/ta.go/src/statistics"
 	"github.com/stretchr/testify/assert"
 )
+
+// --- v2.0.0 NaN edge cases ---------------------------------------------------
+
+func TestDifNaNOnZeroDenominator(t *testing.T) {
+	got := stats.Dif(1, 0)
+	if !math.IsNaN(got) {
+		t.Fatalf("Dif(_, 0) should return NaN, got %v", got)
+	}
+}
 
 // --- v2.0.0 mutation-free guarantees -----------------------------------------
 

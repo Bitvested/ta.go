@@ -172,7 +172,12 @@ func Cor(data1 []float64, data2 []float64) float64 {
 	return (sumavg / (n * sx * sy))
 }
 
+// Dif is the relative change (n - o) / o. v2.0.0: returns NaN when o is 0
+// instead of producing ±Infinity.
 func Dif(n float64, o float64) float64 {
+	if o == 0 {
+		return math.NaN()
+	}
 	return (n - o) / o
 }
 

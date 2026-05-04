@@ -62,28 +62,35 @@ func MomOsc(data []float64, l int) []float64 {
 	return out
 }
 
+// ChaikinOsc is the Chaikin Oscillator. v2.0.0 removes the dangerous
+// "NaN → 0" coercion: bars with zero range now propagate NaN through ADL
+// and out, instead of silently zeroing the contribution. Bars are
+// [high, close, low, volume].
 func ChaikinOsc(data [][]float64, ema1 int, ema2 int) []float64 {
-	var cha []float64
-	var adl []float64
-	for i := 0; i < len(data); i++ {
-		var mfm = ((data[i][1] - data[i][2]) - (data[i][0] - data[i][1])) / (data[i][0] - data[i][2])
-		if math.IsNaN(mfm) {
-			adl = append(adl, 0)
+	n := len(data)
+	adl := make([]float64, n)
+	for i := 0; i < n; i++ {
+		rng := data[i][0] - data[i][2]
+		var mfm float64
+		if rng == 0 {
+			mfm = math.NaN()
 		} else {
-			adl = append(adl, mfm*data[i][3])
+			mfm = ((data[i][1] - data[i][2]) - (data[i][0] - data[i][1])) / rng
 		}
+		adl[i] = mfm * data[i][3]
 	}
 	ef := ma.Ema(adl, ema1)
 	es := ma.Ema(adl, ema2)
 	if len(ef) > len(es) {
 		ef = ef[len(ef)-len(es):]
-	} else {
+	} else if len(es) > len(ef) {
 		es = es[len(es)-len(ef):]
 	}
-	for i := 0; i < len(ef); i++ {
-		cha = append(cha, ef[i]-es[i])
+	out := make([]float64, len(ef))
+	for i := range ef {
+		out[i] = ef[i] - es[i]
 	}
-	return cha
+	return out
 }
 
 func AroonOsc(data []float64, l int) []float64 {

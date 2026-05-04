@@ -1,12 +1,40 @@
 package indicators_test
 
 import (
+	"math"
 	"testing"
 
 	tu "github.com/Bitvested/ta.go/internal/testutil"
 	ind "github.com/Bitvested/ta.go/src/indicators"
 	"github.com/stretchr/testify/assert"
 )
+
+// --- v2.0.0 NaN edge cases ---------------------------------------------------
+
+func TestRocNaNOnZeroReference(t *testing.T) {
+	got := ind.Roc([]float64{0, 0, 0, 0, 0}, 3)
+	for i, v := range got {
+		if !math.IsNaN(v) {
+			t.Errorf("Roc on flat zero data should be NaN at %d, got %v", i, v)
+		}
+	}
+}
+
+func TestPrNaNOnFlatWindow(t *testing.T) {
+	got := ind.Pr([]float64{5, 5, 5, 5, 5}, 4)
+	for i, v := range got {
+		if !math.IsNaN(v) {
+			t.Errorf("Pr on flat window should be NaN at %d, got %v", i, v)
+		}
+	}
+}
+
+func TestRsiNaNOnFlatWindow(t *testing.T) {
+	got := ind.Rsi([]float64{5, 5, 5, 5, 5, 5, 5, 5}, 6)
+	if len(got) == 0 || !math.IsNaN(got[0]) {
+		t.Errorf("Rsi on flat window should be NaN, got %v", got)
+	}
+}
 
 func TestRsi(t *testing.T) {
 	// v2.0.0: Wilder smoothing (was Cutler simple-average).

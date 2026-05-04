@@ -16,11 +16,10 @@ func TestMomOsc(t *testing.T) {
 }
 
 func TestChaikinOsc(t *testing.T) {
-	have := osc.ChaikinOsc([][]float64{{2, 3, 4, 6}, {5, 5, 5, 4}, {5, 4, 3, 7}, {4, 3, 3, 4}, {6, 5, 4, 6}, {7, 4, 3, 6}}, 2, 4)
-	want := []float64{-1.6666666666666665, -0.28888888888888886, -0.7362962962962962}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("ChaikinOsc Failed!")
-	}
+	// v2.0.0: NaN→0 coercion removed; fixture uses valid H>L bars.
+	have := osc.ChaikinOsc([][]float64{{6, 3, 2, 100}, {7, 5, 4, 200}, {8, 6, 5, 150}, {7, 5, 4, 180}, {9, 8, 7, 120}, {8, 6, 5, 90}}, 2, 4)
+	want := []float64{-0.9259259259259309, 14.802469135802468, 6.000823045267488}
+	tu.Slice(t, have, want, "ChaikinOsc")
 }
 
 func TestAroonOsc(t *testing.T) {

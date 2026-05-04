@@ -311,16 +311,27 @@ func Vwap(data [][]float64, l int) []float64 {
 	return vwap
 }
 
+// Mom is momentum. With p=false returns simple difference; with p=true
+// returns percent (×100) and yields NaN when the reference value is zero.
 func Mom(data []float64, l int, p bool) []float64 {
-	var mom []float64
-	for i := l - 1; i < len(data); i++ {
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	out := make([]float64, 0, n-l+1)
+	for i := l - 1; i < n; i++ {
+		ref := data[i-(l-1)]
 		if p {
-			mom = append(mom, data[i]/data[i-(l-1)]*100)
+			if ref == 0 {
+				out = append(out, math.NaN())
+			} else {
+				out = append(out, data[i]/ref*100)
+			}
 		} else {
-			mom = append(mom, data[i]-data[i-(l-1)])
+			out = append(out, data[i]-ref)
 		}
 	}
-	return mom
+	return out
 }
 
 func Tsi(data []float64, llen int, slen int, sig int) [][]float64 {
@@ -416,15 +427,32 @@ func Alligator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [
 	return ret
 }
 
+// Pr is Williams %R. Returns NaN when the window range is zero (flat data).
 func Pr(data []float64, l int) []float64 {
-	var n []float64
-	for i := l; i <= len(data); i++ {
-		pl := append([]float64(nil), data[i-l:i]...)
-		highd := maxf(pl)
-		lowd := minf(pl)
-		n = append(n, (highd-data[i-1])/(highd-lowd)*-100)
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return n
+	out := make([]float64, 0, n-l+1)
+	for i := l; i <= n; i++ {
+		hi := math.Inf(-1)
+		lo := math.Inf(1)
+		for j := i - l; j < i; j++ {
+			if data[j] > hi {
+				hi = data[j]
+			}
+			if data[j] < lo {
+				lo = data[j]
+			}
+		}
+		rng := hi - lo
+		if rng == 0 {
+			out = append(out, math.NaN())
+		} else {
+			out = append(out, (hi-data[i-1])/rng*-100)
+		}
+	}
+	return out
 }
 
 // Stoch is the Stochastic oscillator (smoothK, smoothD). v2.0.0 uses a
