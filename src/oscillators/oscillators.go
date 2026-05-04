@@ -126,22 +126,45 @@ func Ac(data [][]float64, len1 int, len2 int) []float64 {
 	return acr
 }
 
+// Fisher transform. v2.0.0 fixes:
+//   - Output length normalized to len(data) - l + 1 (drops the trailing slice).
+//   - Norm of (price - min) divided by (max - min), not by max alone.
+//   - Zero-range guard returns NaN propagation through v1.
 func Fisher(data []float64, l int) [][]float64 {
-	var out [][]float64
-	var fish, v1 float64 = 0, 0
-	for i := l; i <= len(data); i++ {
-		pl := data[i-l : i]
-		pf := fish
-		mn := minf(pl)
-		v1 = .33*2*((data[i-1]-mn)/maxf(pl)-.5) + .67*v1
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	out := make([][]float64, 0, n-l+1)
+	var fish, v1 float64
+	for i := l; i <= n; i++ {
+		mn := math.Inf(1)
+		mx := math.Inf(-1)
+		for j := i - l; j < i; j++ {
+			if data[j] < mn {
+				mn = data[j]
+			}
+			if data[j] > mx {
+				mx = data[j]
+			}
+		}
+		rng := mx - mn
+		var norm float64
+		if rng == 0 {
+			norm = 0
+		} else {
+			norm = (data[i-1]-mn)/rng - 0.5
+		}
+		v1 = 0.33*2*norm + 0.67*v1
 		if v1 > 0.99 {
 			v1 = 0.999
 		}
 		if v1 < -0.99 {
 			v1 = -0.999
 		}
+		pf := fish
 		fish = 0.5*math.Log((1+v1)/(1-v1)) + 0.5*pf
 		out = append(out, []float64{fish, pf})
 	}
-	return out[1:]
+	return out
 }

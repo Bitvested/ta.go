@@ -17,14 +17,25 @@ type RecentHighLow struct {
 	Value float64
 }
 
+// Median is the rolling median. v2.0.0: even-window length now returns the
+// average of the two middle sorted values (was lower-middle).
 func Median(data []float64, l int) []float64 {
-	var med []float64
-	for i := l; i <= len(data); i++ {
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	out := make([]float64, 0, n-l+1)
+	for i := l; i <= n; i++ {
 		pl := append([]float64(nil), data[i-l:i]...)
 		sort.Float64s(pl)
-		med = append(med, pl[len(pl)/2-1])
+		half := l / 2
+		if l%2 == 1 {
+			out = append(out, pl[half])
+		} else {
+			out = append(out, (pl[half-1]+pl[half])/2)
+		}
 	}
-	return med
+	return out
 }
 
 func Normalize(data []float64, m float64) []float64 {

@@ -48,11 +48,10 @@ func TestAc(t *testing.T) {
 }
 
 func TestFisher(t *testing.T) {
+	// v2.0.0: norm = (price - min) / (max - min), output length = N - L + 1.
 	have := osc.Fisher([]float64{8, 6, 8, 9, 7, 8, 9, 8, 7, 8, 6, 7}, 9)
-	want := [][]float64{{-0.3181527308248248, -0.1104469157900972}, {-0.4491605923903109, -0.3181527308248248}, {-0.6158050492824234, -0.4491605923903109}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Fisher Failed!")
-	}
+	want := [][]float64{{-0.1104469157900972, 0}, {-0.018907501228583555, -0.1104469157900972}, {-0.32522580129662043, -0.018907501228583555}, {-0.4884829106274281, -0.32522580129662043}}
+	tu.Slice2D(t, have, want, "Fisher")
 }
 
 func TestGator(t *testing.T) {

@@ -3,6 +3,7 @@ package bands_test
 import (
 	"testing"
 
+	tu "github.com/Bitvested/ta.go/internal/testutil"
 	bnd "github.com/Bitvested/ta.go/src/bands"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,11 +25,10 @@ func TestBandwidth(t *testing.T) {
 }
 
 func TestKeltner(t *testing.T) {
+	// v2.0.0: cascades from Atr's absolute-TR fix.
 	have := bnd.Keltner([][]float64{{3, 2, 1}, {2, 2, 1}, {4, 3, 1}, {2, 2, 1}, {3, 3, 1}}, 5, 1)
-	want := [][]float64{{3.932266666666667, 2.066666666666667, 0.20106666666666695}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Keltner Failed!")
-	}
+	want := [][]float64{{4.092266666666667, 2.066666666666667, 0.04106666666666703}}
+	tu.Slice2D(t, have, want, "Keltner")
 }
 
 func TestDon(t *testing.T) {

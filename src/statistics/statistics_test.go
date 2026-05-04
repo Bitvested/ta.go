@@ -3,16 +3,16 @@ package statistics_test
 import (
 	"testing"
 
+	tu "github.com/Bitvested/ta.go/internal/testutil"
 	stats "github.com/Bitvested/ta.go/src/statistics"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMedian(t *testing.T) {
+	// v2.0.0: even-window length returns avg of two middle sorted values.
 	have := stats.Median([]float64{4, 6, 3, 1, 2, 5}, 4)
-	want := []float64{3, 2, 2}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Median Failed!")
-	}
+	want := []float64{3.5, 2.5, 2.5}
+	tu.Slice(t, have, want, "Median")
 }
 
 func TestNormalize(t *testing.T) {
@@ -40,11 +40,10 @@ func TestStandardize(t *testing.T) {
 }
 
 func TestMad(t *testing.T) {
+	// v2.0.0: cascades from Median's avg-of-middles convention.
 	have := stats.Mad([]float64{3, 7, 5, 4, 3, 8, 9}, 6)
-	want := []float64{1, 2}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Mad Failed!")
-	}
+	want := []float64{1.5, 2}
+	tu.Slice(t, have, want, "Mad")
 }
 
 func TestAad(t *testing.T) {
@@ -216,11 +215,10 @@ func TestLog(t *testing.T) {
 }
 
 func TestExp(t *testing.T) {
+	// Tolerant comparator handles cross-runtime last-digit drift in math.Exp.
 	have := stats.Exp([]float64{1.6, 2.63, 2.89, 3.33, 4.22, 4.63})
 	want := []float64{4.953032424395115, 13.873769902129904, 17.993309601550315, 27.938341703236507, 68.03348428941966, 102.51406411049346}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Exp Failed!")
-	}
+	tu.Slice(t, have, want, "Exp")
 }
 
 func TestNcdf(t *testing.T) {

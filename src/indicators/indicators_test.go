@@ -9,11 +9,10 @@ import (
 )
 
 func TestRsi(t *testing.T) {
-	have := ind.Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5}, 6)
-	want := []float64{100, 100, 66.66666666666666}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Rsi Failed!")
-	}
+	// v2.0.0: Wilder smoothing (was Cutler simple-average).
+	have := ind.Rsi([]float64{1, 2, 3, 4, 5, 6, 7, 5, 6, 4}, 6)
+	want := []float64{100, 71.42857142857143, 75.60975609756098, 55.95667870036102}
+	tu.Slice(t, have, want, "Rsi")
 }
 
 func TestWrsi(t *testing.T) {
@@ -49,35 +48,31 @@ func TestAroonDown(t *testing.T) {
 }
 
 func TestMfi(t *testing.T) {
-	have := ind.Mfi([][]float64{{19, 13}, {14, 38}, {21, 25}, {32, 17}}, 3)
-	want := []float64{41.53846153846154, 45.578231292517}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Mfi Failed!")
-	}
+	// v2.0.0: input is [H, L, C, V] tuples (TA-Lib convention).
+	have := ind.Mfi([][]float64{{10, 8, 9, 100}, {12, 10, 11, 150}, {11, 9, 10, 200}, {13, 11, 12, 120}, {12, 10, 11, 80}}, 3)
+	want := []float64{60.70726915520628, 33.333333333333336}
+	tu.Slice(t, have, want, "Mfi")
 }
 
 func TestRoc(t *testing.T) {
+	// v2.0.0: returns percent (×100).
 	have := ind.Roc([]float64{1, 2, 3, 4}, 3)
-	want := []float64{2, 1}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Roc Failed!")
-	}
+	want := []float64{200, 100}
+	tu.Slice(t, have, want, "Roc")
 }
 
 func TestCop(t *testing.T) {
+	// v2.0.0: cascades from Roc percent change (×100).
 	have := ind.Cop([]float64{3, 4, 5, 3, 4, 5, 6, 4, 7, 5, 4, 7, 5}, 4, 6, 5)
-	want := []float64{0.3755555555555556, 0.23666666666666666}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Cop Failed!")
-	}
+	want := []float64{37.55555555555556, 23.666666666666664}
+	tu.Slice(t, have, want, "Cop")
 }
 
 func TestKst(t *testing.T) {
+	// v2.0.0: cascades from Roc ×100 convention.
 	have := ind.Kst([]float64{8, 6, 7, 6, 8, 9, 7, 5, 6, 7, 6, 8, 6, 7, 6, 8, 9, 9, 8, 6, 4, 6, 5, 6, 7, 8, 9}, 5, 7, 10, 15, 5, 5, 5, 7, 4)
-	want := [][]float64{{-0.6828231292517006, -0.5174886621315192}, {-0.2939342403628118, -0.5786281179138322}, {0.3517800453514739, -0.35968820861678}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Kst Failed!")
-	}
+	want := [][]float64{{-68.28231292517006, -51.74886621315193}, {-29.393424036281182, -57.86281179138322}, {35.17800453514739, -35.96882086167801}}
+	tu.Slice2D(t, have, want, "Kst")
 }
 
 func TestObv(t *testing.T) {
@@ -145,19 +140,17 @@ func TestIchimoku(t *testing.T) {
 }
 
 func TestStoch(t *testing.T) {
+	// v2.0.0: monotonic-deque tracker emits one extra leading value.
 	have := ind.Stoch([][]float64{{3, 2, 1}, {2, 2, 1}, {4, 3, 1}, {2, 2, 1}}, 2, 1, 1)
-	want := [][]float64{{66.66666666666667, 66.66666666666667}, {33.333333333333336, 33.333333333333336}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Stoch Failed!")
-	}
+	want := [][]float64{{50, 50}, {66.66666666666667, 66.66666666666667}, {33.333333333333336, 33.333333333333336}}
+	tu.Slice2D(t, have, want, "Stoch")
 }
 
 func TestAtr(t *testing.T) {
+	// v2.0.0: TR uses |H-Cprev| and |L-Cprev|; output length = N - L + 1.
 	have := ind.Atr([][]float64{{3, 2, 1}, {2, 2, 1}, {4, 3, 1}, {2, 2, 1}}, 3)
-	want := []float64{2.0, 1.6666666666666667, 2.111111111111111, 1.7407407407407407}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Atr Failed!")
-	}
+	want := []float64{2.111111111111111, 2.074074074074074}
+	tu.Slice(t, have, want, "Atr")
 }
 
 func TestAlligator(t *testing.T) {
@@ -215,11 +208,10 @@ func TestPsar(t *testing.T) {
 }
 
 func TestSupertrend(t *testing.T) {
+	// v2.0.0: cascades from Atr fix (TR uses absolute values).
 	have := ind.Supertrend([][]float64{{3, 2, 1}, {2, 2, 1}, {4, 3, 1}, {2, 2, 1}}, 3, 0.5)
-	want := [][]float64{{3.5555555555555554, 1.4444444444444444}, {2.3703703703703702, 0.6296296296296297}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Supertrend Failed!")
-	}
+	want := [][]float64{{3.5555555555555554, 1.4444444444444444}, {2.537037037037037, 0.462962962962963}}
+	tu.Slice2D(t, have, want, "Supertrend")
 }
 
 func TestElderray(t *testing.T) {
@@ -271,8 +263,9 @@ func TestDivergence(t *testing.T) {
 }
 
 func TestHalfTrend(t *testing.T) {
+	// v2.0.0: cascades from Atr fix; loop now `i < len(data)` (6 entries instead of 7).
 	have := ind.HalfTrend([][]float64{{100, 97, 90}, {101, 98, 94}, {103, 96, 92}, {106, 100, 95}, {110, 101, 100}, {112, 110, 105}, {110, 100, 90}, {103, 100, 97}, {95, 90, 85}, {94, 80, 80}, {90, 82, 81}, {85, 80, 70}}, 6, 3, 2)
-	want := [][]interface{}{{110.13773148148148, 100.0, 89.86226851851852, "long"}, {115.77674897119341, 105.0, 94.22325102880659, "long"}, {111.32021604938272, 100.0, 88.67978395061728, "long"}, {116.10018004115227, 105.0, 93.89981995884773, "long"}, {111.2485853909465, 100.0, 88.7514146090535, "long"}, {114.76787551440329, 105.0, 95.23212448559671, "long"}, {114.99356995884773, 100.0, 85.00643004115227, "long"}}
+	want := [][]interface{}{{110.13773148148148, 100.0, 89.86226851851852, "long"}, {115.77674897119341, 105.0, 94.22325102880659, "long"}, {111.32021604938272, 100.0, 88.67978395061728, "long"}, {116.9335133744856, 105.0, 93.0664866255144, "long"}, {111.94302983539094, 100.0, 88.05697016460906, "long"}, {115.346579218107, 105.0, 94.653420781893, "long"}}
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("HalfTrend Failed!")
 	}

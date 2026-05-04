@@ -48,16 +48,26 @@ func Bandwidth(data []float64, l int, dev float64) []float64 {
 	return boll
 }
 
+// Keltner channels: Sma(typical) ± dev * Atr. v2.0.0: inherits Atr's new
+// shape (N - L + 1), so the compensating splice is removed; sma and atr are
+// already the same length and tail-aligned.
 func Keltner(data [][]float64, l int, dev float64) [][]float64 {
-	var closing []float64
-	atr := ind.Atr(data, l)
-	var kelt [][]float64
-	for i := 0; i < len(data); i++ {
-		closing = append(closing, (data[i][0]+data[i][1]+data[i][2])/3)
+	closing := make([]float64, len(data))
+	for i := range data {
+		closing[i] = (data[i][0] + data[i][1] + data[i][2]) / 3
 	}
+	atr := ind.Atr(data, l)
 	kma := ma.Sma(closing, l)
-	atr = atr[l-1:]
-	for i := 0; i < len(kma); i++ {
+	if len(atr) != len(kma) {
+		// Defensive: keep the shorter tail.
+		if len(atr) > len(kma) {
+			atr = atr[len(atr)-len(kma):]
+		} else {
+			kma = kma[len(kma)-len(atr):]
+		}
+	}
+	kelt := make([][]float64, 0, len(kma))
+	for i := range kma {
 		kelt = append(kelt, []float64{kma[i] + atr[i]*dev, kma[i], kma[i] - atr[i]*dev})
 	}
 	return kelt

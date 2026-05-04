@@ -61,23 +61,49 @@ func map2d(data [][]float64, key int) []float64 {
 
 // --- exported indicators ------------------------------------------------------
 
+// Rsi is the Wilder-smoothed Relative Strength Index (TA-Lib convention).
+// Returns NaN when both gain and loss are zero (flat window) and 100 when
+// loss is zero with positive gain.
 func Rsi(data []float64, l int) []float64 {
-	var arrsi []float64
-	for i := l; i <= len(data); i++ {
-		pl := append([]float64(nil), data[i-l:i]...)
-		var loss float64
-		var gain float64
-		for q := 1; q < len(pl); q++ {
-			if pl[q]-pl[q-1] < 0 {
-				loss += math.Abs(pl[q] - pl[q-1])
-			} else {
-				gain += pl[q] - pl[q-1]
-			}
-		}
-		var rsi float64 = 100 - 100/(1+((gain/float64(l))/(loss/float64(l))))
-		arrsi = append(arrsi, rsi)
+	n := len(data)
+	if n <= l {
+		return nil
 	}
-	return arrsi
+	var gain, loss float64
+	for i := 1; i <= l; i++ {
+		d := data[i] - data[i-1]
+		if d > 0 {
+			gain += d
+		} else {
+			loss -= d
+		}
+	}
+	avgG := gain / float64(l)
+	avgL := loss / float64(l)
+	out := []float64{rsiVal(avgG, avgL)}
+	for i := l + 1; i < n; i++ {
+		d := data[i] - data[i-1]
+		var up, dn float64
+		if d > 0 {
+			up = d
+		} else {
+			dn = -d
+		}
+		avgG = (avgG*float64(l-1) + up) / float64(l)
+		avgL = (avgL*float64(l-1) + dn) / float64(l)
+		out = append(out, rsiVal(avgG, avgL))
+	}
+	return out
+}
+
+func rsiVal(g, l float64) float64 {
+	if g == 0 && l == 0 {
+		return math.NaN()
+	}
+	if l == 0 {
+		return 100
+	}
+	return 100 - 100/(1+g/l)
 }
 
 func Wrsi(data []float64, l int) []float64 {
@@ -140,32 +166,69 @@ func AroonDown(data []float64, l int) []float64 {
 	return aroon
 }
 
+// Mfi is the Money Flow Index. Input is OHLCV-style: each bar is
+// [high, low, close, volume]. Output length = len(data) - length.
+// Returns NaN when both flows are zero, 100 when only negative flow is zero.
 func Mfi(data [][]float64, l int) []float64 {
-	var mfi []float64
-	var n []float64
-	var p []float64
-	for i := 0; i < len(data); i++ {
-		n = append(n, data[i][1])
-		p = append(p, data[i][0])
+	n := len(data)
+	if n <= l {
+		return nil
 	}
-	for i := l; i <= len(data); i++ {
-		var pos float64
-		var neg float64
-		for q := i - l; q < i; q++ {
-			pos += p[q]
-			neg += n[q]
+	pos := make([]float64, n)
+	neg := make([]float64, n)
+	prevTp := (data[0][0] + data[0][1] + data[0][2]) / 3
+	for i := 1; i < n; i++ {
+		tp := (data[i][0] + data[i][1] + data[i][2]) / 3
+		flow := tp * data[i][3]
+		switch {
+		case tp > prevTp:
+			pos[i] = flow
+		case tp < prevTp:
+			neg[i] = flow
 		}
-		mfi = append(mfi, 100-100/(1+pos/neg))
+		prevTp = tp
 	}
-	return mfi
+	var sumPos, sumNeg float64
+	for i := 1; i <= l; i++ {
+		sumPos += pos[i]
+		sumNeg += neg[i]
+	}
+	out := []float64{mfiVal(sumPos, sumNeg)}
+	for i := l + 1; i < n; i++ {
+		sumPos += pos[i] - pos[i-l]
+		sumNeg += neg[i] - neg[i-l]
+		out = append(out, mfiVal(sumPos, sumNeg))
+	}
+	return out
 }
 
-func Roc(data []float64, l int) []float64 {
-	var roc []float64
-	for i := l; i <= len(data); i++ {
-		roc = append(roc, (data[i-1]-data[i-l])/data[i-l])
+func mfiVal(p, n float64) float64 {
+	if p == 0 && n == 0 {
+		return math.NaN()
 	}
-	return roc
+	if n == 0 {
+		return 100
+	}
+	return 100 * p / (p + n)
+}
+
+// Roc returns rate-of-change as a percentage (TA-Lib convention).
+// Returns NaN when the reference value is zero.
+func Roc(data []float64, l int) []float64 {
+	n := len(data)
+	if n <= l {
+		return nil
+	}
+	out := make([]float64, 0, n-l)
+	for i := l; i <= n; i++ {
+		ref := data[i-l]
+		if ref == 0 {
+			out = append(out, math.NaN())
+		} else {
+			out = append(out, (data[i-1]-ref)/ref*100)
+		}
+	}
+	return out
 }
 
 func Cop(data []float64, l1 int, l2 int, l3 int) []float64 {
@@ -364,39 +427,85 @@ func Pr(data []float64, l int) []float64 {
 	return n
 }
 
+// Stoch is the Stochastic oscillator (smoothK, smoothD). v2.0.0 uses a
+// monotonic-deque high/low tracker plus running-sum smoothing for the K and
+// D series; output is [%K, %D] pairs aligned at the tail. NaN is emitted
+// when the high/low range is zero.
 func Stoch(data [][]float64, l int, sd int, sk int) [][]float64 {
-	var stoch [][]float64
-	var high []float64
-	var low []float64
-	var ka []float64
 	if l < sd {
 		l, sd = sd, l
 	}
 	if sk > sd {
 		sk, sd = sd, sk
 	}
-	for i := 0; i < len(data); i++ {
-		high = append(high, data[i][0])
-		low = append(low, data[i][2])
-		if len(high) >= l {
-			highd := maxf(high)
-			lowd := minf(low)
-			k := 100 * (data[i][1] - lowd) / (highd - lowd)
-			ka = append(ka, k)
-		}
-		if sk > 0 && len(ka) > sk {
-			smoothedk := ma.Sma(ka, sk)
-			ka = append(ka, smoothedk[len(smoothedk)-1])
-		}
-		if len(ka)-sk >= sd {
-			d := ma.Sma(ka, sd)
-			stoch = append(stoch, []float64{ka[len(ka)-1], d[len(d)-1]})
-			high = high[1:]
-			low = low[1:]
-			ka = ka[1:]
-		}
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return stoch
+	qHi := make([]int, 0, n)
+	qLo := make([]int, 0, n)
+	rawBuf := make([]float64, sk)
+	smBuf := make([]float64, sd)
+	var rawSum, smSum float64
+	rawCount, smCount := 0, 0
+	rawIdx, smIdx := 0, 0
+	out := make([][]float64, 0)
+	for i := 0; i < n; i++ {
+		hi, lo := data[i][0], data[i][2]
+		for len(qHi) > 0 && data[qHi[len(qHi)-1]][0] <= hi {
+			qHi = qHi[:len(qHi)-1]
+		}
+		qHi = append(qHi, i)
+		if qHi[0] <= i-l {
+			qHi = qHi[1:]
+		}
+		for len(qLo) > 0 && data[qLo[len(qLo)-1]][2] >= lo {
+			qLo = qLo[:len(qLo)-1]
+		}
+		qLo = append(qLo, i)
+		if qLo[0] <= i-l {
+			qLo = qLo[1:]
+		}
+		if i < l-1 {
+			continue
+		}
+		highd := data[qHi[0]][0]
+		lowd := data[qLo[0]][2]
+		rng := highd - lowd
+		var rawK float64
+		if rng == 0 {
+			rawK = math.NaN()
+		} else {
+			rawK = 100 * (data[i][1] - lowd) / rng
+		}
+		if rawCount < sk {
+			rawBuf[rawIdx] = rawK
+			rawSum += rawK
+			rawCount++
+		} else {
+			rawSum += rawK - rawBuf[rawIdx]
+			rawBuf[rawIdx] = rawK
+		}
+		rawIdx = (rawIdx + 1) % sk
+		if rawCount < sk {
+			continue
+		}
+		smK := rawSum / float64(sk)
+		if smCount < sd {
+			smBuf[smIdx] = smK
+			smSum += smK
+			smCount++
+		} else {
+			smSum += smK - smBuf[smIdx]
+			smBuf[smIdx] = smK
+		}
+		smIdx = (smIdx + 1) % sd
+		if smCount < sd {
+			continue
+		}
+		out = append(out, []float64{smK, smSum / float64(sd)})
+	}
+	return out
 }
 
 // Ichimoku Cloud. v2.0.0 fixes the Senkou Span B bug (lows window now uses
@@ -450,13 +559,34 @@ func Ichimoku(data [][]float64, l1 int, l2 int, l3 int, l4 int) [][]float64 {
 	return cloud
 }
 
+// Atr is the Wilder Average True Range. Bars are [high, close, low].
+// v2.0.0: TR uses absolute values (|H-Cprev|, |L-Cprev|) and output length
+// is len(data) - length + 1, matching sibling indicators.
 func Atr(data [][]float64, l int) []float64 {
-	var atr = []float64{data[0][0] - data[0][2]}
-	for i := 1; i < len(data); i++ {
-		t0 := maxf([]float64{data[i][0] - data[i-1][1], data[i][2] - data[i-1][1], data[i][0] - data[i][2]})
-		atr = append(atr, (atr[len(atr)-1]*(float64(l)-1)+t0)/float64(l))
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return atr
+	prev := data[0][0] - data[0][2]
+	out := make([]float64, 0, n-l+1)
+	if l == 1 {
+		out = append(out, prev)
+	}
+	for i := 1; i < n; i++ {
+		cprev := data[i-1][1]
+		tr := data[i][0] - data[i][2]
+		if v := math.Abs(data[i][0] - cprev); v > tr {
+			tr = v
+		}
+		if v := math.Abs(data[i][2] - cprev); v > tr {
+			tr = v
+		}
+		prev = (prev*float64(l-1) + tr) / float64(l)
+		if i >= l-1 {
+			out = append(out, prev)
+		}
+	}
+	return out
 }
 
 func Fib(start float64, end float64) []float64 {
@@ -513,43 +643,61 @@ func FractalsPrice(data [][]float64) [][]float64 {
 	return out
 }
 
+// HalfTrend mirrors the v2.0.0 JS implementation: 4-tuple output
+// [atrHigh, mid, atrLow, "long"|"short"]; loop is `i < len(data)` (one
+// fewer iteration than the previous Go version); direction is set
+// correctly per branch (was always "long" in the old code).
 func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [][]interface{} {
 	out := make([][]interface{}, 0)
 	nexttrend := []int{0}
 	trend := []int{0}
-	var up []float64
-	var down []float64
-	var direction string
-	for i := atrlen; i <= len(data); i++ {
+	up := []float64{0}
+	down := []float64{0}
+	for i := atrlen; i < len(data); i++ {
 		pl := data[i-atrlen : i]
 		maxlow := pl[len(pl)-2][2]
 		minhigh := pl[len(pl)-2][0]
-		atr2 := Atr(pl, atrlen)
-		atr2 = []float64{atr2[len(atr2)-1] / 2}
-		dev := deviation * atr2[len(atr2)-1]
-		highprice := maxf([]float64{pl[len(pl)-1][0], pl[len(pl)-2][0]})
-		lowprice := minf([]float64{pl[len(pl)-1][2], pl[len(pl)-2][2]})
-		highs := map2d(pl[len(pl)-amplitude:len(pl)], 0)
-		lows := map2d(pl[len(pl)-amplitude:len(pl)], 2)
+		atrSeq := Atr(pl, atrlen)
+		atr2 := atrSeq[len(atrSeq)-1] / 2
+		dev := deviation * atr2
+
+		// max(high) / min(low) over the window
+		highprice := math.Inf(-1)
+		lowprice := math.Inf(1)
+		for _, b := range pl {
+			if b[0] > highprice {
+				highprice = b[0]
+			}
+			if b[2] < lowprice {
+				lowprice = b[2]
+			}
+		}
+		highs := map2d(pl[len(pl)-amplitude:], 0)
+		lows := map2d(pl[len(pl)-amplitude:], 2)
 		highma := ma.Sma(highs, amplitude)
 		lowma := ma.Sma(lows, amplitude)
-		var atrHigh float64
-		var atrLow float64
+
 		if nexttrend[len(nexttrend)-1] == 1 {
-			maxlow = maxf([]float64{lowprice, maxlow})
+			if lowprice > maxlow {
+				maxlow = lowprice
+			}
 			if highma[0] < maxlow && pl[len(pl)-1][1] < pl[len(pl)-2][2] {
 				trend = append(trend, 1)
 				nexttrend = append(nexttrend, 0)
 				minhigh = pl[len(pl)-2][0]
 			}
 		} else {
-			minhigh = minf([]float64{highprice, minhigh})
+			if highprice < minhigh {
+				minhigh = highprice
+			}
 			if lowma[0] > minhigh && pl[len(pl)-1][1] < pl[len(pl)-2][0] {
 				trend = append(trend, 0)
 				nexttrend = append(nexttrend, 1)
 				maxlow = lowprice
 			}
 		}
+
+		var direction string
 		if trend[len(trend)-1] == 0 {
 			if len(trend) > 1 && trend[len(trend)-2] != 0 {
 				if len(down) < 2 {
@@ -560,15 +708,15 @@ func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [
 			} else {
 				if len(up) < 2 {
 					up = append(up, maxlow)
+				} else if up[len(up)-2] > maxlow {
+					up = append(up, up[len(up)-2])
 				} else {
-					up = append(up, maxf([]float64{up[len(up)-2], maxlow}))
+					up = append(up, maxlow)
 				}
 			}
 			direction = "long"
-			atrHigh = up[len(up)-1] + dev
-			atrLow = up[len(up)-1] - dev
 		} else {
-			if len(trend) > 2 && trend[len(trend)-2] != 1 {
+			if len(trend) > 1 && trend[len(trend)-2] != 1 {
 				if len(up) < 2 {
 					down = append(down, up[len(up)-1])
 				} else {
@@ -577,19 +725,31 @@ func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [
 			} else {
 				if len(down) < 2 {
 					down = append(down, minhigh)
+				} else if down[len(down)-2] < minhigh {
+					down = append(down, down[len(down)-2])
 				} else {
-					down = append(down, minf([]float64{minhigh, down[len(down)-2]}))
+					down = append(down, minhigh)
 				}
 			}
-			direction = "long"
-			atrHigh = down[len(down)-1] + dev
-			atrLow = down[len(down)-1] - dev
+			direction = "short"
 		}
-		if trend[len(trend)-1] == 0 {
-			out = append(out, []interface{}{atrHigh, up[len(up)-1], atrLow, direction})
+
+		var anchor float64
+		if direction == "long" {
+			anchor = up[len(up)-1]
 		} else {
-			out = append(out, []interface{}{atrHigh, down[len(down)-1], atrLow})
+			anchor = down[len(down)-1]
 		}
+		atrHigh := anchor + dev
+		atrLow := anchor - dev
+
+		var mid float64
+		if trend[len(trend)-1] == 0 {
+			mid = up[len(up)-1]
+		} else {
+			mid = down[len(down)-1]
+		}
+		out = append(out, []interface{}{atrHigh, mid, atrLow, direction})
 	}
 	return out
 }
@@ -712,11 +872,18 @@ func Psar(data [][]float64, step float64, max float64) []float64 {
 	return final
 }
 
+// Supertrend bands: midprice ± multiplier * ATR. v2.0.0 inherits Atr's
+// new output shape (N - L + 1); the indexing offset is adjusted accordingly.
 func Supertrend(data [][]float64, l int, multiplier float64) [][]float64 {
 	atr := Atr(data, l)
-	var trend [][]float64
+	if len(atr) == 0 {
+		return nil
+	}
+	trend := make([][]float64, 0, len(atr))
 	for i := l - 1; i < len(data); i++ {
-		trend = append(trend, []float64{(data[i][0]+data[i][2])/2 + multiplier*atr[i], (data[i][0]+data[i][2])/2 - multiplier*atr[i]})
+		mid := (data[i][0] + data[i][2]) / 2
+		a := atr[i-(l-1)]
+		trend = append(trend, []float64{mid + multiplier*a, mid - multiplier*a})
 	}
 	return trend
 }
