@@ -115,14 +115,26 @@ func Ssd(data []float64, l int) []float64 {
 	return sd
 }
 
+// Std is the population standard deviation over the trailing `l` values.
+// v2.0.0: no longer mutates the caller's slice, and computes the mean
+// inline with a running sum (avoids the round-trip through ma.Sma).
 func Std(data []float64, l int) float64 {
-	var mean []float64 = ma.Sma(data, l)
-	var average float64
-	for i := len(data) - l; i < len(data); i++ {
-		average += math.Pow(data[i]-mean[len(mean)-1], 2)
+	n := len(data)
+	start := 0
+	if l < n {
+		start = n - l
 	}
-	var std float64 = math.Pow(average/float64(l), 0.5)
-	return std
+	var sum float64
+	for i := start; i < n; i++ {
+		sum += data[i]
+	}
+	mean := sum / float64(l)
+	var sq float64
+	for i := start; i < n; i++ {
+		d := data[i] - mean
+		sq += d * d
+	}
+	return math.Sqrt(sq / float64(l))
 }
 
 func Variance(data []float64, l int) []float64 {
@@ -261,17 +273,25 @@ func Sim(data []float64, l int, sims int) [][]float64 {
 	return sd
 }
 
+// Percentile returns, for each column of a 2D series, the value at the
+// `perc` percentile (0..1). v2.0.0: no longer mutates the input rows —
+// each column is copied to a fresh slice before sorting.
 func Percentile(data [][]float64, perc float64) []float64 {
-	var ret []float64
-	for i := 0; i < len(data[0]); i++ {
-		var tmp []float64
-		for x := 0; x < len(data); x++ {
-			tmp = append(tmp, data[x][i])
-		}
-		sort.Float64s(tmp)
-		ret = append(ret, tmp[int(float64(len(tmp)-1)*perc)])
+	if len(data) == 0 {
+		return nil
 	}
-	return ret
+	cols := len(data[0])
+	out := make([]float64, 0, cols)
+	for i := 0; i < cols; i++ {
+		col := make([]float64, len(data))
+		for r := 0; r < len(data); r++ {
+			col[r] = data[r][i]
+		}
+		sort.Float64s(col)
+		idx := int(math.Round(float64(len(col)-1) * perc))
+		out = append(out, col[idx])
+	}
+	return out
 }
 
 // Kmeans runs 1-D k-means clustering. v2.0.0 fix: actually iterates to

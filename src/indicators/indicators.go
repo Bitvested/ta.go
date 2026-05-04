@@ -949,6 +949,9 @@ func Rsi_divergence(data []float64, ln int, rs func([]float64, int) []float64) [
 	return out
 }
 
+// Divergence reports per-bar divergence (1) or no-divergence (0) between
+// two series. v2.0.0 fix: no longer mutates either input — the trim to the
+// common tail is done with non-mutating slice expressions.
 func Divergence(data1 []float64, data2 []float64) []float64 {
 	if len(data1) > len(data2) {
 		data1 = data1[len(data1)-len(data2):]
@@ -956,9 +959,13 @@ func Divergence(data1 []float64, data2 []float64) []float64 {
 	if len(data2) > len(data1) {
 		data2 = data2[len(data2)-len(data1):]
 	}
-	var out []float64
+	out := make([]float64, 0, len(data1))
 	for i := 1; i < len(data1); i++ {
-		if (data1[i] > data1[i-1] && data2[i] < data2[i-1]) || (data1[i] < data1[i-1] && data2[i] > data2[i-1]) {
+		up1 := data1[i] > data1[i-1]
+		dn1 := data1[i] < data1[i-1]
+		up2 := data2[i] > data2[i-1]
+		dn2 := data2[i] < data2[i-1]
+		if (up1 && dn2) || (dn1 && up2) {
 			out = append(out, 1)
 		} else {
 			out = append(out, 0)

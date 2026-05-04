@@ -8,6 +8,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// --- v2.0.0 mutation-free guarantees -----------------------------------------
+
+func TestStdDoesNotMutateInput(t *testing.T) {
+	in := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	snap := append([]float64(nil), in...)
+	_ = stats.Std(in, 5)
+	if !assert.Equal(t, snap, in) {
+		t.Fatalf("Std mutated its input")
+	}
+}
+
+func TestPercentileDoesNotMutateInput(t *testing.T) {
+	in := [][]float64{{6, 4, 7}, {5, 3, 6}, {7, 5, 8}}
+	snap := make([][]float64, len(in))
+	for i, r := range in {
+		snap[i] = append([]float64(nil), r...)
+	}
+	_ = stats.Percentile(in, 0.5)
+	for i, r := range in {
+		if !assert.Equal(t, snap[i], r) {
+			t.Fatalf("Percentile mutated row %d", i)
+		}
+	}
+}
+
 func TestMedian(t *testing.T) {
 	// v2.0.0: even-window length returns avg of two middle sorted values.
 	have := stats.Median([]float64{4, 6, 3, 1, 2, 5}, 4)
@@ -113,9 +138,7 @@ func TestVariance(t *testing.T) {
 func TestPercentile(t *testing.T) {
 	have := stats.Percentile([][]float64{{6, 4, 7}, {5, 3, 6}, {7, 5, 8}}, 0.5)
 	want := []float64{6, 4, 7}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Percentile Failed!")
-	}
+	tu.Slice(t, have, want, "Percentile")
 }
 
 func TestRecentHigh(t *testing.T) {

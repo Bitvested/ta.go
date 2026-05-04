@@ -257,8 +257,20 @@ func TestRsiDivergence(t *testing.T) {
 func TestDivergence(t *testing.T) {
 	have := ind.Divergence([]float64{48, 34, 43, 54, 56, 64, 43}, []float64{76, 74, 43, 55, 34, 32, 45, 47})
 	want := []float64{0, 0, 1, 1, 0, 1}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Divergence Failed!")
+	tu.Slice(t, have, want, "Divergence")
+}
+
+func TestDivergenceDoesNotMutateInputs(t *testing.T) {
+	d1 := []float64{48, 34, 43, 54, 56, 64, 43}
+	d2 := []float64{76, 74, 43, 55, 34, 32, 45, 47}
+	s1 := append([]float64(nil), d1...)
+	s2 := append([]float64(nil), d2...)
+	_ = ind.Divergence(d1, d2)
+	if !assert.Equal(t, s1, d1) {
+		t.Fatalf("Divergence mutated data1")
+	}
+	if !assert.Equal(t, s2, d2) {
+		t.Fatalf("Divergence mutated data2")
 	}
 }
 
