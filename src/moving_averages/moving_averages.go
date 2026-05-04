@@ -35,21 +35,25 @@ func Ema(data []float64, l int) []float64 {
 	return ema
 }
 
+// Smma is the Wilder smoothed moving average. Seed = SMA of the first
+// `l` values; subsequent values use SMMA[i] = SMMA[i-1] + (data[i] - SMMA[i-1]) / l.
+// Output length is len(data) - l + 1, matching sibling MA functions.
 func Smma(data []float64, l int) []float64 {
-	var smma []float64
-	for i := l; i <= len(data); i++ {
-		pl := append([]float64(nil), data[i-l:i]...)
-		var average float64
-		for q := 0; q < len(pl); q++ {
-			average += pl[q]
-		}
-		if len(smma) <= 0 {
-			smma = append(smma, average/float64(l))
-		} else {
-			smma = append(smma, (average-smma[len(smma)-1])/float64(l))
-		}
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return smma[1:]
+	var seed float64
+	for i := 0; i < l; i++ {
+		seed += data[i]
+	}
+	prev := seed / float64(l)
+	out := []float64{prev}
+	for i := l; i < n; i++ {
+		prev = prev + (data[i]-prev)/float64(l)
+		out = append(out, prev)
+	}
+	return out
 }
 
 func Wma(data []float64, l int) []float64 {

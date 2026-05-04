@@ -399,30 +399,53 @@ func Stoch(data [][]float64, l int, sd int, sk int) [][]float64 {
 	return stoch
 }
 
+// Ichimoku Cloud. v2.0.0 fixes the Senkou Span B bug (lows window now uses
+// length3, matching the highs window) and replaces the per-window max/min
+// loop with a rolling-extremum pass.
 func Ichimoku(data [][]float64, l1 int, l2 int, l3 int, l4 int) [][]float64 {
-	var pl [][]float64
-	var cloud [][]float64
-	var place [][]float64
-	for i := 0; i < len(data); i++ {
-		pl = append(pl, data[i])
-		if len(pl) >= l3 {
-			var highs []float64
-			var lows []float64
-			for a := 0; a < len(pl); a++ {
-				highs = append(highs, pl[a][0])
-				lows = append(lows, pl[a][2])
-			}
-			tsen := (maxf(highs[len(highs)-l1:]) + minf(lows[len(lows)-l1:])) / 2
-			ksen := (maxf(highs[len(highs)-l2:]) + minf(lows[len(lows)-l2:])) / 2
-			senka := data[i][1] + ksen
-			senkb := (maxf(highs[len(highs)-l3:]) + minf(lows[len(lows)-l2:])) / 2
-			chik := data[i][1]
-			place = append(place, []float64{tsen, ksen, senka, senkb, chik})
-			pl = pl[1:]
-		}
+	n := len(data)
+	if n < l3 {
+		return nil
 	}
+	place := make([][]float64, 0, n-l3+1)
+	for i := l3 - 1; i < n; i++ {
+		h1, l1lo := math.Inf(-1), math.Inf(1)
+		for j := i - l1 + 1; j <= i; j++ {
+			if data[j][0] > h1 {
+				h1 = data[j][0]
+			}
+			if data[j][2] < l1lo {
+				l1lo = data[j][2]
+			}
+		}
+		h2, l2lo := math.Inf(-1), math.Inf(1)
+		for j := i - l2 + 1; j <= i; j++ {
+			if data[j][0] > h2 {
+				h2 = data[j][0]
+			}
+			if data[j][2] < l2lo {
+				l2lo = data[j][2]
+			}
+		}
+		h3, l3lo := math.Inf(-1), math.Inf(1)
+		for j := i - l3 + 1; j <= i; j++ {
+			if data[j][0] > h3 {
+				h3 = data[j][0]
+			}
+			if data[j][2] < l3lo {
+				l3lo = data[j][2]
+			}
+		}
+		tsen := (h1 + l1lo) / 2
+		ksen := (h2 + l2lo) / 2
+		senka := data[i][1] + ksen
+		senkb := (h3 + l3lo) / 2
+		chik := data[i][1]
+		place = append(place, []float64{tsen, ksen, senka, senkb, chik})
+	}
+	cloud := make([][]float64, 0)
 	for i := l4; i < len(place)-l4; i++ {
-		cloud = append(cloud, []float64{place[i][0], place[i][1], place[i+l4][2], place[i+(l4)][3], place[i-l4][4]})
+		cloud = append(cloud, []float64{place[i][0], place[i][1], place[i+l4][2], place[i+l4][3], place[i-l4][4]})
 	}
 	return cloud
 }
@@ -440,26 +463,54 @@ func Fib(start float64, end float64) []float64 {
 	return []float64{start, (end-start)*.236 + start, (end-start)*.382 + start, (end-start)*.5 + start, (end-start)*.618 + start, (end-start)*.786 + start, end, (end-start)*1.618 + start, (end-start)*2.618 + start, (end-start)*3.618 + start, (end-start)*4.236 + start}
 }
 
+// Fractals returns boolean up/down fractal markers for each bar (Williams
+// fractals on [high, low] tuples). The first two and last two bars are
+// padded with [false, false]; the price-mode variant is FractalsPrice.
 func Fractals(data [][]float64) [][]bool {
-	var fractals = [][]bool{{false, false}, {false, false}}
+	out := [][]bool{{false, false}, {false, false}}
 	for i := 2; i < len(data)-2; i++ {
-		var up bool
-		var down bool
-		if data[i-2][0] < data[i][0] && data[i-1][0] < data[i][0] && data[i][0] > data[i+1][0] && data[i][0] > data[i+2][0] {
-			up = true
-		} else {
-			up = false
-		}
-		if data[i-2][1] > data[i][1] && data[i-1][1] > data[i][1] && data[i][1] < data[i+1][1] && data[i][1] < data[i+2][1] {
-			down = true
-		} else {
-			down = false
-		}
-		fractals = append(fractals, []bool{up, down})
+		isUp := data[i-2][0] < data[i][0] &&
+			data[i-1][0] < data[i][0] &&
+			data[i][0] > data[i+1][0] &&
+			data[i][0] > data[i+2][0]
+		isDown := data[i-2][1] > data[i][1] &&
+			data[i-1][1] > data[i][1] &&
+			data[i][1] < data[i+1][1] &&
+			data[i][1] < data[i+2][1]
+		out = append(out, []bool{isUp, isDown})
 	}
-	fractals = append(fractals, []bool{false, false})
-	fractals = append(fractals, []bool{false, false})
-	return fractals
+	out = append(out, []bool{false, false}, []bool{false, false})
+	return out
+}
+
+// FractalsPrice is the price-mode variant of Fractals: each bar emits
+// [highPriceIfUp, lowPriceIfDown] with -1 sentinel for "no fractal".
+// Two leading and two trailing pad rows of [-1, -1] keep the output the
+// same length as data.
+func FractalsPrice(data [][]float64) [][]float64 {
+	pad := []float64{-1, -1}
+	out := [][]float64{pad, pad}
+	for i := 2; i < len(data)-2; i++ {
+		isUp := data[i-2][0] < data[i][0] &&
+			data[i-1][0] < data[i][0] &&
+			data[i][0] > data[i+1][0] &&
+			data[i][0] > data[i+2][0]
+		isDown := data[i-2][1] > data[i][1] &&
+			data[i-1][1] > data[i][1] &&
+			data[i][1] < data[i+1][1] &&
+			data[i][1] < data[i+2][1]
+		hi := -1.0
+		lo := -1.0
+		if isUp {
+			hi = data[i][0]
+		}
+		if isDown {
+			lo = data[i][1]
+		}
+		out = append(out, []float64{hi, lo})
+	}
+	out = append(out, pad, pad)
+	return out
 }
 
 func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [][]interface{} {
@@ -640,7 +691,7 @@ func Psar(data [][]float64, step float64, max float64) []float64 {
 		} else {
 			sar = maxf([]float64{sar, furthest[0], prev[0]})
 			if data[i][1] < extreme {
-				extreme = data[i][0]
+				extreme = data[i][1] // v2.0.0 fix: was data[i][0] (high) — must be data[i][1] (low) in downtrend
 				accel = minf([]float64{accel + step, max})
 			}
 		}

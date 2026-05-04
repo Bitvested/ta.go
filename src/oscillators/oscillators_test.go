@@ -3,16 +3,16 @@ package oscillators_test
 import (
 	"testing"
 
+	tu "github.com/Bitvested/ta.go/internal/testutil"
 	osc "github.com/Bitvested/ta.go/src/oscillators"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMomOsc(t *testing.T) {
+	// v2.0.0: Chande CMO formula (sum of price changes, not prices).
 	have := osc.MomOsc([]float64{1, 1.2, 1.3, 1.3, 1.2, 1.4}, 4)
-	want := []float64{31.57894736842105, -31.57894736842105, -28.20512820512821}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("MomOsc Failed!")
-	}
+	want := []float64{50, 50}
+	tu.Slice(t, have, want, "MomOsc")
 }
 
 func TestChaikinOsc(t *testing.T) {
@@ -56,9 +56,8 @@ func TestFisher(t *testing.T) {
 }
 
 func TestGator(t *testing.T) {
+	// v2.0.0: cascades from Smma's Wilder fix.
 	have := osc.Gator([]float64{8, 7, 8, 9, 7, 8, 9, 6, 7, 8, 6, 8, 10, 8, 7, 9, 8, 7, 9, 6, 7, 9}, 13, 8, 5, 8, 5, 3)
-	want := [][]float64{{0.23249042726568714, -0.5289079390282767}, {0.05222951769608297, -0.4002233481486188}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Gator Failed!")
-	}
+	want := [][]float64{{-0.08721987687932575, -0.17579145857838796}, {-0.14292064217641176, -0.1174390727798702}, {-0.1506582487087984, -0.1107115635933269}}
+	tu.Slice2D(t, have, want, "Gator")
 }

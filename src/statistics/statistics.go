@@ -263,46 +263,47 @@ func Percentile(data [][]float64, perc float64) []float64 {
 	return ret
 }
 
+// Kmeans runs 1-D k-means clustering. v2.0.0 fix: actually iterates to
+// convergence (the previous implementation reset means once and stopped).
+// Each iteration: snapshot centers, assign points to nearest center,
+// recompute centers as the mean of each cluster, loop until no center moves.
 func Kmeans(data []float64, clusters int) [][]float64 {
-	var means [][]float64
-	var n int
-	var centers []float64
-	var old []float64
-	changed := false
 	init := int(math.Round(float64(len(data)) / float64(clusters+1)))
+	centers := make([]float64, clusters)
 	for i := 0; i < clusters; i++ {
-		centers = append(centers, data[init*(1+i)])
+		centers[i] = data[init*(i+1)]
 	}
-	for ok := true; ok == true; ok = changed {
-		for i := 0; i < clusters; i++ {
-			means = append(means, []float64{})
+	means := make([][]float64, clusters)
+	changed := true
+	for changed {
+		changed = false
+		for i := range means {
+			means[i] = means[i][:0]
 		}
 		for x := 0; x < len(data); x++ {
-			var oldrange float64 = -1
-			for y := 0; y < clusters; y++ {
+			best := math.Abs(centers[0] - data[x])
+			n := 0
+			for y := 1; y < clusters; y++ {
 				r := math.Abs(centers[y] - data[x])
-				if oldrange == -1 {
-					oldrange = r
-					n = y
-				} else if r <= oldrange {
-					oldrange = r
+				if r <= best {
+					best = r
 					n = y
 				}
 			}
 			means[n] = append(means[n], data[x])
 		}
-		old = centers
 		for x := 0; x < clusters; x++ {
-			var sum float64
-			for y := 0; y < len(means[x]); y++ {
-				sum += means[x][y]
+			if len(means[x]) == 0 {
+				continue
 			}
-			m := sum / float64(len(means[n]))
-			centers[x] = m
-		}
-		for x := 0; x < clusters; x++ {
-			if centers[x] != old[x] {
-				break
+			var sum float64
+			for _, v := range means[x] {
+				sum += v
+			}
+			m := sum / float64(len(means[x]))
+			if m != centers[x] {
+				centers[x] = m
+				changed = true
 			}
 		}
 	}

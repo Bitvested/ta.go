@@ -33,21 +33,33 @@ func Gator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [][]f
 	return ret
 }
 
+// MomOsc is the Chande Momentum Oscillator (CMO). v2.0.0 corrects the
+// formula: sum the price *changes* (not the prices themselves) for up-days
+// vs down-days. NaN is emitted when both sums are zero (flat window).
 func MomOsc(data []float64, l int) []float64 {
-	var osc []float64
-	for i := l; i <= len(data); i++ {
-		var sumh float64
-		var suml float64
-		for a := 1; a < l; a++ {
-			if data[i-l+(a-1)] < data[i-l+a] {
-				sumh += data[i-l+a]
-			} else {
-				suml += data[i-l+a]
+	n := len(data)
+	if n <= l {
+		return nil
+	}
+	out := make([]float64, 0, n-l)
+	for i := l; i < n; i++ {
+		var sumh, suml float64
+		for j := i - l + 1; j <= i; j++ {
+			d := data[j] - data[j-1]
+			if d > 0 {
+				sumh += d
+			} else if d < 0 {
+				suml -= d
 			}
 		}
-		osc = append(osc, (sumh-suml)/(sumh+suml)*100)
+		denom := sumh + suml
+		if denom == 0 {
+			out = append(out, math.NaN())
+		} else {
+			out = append(out, (sumh-suml)/denom*100)
+		}
 	}
-	return osc
+	return out
 }
 
 func ChaikinOsc(data [][]float64, ema1 int, ema2 int) []float64 {

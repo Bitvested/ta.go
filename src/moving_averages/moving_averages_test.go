@@ -3,6 +3,7 @@ package movingaverages_test
 import (
 	"testing"
 
+	tu "github.com/Bitvested/ta.go/internal/testutil"
 	ma "github.com/Bitvested/ta.go/src/moving_averages"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,11 +25,10 @@ func TestEma(t *testing.T) {
 }
 
 func TestSmma(t *testing.T) {
+	// v2.0.0: Wilder recurrence; output length = N - L + 1.
 	have := ma.Smma([]float64{1, 2, 3, 4, 5, 6, 10}, 5)
-	want := []float64{3.4, 4.92}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Smma Failed!")
-	}
+	want := []float64{3, 3.6, 4.88}
+	tu.Slice(t, have, want, "Smma")
 }
 
 func TestWma(t *testing.T) {

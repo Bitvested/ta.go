@@ -3,6 +3,7 @@ package indicators_test
 import (
 	"testing"
 
+	tu "github.com/Bitvested/ta.go/internal/testutil"
 	ind "github.com/Bitvested/ta.go/src/indicators"
 	"github.com/stretchr/testify/assert"
 )
@@ -160,11 +161,10 @@ func TestAtr(t *testing.T) {
 }
 
 func TestAlligator(t *testing.T) {
+	// v2.0.0: cascades from Smma's Wilder recurrence + length-N+1 output.
 	have := ind.Alligator([]float64{8, 7, 8, 9, 7, 8, 9, 6, 7, 8, 6, 8, 10, 8, 7, 9, 8, 7, 9, 6, 7, 9}, 13, 8, 5, 8, 5, 3)
-	want := [][]float64{{7.217569412835686, 6.985078985569999, 6.456171046541722}, {7.171597633136094, 7.119368115440011, 6.719144767291392}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Alligator Failed!")
-	}
+	want := [][]float64{{7.726445152480656, 7.813665029359981, 7.6378735707815935}, {7.78698224852071, 7.929902890697122, 8.047341963476992}, {7.769230769230769, 7.919889017939568, 7.809177454346241}}
+	tu.Slice2D(t, have, want, "Alligator")
 }
 
 func TestFractals(t *testing.T) {
@@ -173,6 +173,13 @@ func TestFractals(t *testing.T) {
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Fractals Failed!")
 	}
+}
+
+func TestFractalsPrice(t *testing.T) {
+	// v2.0.0 new variant: emits highs at up-fractals, lows at down-fractals, -1 elsewhere.
+	have := ind.FractalsPrice([][]float64{{7, 6}, {8, 6}, {9, 6}, {8, 5}, {7, 4}, {6, 3}, {7, 4}, {8, 5}})
+	want := [][]float64{{-1, -1}, {-1, -1}, {9, -1}, {-1, -1}, {-1, -1}, {-1, 3}, {-1, -1}, {-1, -1}}
+	tu.Slice2D(t, have, want, "FractalsPrice")
 }
 
 func TestFib(t *testing.T) {
@@ -200,11 +207,11 @@ func TestZigZag(t *testing.T) {
 }
 
 func TestPsar(t *testing.T) {
-	have := ind.Psar([][]float64{{82.15, 81.29}, {81.89, 80.64}, {83.03, 81.31}, {83.30, 82.65}, {83.85, 83.07}, {83.90, 83.11}, {83.33, 82.49}, {84.30, 82.3}, {84.84, 84.15}, {85, 84.11}, {75.9, 74.03}, {76.58, 75.39}, {76.98, 75.76}, {78, 77.17}, {70.87, 70.01}}, 0.02, 0.2)
-	want := []float64{81.29, 82.15, 80.64, 80.64, 80.7464, 80.932616, 81.17000672, 81.3884061824, 81.67956556416, 82.0588176964608, 85, 85, 84.7806, 84.565588, 84.35487624000001}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Psar Failed!")
-	}
+	// v2.0.0: downtrend extreme tracks the LOW (data[i][1]), not high.
+	// Fixture extends past the original last bug-quiet bar so the corrected branch is exercised.
+	have := ind.Psar([][]float64{{82.15, 81.29}, {81.89, 80.64}, {83.03, 81.31}, {83.30, 82.65}, {83.85, 83.07}, {83.90, 83.11}, {83.33, 82.49}, {84.30, 82.3}, {84.84, 84.15}, {85, 84.11}, {75.9, 74.03}, {76.58, 75.39}, {76.98, 75.76}, {78, 77.17}, {70.87, 70.01}, {70.50, 69.50}, {69.00, 68.00}, {68.50, 67.50}}, 0.02, 0.2)
+	want := []float64{81.29, 82.15, 80.64, 80.64, 80.7464, 80.932616, 81.17000672, 81.3884061824, 81.67956556416, 82.0588176964608, 85, 85, 84.7806, 84.565588, 84.35487624000001, 83.78108119040002, 82.92421631897602, 81.73027901345795}
+	tu.Slice(t, have, want, "Psar")
 }
 
 func TestSupertrend(t *testing.T) {
