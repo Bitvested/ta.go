@@ -35,3 +35,20 @@ Note: the existing Rsi was already a Wilder recurrence (not slice-
 rebuilding), so the plan's ≥10× target was anchored to a worse
 baseline than ta.go actually had. The remaining wins are pre-alloc
 and a hoisted 1/l in a single delta branch per bar.
+
+#3 bands.Bands — inline running Σx, Σx², single backing slice
+==============================================================
+Before:
+BenchmarkBands1k-8     50µs/op   150289 B/op   1059 allocs/op
+BenchmarkBands10k-8   815µs/op  1941595 B/op  10501 allocs/op
+BenchmarkBands100k-8   22ms/op 22905704 B/op 104806 allocs/op
+
+After:
+BenchmarkBands1k-8     6.7µs/op   49152 B/op    2 allocs/op
+BenchmarkBands10k-8     82µs/op  491522 B/op    2 allocs/op
+BenchmarkBands100k-8   524µs/op 4800518 B/op    2 allocs/op
+
+Speedup: 7.5× / 10× / 42× (plan target ≥14× at 100k bars).
+Two changes: variance via Σx²/l − mean² with running-sum delta
+(no per-window stats.Std call) and a single 3·rows backing array
+that the [][]float64 result indexes into (one of the two allocs).

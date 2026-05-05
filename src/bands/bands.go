@@ -3,6 +3,7 @@
 package bands
 
 import (
+	"math"
 	"sort"
 
 	ind "github.com/Bitvested/ta.go/src/indicators"
@@ -20,23 +21,48 @@ func minf(v []float64) float64 {
 	return v[0]
 }
 
+// Bands is the Bollinger band — center is SMA(data, l) and the upper/lower
+// envelopes are ±dev × pop-std. v2.0.0 perf: pre-allocated output and an
+// inline running Σx / Σx² recurrence (variance = Σx²/l − mean²) so the
+// hot path no longer rebuilds windows or calls statistics.Std per bar.
 func Bands(data []float64, l int, dev float64) [][]float64 {
-	var pl []float64
-	var deviation []float64
-	var boll [][]float64
-	sma := ma.Sma(data, l)
-	for i := 0; i < len(data); i++ {
-		pl = append(pl, data[i])
-		if len(pl) >= l {
-			devi := stats.Std(pl, l)
-			deviation = append(deviation, devi)
-			pl = pl[1:]
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	lf := float64(l)
+	var sumX, sumX2 float64
+	for i := 0; i < l; i++ {
+		sumX += data[i]
+		sumX2 += data[i] * data[i]
+	}
+	rows := n - l + 1
+	flat := make([]float64, 3*rows)
+	out := make([][]float64, rows)
+	for i := range out {
+		out[i] = flat[i*3 : i*3+3 : i*3+3]
+	}
+	mean := sumX / lf
+	v := sumX2/lf - mean*mean
+	if v < 0 {
+		v = 0
+	}
+	std := math.Sqrt(v)
+	out[0][0], out[0][1], out[0][2] = mean+std*dev, mean, mean-std*dev
+	for i := l; i < n; i++ {
+		incoming, outgoing := data[i], data[i-l]
+		sumX += incoming - outgoing
+		sumX2 += incoming*incoming - outgoing*outgoing
+		mean = sumX / lf
+		v = sumX2/lf - mean*mean
+		if v < 0 {
+			v = 0
 		}
+		std = math.Sqrt(v)
+		row := out[i-l+1]
+		row[0], row[1], row[2] = mean+std*dev, mean, mean-std*dev
 	}
-	for i := 0; i < len(sma); i++ {
-		boll = append(boll, []float64{sma[i] + deviation[i]*dev, sma[i], sma[i] - deviation[i]*dev})
-	}
-	return boll
+	return out
 }
 
 func Bandwidth(data []float64, l int, dev float64) []float64 {
