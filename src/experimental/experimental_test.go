@@ -30,3 +30,22 @@ func TestResistance(t *testing.T) {
 		t.Fatalf("LineCalc Failed!")
 	}
 }
+
+func TestDivergenceState(t *testing.T) {
+	have := exp.DivergenceState(
+		[]float64{48, 34, 43, 54, 56, 64, 43, 51, 52, 53, 55, 51, 48, 45, 40, 42, 44, 45},
+		[]float64{76, 74, 43, 55, 34, 32, 45, 47, 48, 53, 54, 54, 50, 52, 49, 47, 48, 46},
+		12, 3, 1, 0.03, 0.01,
+	)
+	want := [][]string{
+		{"convergence"},
+		{"divergence"},
+		{"convergence"},
+		{"divergence"},
+		{"convergence"},
+		{"exaggerated_bearish"},
+	}
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("DivergenceState Failed!")
+	}
+}
