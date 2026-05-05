@@ -1,0 +1,8 @@
+github.com/cinar/indicator v1.3.0 h1:dfJ9CvcwArICf7Q4143axgTu/mmxizon2SqR2UUbLdk=
+github.com/cinar/indicator v1.3.0/go.mod h1:5eX8f1PG9g3RKSoHsoQxKd8bIN97Cf/gbgxXjihROpI=
+github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
+github.com/markcheno/go-talib v0.0.0-20250114000313-ec55a20c902f h1:iKq//xEUUaeRoXNcAshpK4W8eSm7HtgI0aNznWtX7lk=
+github.com/markcheno/go-talib v0.0.0-20250114000313-ec55a20c902f/go.mod h1:3YUtoVrKWu2ql+iAeRyepSz3fy6a+19hJzGS88+u4u0=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
+gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
