@@ -1,0 +1,19 @@
+Phase 4 performance rewrites — before/after benchmarks.
+Hardware: VirtualApple @ 2.50GHz, GOOS=darwin GOARCH=amd64.
+Input data: deterministic-seeded random walk from math/rand.
+All benches use -count=3, -benchmem.
+
+#1 movingaverages.Sma — running-sum recurrence
+================================================
+Before:
+BenchmarkSma1k-8     31µs/op    135752 B/op    999 allocs/op
+BenchmarkSma10k-8   749µs/op   4497270 B/op   9970 allocs/op
+BenchmarkSma100k-8   30ms/op 182946100 B/op  99843 allocs/op
+
+After:
+BenchmarkSma1k-8     1.5µs/op    8192 B/op    1 allocs/op
+BenchmarkSma10k-8     13µs/op   81920 B/op    1 allocs/op
+BenchmarkSma100k-8   154µs/op  802822 B/op    1 allocs/op
+
+Speedup: 21× / 58× / 195× (plan target ≥33× at 100k bars).
+Alloc count drops from O(n) to 1 (single output slice).

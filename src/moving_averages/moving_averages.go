@@ -4,17 +4,26 @@ package movingaverages
 
 import "math"
 
+// Sma is the simple moving average over `l` bars. v2.0.0 perf: O(n)
+// running-sum recurrence (sum += new − old) and a single pre-allocated
+// output slice — no per-window copy.
 func Sma(data []float64, l int) []float64 {
-	var sma []float64
-	for i := l; i <= len(data); i++ {
-		var avg float64
-		tmp := append([]float64(nil), data[i-l:i]...)
-		for x := 0; x < len(tmp); x++ {
-			avg += tmp[x]
-		}
-		sma = append(sma, avg/float64(l))
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return sma
+	out := make([]float64, n-l+1)
+	var sum float64
+	for i := 0; i < l; i++ {
+		sum += data[i]
+	}
+	lf := float64(l)
+	out[0] = sum / lf
+	for i := l; i < n; i++ {
+		sum += data[i] - data[i-l]
+		out[i-l+1] = sum / lf
+	}
+	return out
 }
 
 func Ema(data []float64, l int) []float64 {
