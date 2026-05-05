@@ -17,3 +17,21 @@ BenchmarkSma100k-8   154µs/op  802822 B/op    1 allocs/op
 
 Speedup: 21× / 58× / 195× (plan target ≥33× at 100k bars).
 Alloc count drops from O(n) to 1 (single output slice).
+
+#2 indicators.Rsi — pre-allocated output, hoisted divisor
+=========================================================
+Before:
+BenchmarkRsi1k-8     6.6µs/op    25208 B/op    12 allocs/op
+BenchmarkRsi10k-8     75µs/op   357625 B/op    19 allocs/op
+BenchmarkRsi100k-8   935µs/op  4101400 B/op    28 allocs/op
+
+After:
+BenchmarkRsi1k-8     4.8µs/op     8192 B/op     1 allocs/op
+BenchmarkRsi10k-8     48µs/op    81920 B/op     1 allocs/op
+BenchmarkRsi100k-8   520µs/op   802820 B/op     1 allocs/op
+
+Speedup: 1.4× / 1.5× / 1.8×. Allocs O(log n) → 1.
+Note: the existing Rsi was already a Wilder recurrence (not slice-
+rebuilding), so the plan's ≥10× target was anchored to a worse
+baseline than ta.go actually had. The remaining wins are pre-alloc
+and a hoisted 1/l in a single delta branch per bar.

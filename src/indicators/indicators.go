@@ -64,6 +64,9 @@ func map2d(data [][]float64, key int) []float64 {
 // Rsi is the Wilder-smoothed Relative Strength Index (TA-Lib convention).
 // Returns NaN when both gain and loss are zero (flat window) and 100 when
 // loss is zero with positive gain.
+//
+// v2.0.0 perf: pre-allocated output, hoisted 1/l divisor, single delta
+// branch per bar.
 func Rsi(data []float64, l int) []float64 {
 	n := len(data)
 	if n <= l {
@@ -78,20 +81,21 @@ func Rsi(data []float64, l int) []float64 {
 			loss -= d
 		}
 	}
-	avgG := gain / float64(l)
-	avgL := loss / float64(l)
-	out := []float64{rsiVal(avgG, avgL)}
+	lf := float64(l)
+	avgG := gain / lf
+	avgL := loss / lf
+	out := make([]float64, n-l)
+	out[0] = rsiVal(avgG, avgL)
 	for i := l + 1; i < n; i++ {
 		d := data[i] - data[i-1]
-		var up, dn float64
 		if d > 0 {
-			up = d
+			avgG += (d - avgG) / lf
+			avgL += (0 - avgL) / lf
 		} else {
-			dn = -d
+			avgG += (0 - avgG) / lf
+			avgL += (-d - avgL) / lf
 		}
-		avgG = (avgG*float64(l-1) + up) / float64(l)
-		avgL = (avgL*float64(l-1) + dn) / float64(l)
-		out = append(out, rsiVal(avgG, avgL))
+		out[i-l] = rsiVal(avgG, avgL)
 	}
 	return out
 }
