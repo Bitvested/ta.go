@@ -110,3 +110,39 @@ func TestCwma(t *testing.T) {
 		t.Fatalf("Cwma Failed!")
 	}
 }
+
+func TestDema(t *testing.T) {
+	have := ma.Dema([]float64{1, 2, 3, 4, 5, 6, 10}, 3)
+	want := []float64{5, 6, 9.25}
+	tu.Slice(t, have, want, "Dema")
+}
+
+func TestTema(t *testing.T) {
+	have := ma.Tema([]float64{1, 2, 3, 4, 5, 6, 10, 8, 11}, 3)
+	want := []float64{9.5, 8.5, 10.71875}
+	tu.Slice(t, have, want, "Tema")
+}
+
+func TestT3(t *testing.T) {
+	have := ma.T3([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, 2, 0.7)
+	want := []float64{6.549999999999997, 7.550000000000001, 8.550000000000004, 9.549999999999997, 10.550000000000004, 11.550000000000004}
+	tu.Slice(t, have, want, "T3")
+}
+
+func TestTrima(t *testing.T) {
+	have := ma.Trima([]float64{1, 2, 3, 4, 5, 6, 7}, 5)
+	want := []float64{3, 4, 5}
+	tu.Slice(t, have, want, "Trima")
+}
+
+func TestVidya(t *testing.T) {
+	have := ma.Vidya([]float64{2, 4, 3, 6, 5, 7, 8, 6, 9, 10}, 2, 5, 0.2)
+	want := []float64{6, 5.929289321881345, 6.080710678118655, 6.192267103986121, 6.154560422638152, 6.758169308820896, 6.987401355340037}
+	tu.Slice(t, have, want, "Vidya")
+}
+
+func TestZlema(t *testing.T) {
+	have := ma.Zlema([]float64{10, 11, 9, 12, 8, 13, 7}, 4)
+	want := []float64{10, 10.8, 9.280000000000001, 11.568000000000001, 8.5408, 12.324480000000001, 7.794688000000001}
+	tu.Slice(t, have, want, "Zlema")
+}

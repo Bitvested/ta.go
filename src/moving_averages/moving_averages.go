@@ -256,3 +256,173 @@ func Cwma(data []float64, weights []float64) []float64 {
 	}
 	return ma
 }
+
+// Dema is the Double Exponential Moving Average: 2·EMA − EMA(EMA).
+// Output length = N − 2·l + 2 (returns nil if N < 2·l − 1).
+func Dema(data []float64, l int) []float64 {
+	n := len(data)
+	if n < 2*l-1 {
+		return nil
+	}
+	alpha := 2.0 / (float64(l) + 1)
+	var sum float64
+	for i := 0; i < l; i++ {
+		sum += data[i]
+	}
+	e1 := sum / float64(l)
+	sumE1 := e1
+	for i := l; i < 2*l-1; i++ {
+		e1 = (data[i]-e1)*alpha + e1
+		sumE1 += e1
+	}
+	e2 := sumE1 / float64(l)
+	out := make([]float64, n-2*l+2)
+	out[0] = 2*e1 - e2
+	for i := 2*l - 1; i < n; i++ {
+		e1 = (data[i]-e1)*alpha + e1
+		e2 = (e1-e2)*alpha + e2
+		out[i-2*l+2] = 2*e1 - e2
+	}
+	return out
+}
+
+// Tema is the Triple Exponential Moving Average: 3·EMA − 3·EMA² + EMA³.
+func Tema(data []float64, l int) []float64 {
+	e1 := Ema(data, l)
+	if len(e1) < l {
+		return nil
+	}
+	e2 := Ema(e1, l)
+	if len(e2) < l {
+		return nil
+	}
+	e3 := Ema(e2, l)
+	off1 := len(e1) - len(e3)
+	off2 := len(e2) - len(e3)
+	out := make([]float64, len(e3))
+	for i := 0; i < len(e3); i++ {
+		out[i] = 3*e1[i+off1] - 3*e2[i+off2] + e3[i]
+	}
+	return out
+}
+
+// T3 is the Tillson T3 moving average (six cascaded EMAs with vfactor weights).
+func T3(data []float64, l int, vfactor float64) []float64 {
+	e1 := Ema(data, l)
+	if len(e1) < l {
+		return nil
+	}
+	e2 := Ema(e1, l)
+	if len(e2) < l {
+		return nil
+	}
+	e3 := Ema(e2, l)
+	if len(e3) < l {
+		return nil
+	}
+	e4 := Ema(e3, l)
+	if len(e4) < l {
+		return nil
+	}
+	e5 := Ema(e4, l)
+	if len(e5) < l {
+		return nil
+	}
+	e6 := Ema(e5, l)
+	v2 := vfactor * vfactor
+	v3 := v2 * vfactor
+	c1 := -v3
+	c2 := 3*v2 + 3*v3
+	c3 := -6*v2 - 3*vfactor - 3*v3
+	c4 := 1 + 3*vfactor + v3 + 3*v2
+	o3 := len(e3) - len(e6)
+	o4 := len(e4) - len(e6)
+	o5 := len(e5) - len(e6)
+	out := make([]float64, len(e6))
+	for i := 0; i < len(e6); i++ {
+		out[i] = c1*e6[i] + c2*e5[i+o5] + c3*e4[i+o4] + c4*e3[i+o3]
+	}
+	return out
+}
+
+// Trima is the triangular moving average — SMA of an SMA, with inner/outer
+// window sizes chosen so the combined response is triangular.
+func Trima(data []float64, l int) []float64 {
+	var nInner, nOuter int
+	if l%2 == 0 {
+		nInner = l/2 + 1
+		nOuter = l / 2
+	} else {
+		nInner = (l + 1) / 2
+		nOuter = nInner
+	}
+	return Sma(Sma(data, nInner), nOuter)
+}
+
+// Vidya is Chande's Variable Index Dynamic Average. The smoothing
+// coefficient scales with the ratio of short- to long-window pop std-dev.
+func Vidya(data []float64, shortLength, longLength int, alpha float64) []float64 {
+	n := len(data)
+	if n < longLength {
+		return nil
+	}
+	prev := data[longLength-2]
+	out := []float64{prev}
+	for i := longLength - 1; i < n; i++ {
+		sShort := windowPopStd(data[i-shortLength+1 : i+1])
+		sLong := windowPopStd(data[i-longLength+1 : i+1])
+		var k float64
+		if sLong != 0 {
+			k = sShort / sLong
+		}
+		prev = alpha*k*data[i] + (1-alpha*k)*prev
+		out = append(out, prev)
+	}
+	return out
+}
+
+// windowPopStd is the population std-dev of an entire slice. Inlined to
+// avoid a circular import with the statistics package (which depends on
+// movingaverages).
+func windowPopStd(data []float64) float64 {
+	n := len(data)
+	if n == 0 {
+		return 0
+	}
+	var sum float64
+	for _, v := range data {
+		sum += v
+	}
+	mean := sum / float64(n)
+	var sq float64
+	for _, v := range data {
+		d := v - mean
+		sq += d * d
+	}
+	return math.Sqrt(sq / float64(n))
+}
+
+// Zlema is the Zero-Lag Exponential Moving Average. It applies de-lagging
+// adjustment 2·data[i] − data[i−lag] before EMA smoothing.
+func Zlema(data []float64, l int) []float64 {
+	n := len(data)
+	if n == 0 {
+		return nil
+	}
+	lag := (l - 1) / 2
+	alpha := 2.0 / (float64(l) + 1)
+	prev := data[0]
+	out := make([]float64, n)
+	out[0] = prev
+	for i := 1; i < n; i++ {
+		var adj float64
+		if i >= lag {
+			adj = 2*data[i] - data[i-lag]
+		} else {
+			adj = data[i]
+		}
+		prev = alpha*adj + (1-alpha)*prev
+		out[i] = prev
+	}
+	return out
+}
