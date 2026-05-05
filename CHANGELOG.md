@@ -4,11 +4,11 @@ All notable changes to ta.go.
 
 ## v2.0.0 — git tag `v0.20.0`
 
-Major refactor mirroring [ta.js](https://github.com/Bitvested/ta.js)
-v2.0.0. ~52 new functions, formula and convention fixes on existing
-ones, no-mutation guarantees, a goroutine Monte Carlo subpackage, and
-performance rewrites that make ta.go competitive with or faster than
-`markcheno/go-talib` and `cinar/indicator` at 100 k bars.
+Major refactor. ~52 new functions, formula and convention fixes on
+existing ones, no-mutation guarantees, a goroutine Monte Carlo
+subpackage, and performance rewrites that make ta.go competitive with
+or faster than `markcheno/go-talib` and `cinar/indicator` at 100 k
+bars.
 
 `Version = "2.0.0"` is exported from the root `ta` package; the Git
 tag itself is `v0.20.0` so the existing `github.com/Bitvested/ta.go`
@@ -42,8 +42,8 @@ import path keeps working without Go's `/v2` module-path rule.
 - **`statistics.Kmeans`** — value-copies `old`, resets `means` per
   loop, recomputes by cluster index, and resets `changed`.
 - **`indicators.Ichimoku`** — Senkou Span B's lows window now uses
-  `length3`; the per-window `Math.max.apply` patterns were
-  replaced with rolling-extremum scans.
+  `length3`; the per-window max/min loops were replaced with
+  rolling-extremum scans.
 - **`movingaverages.Smma`** — Wilder recurrence with SMA seed of
   the first `N` values; output length is `N − l + 1`.
 - **`indicators.Alligator` / `oscillators.Gator`** — fixtures
@@ -111,10 +111,9 @@ divide-by-zero edges instead of silent `0`/`1.0` coercions.
 (`Ssd` already existed.)
 
 #### Random (5, new package)
-`Prng` (deterministic mulberry32 closure, bit-for-bit-compatible
-with ta.js on ASCII seeds), `Pick`, `Range`, `Float`, `Order`.
-Sampling helpers accept an optional rng with `math/rand` fallback
-when nil.
+`Prng` (deterministic mulberry32 closure), `Pick`, `Range`,
+`Float`, `Order`. Sampling helpers accept an optional rng with
+`math/rand` fallback when nil.
 
 #### Experimental (1)
 `DivergenceState`.
