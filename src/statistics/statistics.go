@@ -616,3 +616,170 @@ func Pvalue(t float64, df int) float64 {
 	}
 	return 0.0005
 }
+
+// Covariance is the rolling sample covariance over windows of length `l`.
+// Both inputs must have the same length; returns nil if shorter than `l`.
+func Covariance(data1, data2 []float64, l int) []float64 {
+	n := len(data1)
+	if n < l || len(data2) < l {
+		return nil
+	}
+	out := make([]float64, 0, n-l+1)
+	for z := l; z <= n; z++ {
+		var xMean, yMean float64
+		for i := z - l; i < z; i++ {
+			xMean += data1[i]
+			yMean += data2[i]
+		}
+		xMean /= float64(l)
+		yMean /= float64(l)
+		var sum float64
+		for i := z - l; i < z; i++ {
+			sum += (data1[i] - xMean) * (data2[i] - yMean)
+		}
+		out = append(out, sum/float64(l))
+	}
+	return out
+}
+
+// ExpectedTrails is the expected number of trials needed to observe
+// every outcome of an `n`-sided fair die — the harmonic-sum estimate
+// `ceil(n · H_n)` (coupon-collector heuristic).
+func ExpectedTrails(n int) int {
+	var sum float64
+	for i := 1; i <= n; i++ {
+		sum += 1 / float64(i)
+	}
+	return int(math.Ceil(float64(n) * sum))
+}
+
+// lrWindows is the rolling linear-regression decomposition over `l` bars
+// using x = 0..l-1. Returns one [slope, intercept] pair per window —
+// shared internally by LrSlope, LrIntercept, LrAngle, and Tsf.
+func lrWindows(data []float64, l int) [][2]float64 {
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	sumX := float64((l - 1) * l) / 2
+	sumX2 := float64((l-1)*l*(2*l-1)) / 6
+	denom := float64(l)*sumX2 - sumX*sumX
+	out := make([][2]float64, n-l+1)
+	for i := l; i <= n; i++ {
+		var sumY, sumXY float64
+		for q := 0; q < l; q++ {
+			y := data[i-l+q]
+			sumY += y
+			sumXY += y * float64(q)
+		}
+		var m float64
+		if denom == 0 {
+			m = math.NaN()
+		} else {
+			m = (float64(l)*sumXY - sumX*sumY) / denom
+		}
+		b := (sumY - m*sumX) / float64(l)
+		out[i-l] = [2]float64{m, b}
+	}
+	return out
+}
+
+// LrSlope is the slope component of the rolling linear regression of
+// `data` over `l` bars (TA-Lib LINEARREG_SLOPE).
+func LrSlope(data []float64, l int) []float64 {
+	w := lrWindows(data, l)
+	out := make([]float64, len(w))
+	for i := range w {
+		out[i] = w[i][0]
+	}
+	return out
+}
+
+// LrIntercept is the intercept component of the rolling linear regression
+// (TA-Lib LINEARREG_INTERCEPT).
+func LrIntercept(data []float64, l int) []float64 {
+	w := lrWindows(data, l)
+	out := make([]float64, len(w))
+	for i := range w {
+		out[i] = w[i][1]
+	}
+	return out
+}
+
+// LrAngle is `atan(slope)` converted to degrees per window.
+func LrAngle(data []float64, l int) []float64 {
+	w := lrWindows(data, l)
+	const radToDeg = 180 / math.Pi
+	out := make([]float64, len(w))
+	for i := range w {
+		out[i] = math.Atan(w[i][0]) * radToDeg
+	}
+	return out
+}
+
+// Tsf is the Time Series Forecast — the linear-regression projection
+// one bar past the end of each window: `slope · l + intercept`.
+func Tsf(data []float64, l int) []float64 {
+	w := lrWindows(data, l)
+	out := make([]float64, len(w))
+	for i := range w {
+		out[i] = w[i][0]*float64(l) + w[i][1]
+	}
+	return out
+}
+
+// StdSeries is the rolling population std-dev over windows of length `l`,
+// computed via running sumX and sumX² (O(1) per step after seeding).
+func StdSeries(data []float64, l int) []float64 {
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	var sumX, sumX2 float64
+	for i := 0; i < l; i++ {
+		sumX += data[i]
+		sumX2 += data[i] * data[i]
+	}
+	out := make([]float64, 0, n-l+1)
+	out = append(out, stdSeriesStep(sumX, sumX2, l))
+	for i := l; i < n; i++ {
+		incoming, outgoing := data[i], data[i-l]
+		sumX += incoming - outgoing
+		sumX2 += incoming*incoming - outgoing*outgoing
+		out = append(out, stdSeriesStep(sumX, sumX2, l))
+	}
+	return out
+}
+
+func stdSeriesStep(sumX, sumX2 float64, l int) float64 {
+	mean := sumX / float64(l)
+	v := sumX2/float64(l) - mean*mean
+	if v < 0 {
+		v = 0
+	}
+	return math.Sqrt(v)
+}
+
+// ReturnPositive returns only the strictly positive entries of `data`,
+// preserving order.
+func ReturnPositive(data []float64) []float64 {
+	out := make([]float64, 0)
+	for _, v := range data {
+		if v > 0 {
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+// ReturnNegative returns only the strictly negative entries of `data`,
+// preserving order.
+func ReturnNegative(data []float64) []float64 {
+	out := make([]float64, 0)
+	for _, v := range data {
+		if v < 0 {
+			out = append(out, v)
+		}
+	}
+	return out
+}

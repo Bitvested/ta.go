@@ -317,3 +317,60 @@ func TestPvalue(t *testing.T) {
 		t.Fatalf("Pvalue Failed!")
 	}
 }
+
+// --- Phase 3d: ports from ta.js v2.0.0 --------------------------------------
+
+func TestCovariance(t *testing.T) {
+	have := stats.Covariance([]float64{12, 13, 25, 39}, []float64{67, 45, 32, 21}, 4)
+	want := []float64{-165.8125}
+	tu.Slice(t, have, want, "Covariance")
+}
+
+func TestExpectedTrails(t *testing.T) {
+	have := stats.ExpectedTrails(100)
+	if have != 519 {
+		t.Fatalf("ExpectedTrails got %d want 519", have)
+	}
+}
+
+func TestLrSlope(t *testing.T) {
+	have := stats.LrSlope([]float64{5, 6, 6, 3, 4, 6, 7}, 6)
+	want := []float64{-0.11428571428571428, 0.17142857142857143}
+	tu.Slice(t, have, want, "LrSlope")
+}
+
+func TestLrIntercept(t *testing.T) {
+	have := stats.LrIntercept([]float64{5, 6, 6, 3, 4, 6, 7}, 6)
+	want := []float64{5.285714285714286, 4.904761904761904}
+	tu.Slice(t, have, want, "LrIntercept")
+}
+
+func TestLrAngle(t *testing.T) {
+	have := stats.LrAngle([]float64{5, 6, 6, 3, 4, 6, 7}, 6)
+	want := []float64{-6.519801751656986, 9.727578551401603}
+	tu.Slice(t, have, want, "LrAngle")
+}
+
+func TestTsf(t *testing.T) {
+	have := stats.Tsf([]float64{5, 6, 6, 3, 4, 6, 7}, 6)
+	want := []float64{4.6, 5.933333333333333}
+	tu.Slice(t, have, want, "Tsf")
+}
+
+func TestStdSeries(t *testing.T) {
+	have := stats.StdSeries([]float64{1, 2, 3, 4, 5}, 3)
+	want := []float64{0.816496580927726, 0.816496580927726, 0.816496580927726}
+	tu.Slice(t, have, want, "StdSeries")
+}
+
+func TestReturnPositive(t *testing.T) {
+	have := stats.ReturnPositive([]float64{0.02, 0.01, -0.03, -0.01, 0.005})
+	want := []float64{0.02, 0.01, 0.005}
+	tu.Slice(t, have, want, "ReturnPositive")
+}
+
+func TestReturnNegative(t *testing.T) {
+	have := stats.ReturnNegative([]float64{0.02, 0.01, -0.03, -0.01, 0.005})
+	want := []float64{-0.03, -0.01}
+	tu.Slice(t, have, want, "ReturnNegative")
+}
