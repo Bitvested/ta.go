@@ -74,3 +74,22 @@ Speedup: ~680× / ~600×. Allocs O(n/l) → 1.
 The new fp form (Σx²/l − mean²) is bit-different from the old
 mean-then-deviations form by ~2 ulps; TestVariance now uses
 tu.Slice's tolerant comparator (rel/abs 1e-12).
+
+#5 Rolling-extremum cleanups (Aroon, Pr, Elderray, Fisher, Don)
+================================================================
+AroonUp/AroonDown/Elderray were doing per-window slice copies and
+sort.Float64s; Don was building intermediate highs/lows slices.
+All converted to single linear scans with no per-window allocation.
+Fisher already had a single-pass scan; pre-allocated [][]float64
+backing only. Pr was already efficient.
+
+Before / After at 10k bars:
+  AroonUp10k     10ms     →  199µs   (≈50×, 89803 → 1 alloc)
+  AroonDown10k   8.7ms    →  227µs   (≈38×, 29947 → 1 alloc)
+  Elderray10k    4.65ms   →  350µs   (≈13×, 49954 → 2 allocs)
+  Don10k         14.5ms   →  558µs   (≈26×, 149735 → 2 allocs)
+  Pr10k          232µs    →  276µs   (~unchanged; was already pre-alloc)
+
+Ichimoku and Stoch were left untouched: Ichimoku already matches
+the ta.js v2.0.0 per-window scan structure (pre-alloc applies but
+is small); Stoch already uses a monotonic deque.

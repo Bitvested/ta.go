@@ -145,29 +145,54 @@ func Macd(data []float64, l1 int, l2 int) []float64 {
 	return macd
 }
 
+// AroonUp tracks bars-since the highest value over a rolling window —
+// 100 × (l − 1 − bars_since_high) / (l − 1). Ties favour the latest
+// bar (data[j] >= hi).
+//
+// v2.0.0 perf: single linear scan per window with index tracking; no
+// slice copies, no sort.
 func AroonUp(data []float64, l int) []float64 {
-	var aroon []float64
-	for i := l; i <= len(data); i++ {
-		pl := append([]float64(nil), data[i-l:i]...)
-		hl := append([]float64(nil), data[i-l:i]...)
-		sort.Float64s(hl)
-		pl = reverseFloats(pl)
-		index := indexOf(pl, hl[len(hl)-1])
-		aroon = append(aroon, (100 * (float64(index)) / (float64(l) - 1)))
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return aroon
+	out := make([]float64, n-l+1)
+	scale := 100 / (float64(l) - 1)
+	for i := l; i <= n; i++ {
+		hi := math.Inf(-1)
+		hiIdx := i - l
+		for j := i - l; j < i; j++ {
+			if data[j] >= hi {
+				hi = data[j]
+				hiIdx = j
+			}
+		}
+		out[i-l] = float64(hiIdx-(i-l)) * scale
+	}
+	return out
 }
 
+// AroonDown tracks bars-since the lowest value over a rolling window.
+// Ties favour the latest bar (data[j] <= lo).
 func AroonDown(data []float64, l int) []float64 {
-	var aroon []float64
-	for i := l; i <= len(data); i++ {
-		pl := append([]float64(nil), data[i-l:i]...)
-		hl := append([]float64(nil), data[i-l:i]...)
-		sort.Float64s(hl)
-		index := indexOf(pl, hl[0])
-		aroon = append(aroon, (100 * (float64(index)) / (float64(l) - 1)))
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return aroon
+	out := make([]float64, n-l+1)
+	scale := 100 / (float64(l) - 1)
+	for i := l; i <= n; i++ {
+		lo := math.Inf(1)
+		loIdx := i - l
+		for j := i - l; j < i; j++ {
+			if data[j] <= lo {
+				lo = data[j]
+				loIdx = j
+			}
+		}
+		out[i-l] = float64(loIdx-(i-l)) * scale
+	}
+	return out
 }
 
 // Mfi is the Money Flow Index. Input is OHLCV-style: each bar is
@@ -432,28 +457,31 @@ func Alligator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [
 }
 
 // Pr is Williams %R. Returns NaN when the window range is zero (flat data).
+// Pr is the Williams %R oscillator. v2.0.0 perf: pre-allocated output
+// slice (the max/min loop was already single-pass).
 func Pr(data []float64, l int) []float64 {
 	n := len(data)
 	if n < l {
 		return nil
 	}
-	out := make([]float64, 0, n-l+1)
+	out := make([]float64, n-l+1)
 	for i := l; i <= n; i++ {
 		hi := math.Inf(-1)
 		lo := math.Inf(1)
 		for j := i - l; j < i; j++ {
-			if data[j] > hi {
-				hi = data[j]
+			v := data[j]
+			if v > hi {
+				hi = v
 			}
-			if data[j] < lo {
-				lo = data[j]
+			if v < lo {
+				lo = v
 			}
 		}
 		rng := hi - lo
 		if rng == 0 {
-			out = append(out, math.NaN())
+			out[i-l] = math.NaN()
 		} else {
-			out = append(out, (hi-data[i-1])/rng*-100)
+			out[i-l] = (hi - data[i-1]) / rng * -100
 		}
 	}
 	return out
@@ -920,15 +948,40 @@ func Supertrend(data [][]float64, l int, multiplier float64) [][]float64 {
 	return trend
 }
 
+// Elderray is the Elder-Ray Bull / Bear power: [hi − mean, lo − mean]
+// per window. v2.0.0 perf: single linear scan computes hi, lo, and the
+// running sum at once — no sort, no Ema seed call.
 func Elderray(data []float64, l int) [][]float64 {
-	var eld [][]float64
-	for i := l; i <= len(data); i++ {
-		pl := append([]float64{}, data[i-l:i]...)
-		sort.Float64s(pl)
-		em := ma.Ema(data[i-l:i], l)
-		eld = append(eld, []float64{pl[len(pl)-1] - em[0], pl[0] - em[0]})
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return eld
+	rows := n - l + 1
+	flat := make([]float64, 2*rows)
+	out := make([][]float64, rows)
+	for i := range out {
+		out[i] = flat[i*2 : i*2+2 : i*2+2]
+	}
+	lf := float64(l)
+	for i := l; i <= n; i++ {
+		hi := math.Inf(-1)
+		lo := math.Inf(1)
+		var sum float64
+		for j := i - l; j < i; j++ {
+			v := data[j]
+			if v > hi {
+				hi = v
+			}
+			if v < lo {
+				lo = v
+			}
+			sum += v
+		}
+		mean := sum / lf
+		row := out[i-l]
+		row[0], row[1] = hi-mean, lo-mean
+	}
+	return out
 }
 
 func Hv(data []float64, l int) []float64 {

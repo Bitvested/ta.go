@@ -99,21 +99,37 @@ func Keltner(data [][]float64, l int, dev float64) [][]float64 {
 	return kelt
 }
 
+// Don is the Donchian channel: rolling max-of-highs and min-of-lows over
+// a window of `l` bars. Bar format is [high, low].
+//
+// v2.0.0 perf: single linear scan per window with no slice copies / sort,
+// pre-allocated [][]float64 output backed by one flat slice.
 func Don(data [][]float64, l int) [][]float64 {
-	var channel [][]float64
-	for i := l; i <= len(data); i++ {
-		pl := data[i-l : i]
-		var highs []float64
-		var lows []float64
-		for h := 0; h < len(pl); h++ {
-			highs = append(highs, pl[h][0])
-			lows = append(lows, pl[h][1])
-		}
-		max := maxf(highs)
-		min := minf(lows)
-		channel = append(channel, []float64{max, (max + min) / 2, min})
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return channel
+	rows := n - l + 1
+	flat := make([]float64, 3*rows)
+	out := make([][]float64, rows)
+	for i := range out {
+		out[i] = flat[i*3 : i*3+3 : i*3+3]
+	}
+	for i := l; i <= n; i++ {
+		hi := math.Inf(-1)
+		lo := math.Inf(1)
+		for j := i - l; j < i; j++ {
+			if data[j][0] > hi {
+				hi = data[j][0]
+			}
+			if data[j][1] < lo {
+				lo = data[j][1]
+			}
+		}
+		row := out[i-l]
+		row[0], row[1], row[2] = hi, (hi+lo)/2, lo
+	}
+	return out
 }
 
 func Fibbands(data [][]float64, length int, deviations float64) [][]float64 {

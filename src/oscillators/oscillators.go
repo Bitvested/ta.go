@@ -256,29 +256,36 @@ func ultVal(sBp1, sTr1, sBp2, sTr2, sBp3, sTr3 float64) float64 {
 	return 100 * (4*a1 + 2*a2 + a3) / 7
 }
 
+// Fisher is the Ehlers Fisher Transform. v2.0.0 perf: pre-allocated
+// [][]float64 output backed by a single flat slice. The inner max/min
+// scan was already single-pass.
 func Fisher(data []float64, l int) [][]float64 {
 	n := len(data)
 	if n < l {
 		return nil
 	}
-	out := make([][]float64, 0, n-l+1)
+	rows := n - l + 1
+	flat := make([]float64, 2*rows)
+	out := make([][]float64, rows)
+	for i := range out {
+		out[i] = flat[i*2 : i*2+2 : i*2+2]
+	}
 	var fish, v1 float64
 	for i := l; i <= n; i++ {
 		mn := math.Inf(1)
 		mx := math.Inf(-1)
 		for j := i - l; j < i; j++ {
-			if data[j] < mn {
-				mn = data[j]
+			v := data[j]
+			if v < mn {
+				mn = v
 			}
-			if data[j] > mx {
-				mx = data[j]
+			if v > mx {
+				mx = v
 			}
 		}
 		rng := mx - mn
 		var norm float64
-		if rng == 0 {
-			norm = 0
-		} else {
+		if rng != 0 {
 			norm = (data[i-1]-mn)/rng - 0.5
 		}
 		v1 = 0.33*2*norm + 0.67*v1
@@ -290,7 +297,8 @@ func Fisher(data []float64, l int) [][]float64 {
 		}
 		pf := fish
 		fish = 0.5*math.Log((1+v1)/(1-v1)) + 0.5*pf
-		out = append(out, []float64{fish, pf})
+		row := out[i-l]
+		row[0], row[1] = fish, pf
 	}
 	return out
 }
