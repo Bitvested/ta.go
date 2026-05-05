@@ -52,3 +52,25 @@ Speedup: 7.5× / 10× / 42× (plan target ≥14× at 100k bars).
 Two changes: variance via Σx²/l − mean² with running-sum delta
 (no per-window stats.Std call) and a single 3·rows backing array
 that the [][]float64 result indexes into (one of the two allocs).
+
+#4 statistics.Variance — running Σx, Σx²
+=========================================
+(Plan #4 was framed as "Std SOSQ", but Std is a single-window scalar
+function already at O(l). The rolling analog is Variance, which had
+the O(n·l) recompute pattern. Optimizing it has the same effect for
+chained callers — Bands no longer uses stats.Std after #3, so this
+also covers the spirit of the original plan item.)
+
+Before:
+BenchmarkVariance10k-8    11ms/op    437236 B/op    9970 allocs/op
+BenchmarkVariance100k-8  110ms/op   4901040 B/op   99980 allocs/op
+
+After:
+BenchmarkVariance10k-8    16µs/op    81920 B/op       1 allocs/op
+BenchmarkVariance100k-8  182µs/op   802820 B/op       1 allocs/op
+
+Speedup: ~680× / ~600×. Allocs O(n/l) → 1.
+
+The new fp form (Σx²/l − mean²) is bit-different from the old
+mean-then-deviations form by ~2 ulps; TestVariance now uses
+tu.Slice's tolerant comparator (rel/abs 1e-12).

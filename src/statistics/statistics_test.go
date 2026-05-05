@@ -138,11 +138,12 @@ func TestDrawdown(t *testing.T) {
 }
 
 func TestVariance(t *testing.T) {
+	// Phase 4 #4: variance now uses Σx² − mean² recurrence; values agree
+	// to ≥14 digits with the previous mean-then-deviations form, so a
+	// tolerant comparator is used instead of strict fp equality.
 	have := stats.Variance([]float64{6, 7, 2, 3, 5, 8, 6, 2}, 7)
 	want := []float64{3.918367346938776, 5.061224489795919}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Variance Failed!")
-	}
+	tu.Slice(t, have, want, "Variance")
 }
 
 func TestPercentile(t *testing.T) {

@@ -137,18 +137,39 @@ func Std(data []float64, l int) float64 {
 	return math.Sqrt(sq / float64(l))
 }
 
+// Variance is the rolling population variance over windows of length `l`.
+// v2.0.0 perf: running Σx and Σx² (variance = Σx²/l − mean²) with a
+// pre-allocated output and a v < 0 clamp guarding against fp cancellation.
 func Variance(data []float64, l int) []float64 {
-	var va []float64
-	for i := l; i <= len(data); i++ {
-		tmp := data[i-l : i]
-		mean := ma.Sma(tmp, l)
-		var sum float64
-		for x := 0; x < len(tmp); x++ {
-			sum += math.Pow(tmp[x]-mean[len(mean)-1], 2)
-		}
-		va = append(va, sum/float64(l))
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return va
+	lf := float64(l)
+	var sumX, sumX2 float64
+	for i := 0; i < l; i++ {
+		sumX += data[i]
+		sumX2 += data[i] * data[i]
+	}
+	out := make([]float64, n-l+1)
+	mean := sumX / lf
+	v := sumX2/lf - mean*mean
+	if v < 0 {
+		v = 0
+	}
+	out[0] = v
+	for i := l; i < n; i++ {
+		incoming, outgoing := data[i], data[i-l]
+		sumX += incoming - outgoing
+		sumX2 += incoming*incoming - outgoing*outgoing
+		mean = sumX / lf
+		v = sumX2/lf - mean*mean
+		if v < 0 {
+			v = 0
+		}
+		out[i-l+1] = v
+	}
+	return out
 }
 
 func Cor(data1 []float64, data2 []float64) float64 {
