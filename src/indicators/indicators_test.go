@@ -310,3 +310,164 @@ func TestHalfTrend(t *testing.T) {
 		t.Fatalf("HalfTrend Failed!")
 	}
 }
+
+// --- Phase 3b: ports from ta.js v2.0.0 --------------------------------------
+
+func TestCross(t *testing.T) {
+	have := ind.Cross([]float64{3, 4, 5, 4, 3}, []float64{4, 3, 2, 3, 4})
+	want := []ind.CrossSignal{{Index: 1, Cross: true}, {Index: 4, Cross: false}}
+	if !assert.Equal(t, want, have) {
+		t.Fatalf("Cross Failed!")
+	}
+}
+
+func TestMacdSignal(t *testing.T) {
+	have := ind.MacdSignal([]float64{1, 2, 3, 4, 5, 6, 14, 8, 10, 11}, 3, 6, 3)
+	want := []float64{2.107142857142857, 1.8380102040816328, 1.6534256559766765}
+	tu.Slice(t, have, want, "MacdSignal")
+}
+
+func TestMacdBars(t *testing.T) {
+	have := ind.MacdBars([]float64{1, 2, 3, 4, 5, 6, 14, 8, 10, 11}, 3, 6, 3)
+	want := []float64{-0.28571428571428603, -0.26913265306122436, -0.18458454810495661}
+	tu.Slice(t, have, want, "MacdBars")
+}
+
+func TestAdl(t *testing.T) {
+	have := ind.Adl([][]float64{{6, 3, 2, 100}, {7, 5, 4, 200}, {8, 6, 5, 150}, {7, 5, 4, 180}})
+	want := []float64{-50, -116.66666666666666, -166.66666666666666, -226.66666666666666}
+	tu.Slice(t, have, want, "Adl")
+}
+
+func TestApo(t *testing.T) {
+	have := ind.Apo([]float64{1, 2, 3, 4, 5, 6, 14}, 3, 6)
+	want := []float64{1.5, 3}
+	tu.Slice(t, have, want, "Apo")
+}
+
+func TestCci(t *testing.T) {
+	have := ind.Cci([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}}, 3)
+	want := []float64{0, 100.00000000000001, 0}
+	tu.Slice(t, have, want, "Cci")
+}
+
+func TestCmf(t *testing.T) {
+	have := ind.Cmf([][]float64{{6, 3, 2, 100}, {7, 5, 4, 200}, {8, 6, 5, 150}, {7, 5, 4, 180}, {9, 8, 7, 120}, {8, 6, 5, 90}}, 3)
+	want := []float64{-0.37037037037037035, -0.3333333333333333, -0.24444444444444444, -0.23076923076923078}
+	tu.Slice(t, have, want, "Cmf")
+}
+
+func TestDpo(t *testing.T) {
+	have := ind.Dpo([]float64{9, 10, 11, 12, 11, 13, 12, 14, 13, 15}, 4)
+	want := []float64{-1.5, -1, -0.75, 0, -1.5, 0, -1.5}
+	tu.Slice(t, have, want, "Dpo")
+}
+
+func TestPdm(t *testing.T) {
+	have := ind.Pdm([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{1, 1.5, 0.75, 1.375}
+	tu.Slice(t, have, want, "Pdm")
+}
+
+func TestMdm(t *testing.T) {
+	have := ind.Mdm([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{0.5, 0.25, 0.625, 0.3125}
+	tu.Slice(t, have, want, "Mdm")
+}
+
+func TestPdi(t *testing.T) {
+	have := ind.Pdi([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{40, 54.54545454545455, 31.57894736842105, 51.16279069767442}
+	tu.Slice(t, have, want, "Pdi")
+}
+
+func TestMdi(t *testing.T) {
+	have := ind.Mdi([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{20, 9.090909090909092, 26.31578947368421, 11.627906976744185}
+	tu.Slice(t, have, want, "Mdi")
+}
+
+func TestDx(t *testing.T) {
+	have := ind.Dx([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{33.333333333333336, 71.42857142857142, 9.090909090909092, 62.96296296296297}
+	tu.Slice(t, have, want, "Dx")
+}
+
+func TestAdx(t *testing.T) {
+	have := ind.Adx([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{52.38095238095238, 30.735930735930737, 46.84944684944685}
+	tu.Slice(t, have, want, "Adx")
+}
+
+func TestAdxr(t *testing.T) {
+	have := ind.Adxr([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{41.55844155844156, 38.79268879268879}
+	tu.Slice(t, have, want, "Adxr")
+}
+
+func TestEmv(t *testing.T) {
+	have := ind.Emv([][]float64{{10, 8, 100}, {11, 9, 150}, {12, 10, 200}, {13, 11, 180}, {12, 10, 120}, {14, 12, 90}})
+	want := []float64{133.33333333333334, 100, 111.11111111111111, -166.66666666666666, 444.44444444444446}
+	tu.Slice(t, have, want, "Emv")
+}
+
+func TestKdj(t *testing.T) {
+	have := ind.Kdj([][]float64{{3, 2, 1}, {2, 2, 1}, {4, 3, 1}, {2, 2, 1}}, 2, 1, 1)
+	want := [][]float64{{50, 50, 50}, {66.66666666666667, 66.66666666666667, 66.66666666666666}, {33.333333333333336, 33.333333333333336, 33.33333333333333}}
+	tu.Slice2D(t, have, want, "Kdj")
+}
+
+func TestMass(t *testing.T) {
+	data := [][]float64{{10, 8}, {12, 10}, {14, 12}, {13, 11}, {15, 13}, {17, 15}, {16, 14}, {18, 16}, {20, 18}, {19, 17}, {21, 19}, {23, 21}, {22, 20}, {24, 22}, {26, 24}, {25, 23}, {27, 25}, {29, 27}, {28, 26}, {30, 28}, {32, 30}}
+	have := ind.Mass(data, 4)
+	want := []float64{4, 4}
+	tu.Slice(t, have, want, "Mass")
+}
+
+func TestNatr(t *testing.T) {
+	have := ind.Natr([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {12, 11, 10}, {14, 13, 12}}, 2)
+	want := []float64{22.727272727272727, 22.5, 21.875, 21.022727272727273, 20.432692307692307}
+	tu.Slice(t, have, want, "Natr")
+}
+
+func TestNvi(t *testing.T) {
+	have := ind.Nvi([][]float64{{9, 100}, {10, 150}, {11, 200}, {12, 180}, {11, 120}, {13, 90}})
+	want := []float64{1000, 1000, 1000, 1090.909090909091, 1000, 1181.8181818181818}
+	tu.Slice(t, have, want, "Nvi")
+}
+
+func TestPvi(t *testing.T) {
+	have := ind.Pvi([][]float64{{9, 100}, {10, 150}, {11, 200}, {12, 180}, {11, 120}, {13, 90}})
+	want := []float64{1000, 1111.111111111111, 1222.2222222222222, 1222.2222222222222, 1222.2222222222222, 1222.2222222222222}
+	tu.Slice(t, have, want, "Pvi")
+}
+
+func TestPpo(t *testing.T) {
+	have := ind.Ppo([]float64{1, 2, 3, 4, 5, 6, 14}, 3, 6)
+	want := []float64{42.857142857142854, 46.15384615384615}
+	tu.Slice(t, have, want, "Ppo")
+}
+
+func TestStochRsi(t *testing.T) {
+	have := ind.StochRsi([]float64{10, 11, 12, 11, 10, 11, 12}, 2, 2, 2, 2)
+	want := [][]float64{{50, 25}, {100, 75}}
+	tu.Slice2D(t, have, want, "StochRsi")
+}
+
+func TestTrix(t *testing.T) {
+	have := ind.Trix([]float64{1, 2, 3, 4, 5, 6, 10, 8, 11}, 3)
+	want := []float64{29.41176470588235, 23.295454545454547}
+	tu.Slice(t, have, want, "Trix")
+}
+
+func TestUlcer(t *testing.T) {
+	have := ind.Ulcer([]float64{10, 12, 11, 8, 9, 7, 11, 13}, 3)
+	want := []float64{4.811252243246882, 19.837301190396804, 22.443514786772667, 25.40024136369333, 16.577149663422453, 12.830005981991683}
+	tu.Slice(t, have, want, "Ulcer")
+}
+
+func TestVortex(t *testing.T) {
+	have := ind.Vortex([][]float64{{10, 9, 8}, {12, 11, 10}, {11, 10, 9}, {13, 12, 11}, {15, 14, 13}}, 2)
+	want := [][]float64{{1, 0.6}, {1, 0.6}, {1.3333333333333333, 0}}
+	tu.Slice2D(t, have, want, "Vortex")
+}

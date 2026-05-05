@@ -977,6 +977,687 @@ func Rsi_divergence(data []float64, ln int, rs func([]float64, int) []float64) [
 	return out
 }
 
+// CrossSignal records a single cross between two series — Index is the
+// bar at which the cross occurs and Cross is true for an upward cross
+// (d1 rising above d2), false for a downward cross.
+type CrossSignal struct {
+	Index int
+	Cross bool
+}
+
+// Cross reports the points where d1 crosses d2. v2.0.0: input series
+// are not mutated; d1 is non-mutatingly trimmed to d2's length when
+// longer.
+func Cross(d1, d2 []float64) []CrossSignal {
+	if len(d1) > len(d2) {
+		d1 = d1[len(d1)-len(d2):]
+	}
+	if len(d1) == 0 {
+		return nil
+	}
+	crossed := d1[0] > d2[0]
+	out := make([]CrossSignal, 0)
+	for i := 0; i < len(d1); i++ {
+		if d1[i] < d2[i] && crossed {
+			out = append(out, CrossSignal{Index: i, Cross: false})
+			crossed = false
+		}
+		if d1[i] > d2[i] && !crossed {
+			out = append(out, CrossSignal{Index: i, Cross: true})
+			crossed = true
+		}
+	}
+	return out
+}
+
+// MacdSignal is the EMA of the MACD line over `lsig` bars.
+func MacdSignal(data []float64, l1, l2, lsig int) []float64 {
+	return ma.Ema(Macd(data, l1, l2), lsig)
+}
+
+// MacdBars is the histogram (MACD − MACD signal) component of MACD.
+func MacdBars(data []float64, l1, l2, lsig int) []float64 {
+	macd := Macd(data, l1, l2)
+	mas := ma.Ema(macd, lsig)
+	off := len(macd) - len(mas)
+	out := make([]float64, len(mas))
+	for i := 0; i < len(mas); i++ {
+		out[i] = macd[i+off] - mas[i]
+	}
+	return out
+}
+
+// Adl is the Chaikin Accumulation/Distribution Line. Bars are
+// [H, C, L, V]; output is the running cumulative money-flow volume.
+func Adl(data [][]float64) []float64 {
+	n := len(data)
+	if n == 0 {
+		return nil
+	}
+	out := make([]float64, n)
+	var acc float64
+	for i := 0; i < n; i++ {
+		h, c, l, v := data[i][0], data[i][1], data[i][2], data[i][3]
+		r := h - l
+		var mfm float64
+		if r != 0 {
+			mfm = ((c - l) - (h - c)) / r
+		}
+		acc += mfm * v
+		out[i] = acc
+	}
+	return out
+}
+
+// Apo is the Absolute Price Oscillator — equivalent to MACD with the
+// same length parameters.
+func Apo(data []float64, l1, l2 int) []float64 {
+	return Macd(data, l1, l2)
+}
+
+// Cci is the Commodity Channel Index. Bars are [H, C, L]. Returns
+// NaN for windows where the mean absolute deviation is zero.
+func Cci(data [][]float64, l int) []float64 {
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	tp := make([]float64, n)
+	for i := 0; i < n; i++ {
+		tp[i] = (data[i][0] + data[i][1] + data[i][2]) / 3
+	}
+	out := make([]float64, n-l+1)
+	for i := l; i <= n; i++ {
+		var sum float64
+		for j := i - l; j < i; j++ {
+			sum += tp[j]
+		}
+		smaTp := sum / float64(l)
+		var mad float64
+		for j := i - l; j < i; j++ {
+			mad += math.Abs(tp[j] - smaTp)
+		}
+		mad /= float64(l)
+		if mad == 0 {
+			out[i-l] = math.NaN()
+		} else {
+			out[i-l] = (tp[i-1] - smaTp) / (0.015 * mad)
+		}
+	}
+	return out
+}
+
+// Cmf is the Chaikin Money Flow over `l` bars. Bars are [H, C, L, V].
+func Cmf(data [][]float64, l int) []float64 {
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	mfv := make([]float64, n)
+	for i := 0; i < n; i++ {
+		h, c, lo, v := data[i][0], data[i][1], data[i][2], data[i][3]
+		r := h - lo
+		if r != 0 {
+			mfv[i] = (((c - lo) - (h - c)) / r) * v
+		}
+	}
+	var sM, sV float64
+	for i := 0; i < l; i++ {
+		sM += mfv[i]
+		sV += data[i][3]
+	}
+	out := make([]float64, n-l+1)
+	if sV == 0 {
+		out[0] = math.NaN()
+	} else {
+		out[0] = sM / sV
+	}
+	for i := l; i < n; i++ {
+		sM += mfv[i] - mfv[i-l]
+		sV += data[i][3] - data[i-l][3]
+		if sV == 0 {
+			out[i-l+1] = math.NaN()
+		} else {
+			out[i-l+1] = sM / sV
+		}
+	}
+	return out
+}
+
+// Dpo is the Detrended Price Oscillator: data − backshifted SMA.
+func Dpo(data []float64, l int) []float64 {
+	sma := ma.Sma(data, l)
+	if len(sma) == 0 {
+		return nil
+	}
+	off := l - 2 - l/2
+	out := make([]float64, len(sma))
+	for i := 0; i < len(sma); i++ {
+		out[i] = data[i+off] - sma[i]
+	}
+	return out
+}
+
+// Pdm is Wilder's smoothed positive directional movement (+DM).
+// Bars are [H, C, L].
+func Pdm(data [][]float64, l int) []float64 {
+	n := len(data)
+	if n < l+1 {
+		return nil
+	}
+	var sum float64
+	for i := 1; i <= l; i++ {
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		if up > dn && up > 0 {
+			sum += up
+		}
+	}
+	prev := sum / float64(l)
+	out := make([]float64, n-l)
+	out[0] = prev
+	for i := l + 1; i < n; i++ {
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		var dm float64
+		if up > dn && up > 0 {
+			dm = up
+		}
+		prev = (prev*float64(l-1) + dm) / float64(l)
+		out[i-l] = prev
+	}
+	return out
+}
+
+// Mdm is Wilder's smoothed negative directional movement (−DM).
+func Mdm(data [][]float64, l int) []float64 {
+	n := len(data)
+	if n < l+1 {
+		return nil
+	}
+	var sum float64
+	for i := 1; i <= l; i++ {
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		if dn > up && dn > 0 {
+			sum += dn
+		}
+	}
+	prev := sum / float64(l)
+	out := make([]float64, n-l)
+	out[0] = prev
+	for i := l + 1; i < n; i++ {
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		var dm float64
+		if dn > up && dn > 0 {
+			dm = dn
+		}
+		prev = (prev*float64(l-1) + dm) / float64(l)
+		out[i-l] = prev
+	}
+	return out
+}
+
+// Pdi is the Wilder positive directional indicator: 100 × +DM / TR.
+func Pdi(data [][]float64, l int) []float64 {
+	n := len(data)
+	if n < l+1 {
+		return nil
+	}
+	var sumDm, sumTr float64
+	for i := 1; i <= l; i++ {
+		h, lo, cprev := data[i][0], data[i][2], data[i-1][1]
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		if up > dn && up > 0 {
+			sumDm += up
+		}
+		tr := h - lo
+		if v := math.Abs(h - cprev); v > tr {
+			tr = v
+		}
+		if v := math.Abs(lo - cprev); v > tr {
+			tr = v
+		}
+		sumTr += tr
+	}
+	dm := sumDm / float64(l)
+	tr := sumTr / float64(l)
+	out := make([]float64, n-l)
+	if tr == 0 {
+		out[0] = math.NaN()
+	} else {
+		out[0] = 100 * dm / tr
+	}
+	for i := l + 1; i < n; i++ {
+		h, lo, cprev := data[i][0], data[i][2], data[i-1][1]
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		var curDm float64
+		if up > dn && up > 0 {
+			curDm = up
+		}
+		curTr := h - lo
+		if v := math.Abs(h - cprev); v > curTr {
+			curTr = v
+		}
+		if v := math.Abs(lo - cprev); v > curTr {
+			curTr = v
+		}
+		dm = (dm*float64(l-1) + curDm) / float64(l)
+		tr = (tr*float64(l-1) + curTr) / float64(l)
+		if tr == 0 {
+			out[i-l] = math.NaN()
+		} else {
+			out[i-l] = 100 * dm / tr
+		}
+	}
+	return out
+}
+
+// Mdi is the Wilder negative directional indicator: 100 × −DM / TR.
+func Mdi(data [][]float64, l int) []float64 {
+	n := len(data)
+	if n < l+1 {
+		return nil
+	}
+	var sumDm, sumTr float64
+	for i := 1; i <= l; i++ {
+		h, lo, cprev := data[i][0], data[i][2], data[i-1][1]
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		if dn > up && dn > 0 {
+			sumDm += dn
+		}
+		tr := h - lo
+		if v := math.Abs(h - cprev); v > tr {
+			tr = v
+		}
+		if v := math.Abs(lo - cprev); v > tr {
+			tr = v
+		}
+		sumTr += tr
+	}
+	dm := sumDm / float64(l)
+	tr := sumTr / float64(l)
+	out := make([]float64, n-l)
+	if tr == 0 {
+		out[0] = math.NaN()
+	} else {
+		out[0] = 100 * dm / tr
+	}
+	for i := l + 1; i < n; i++ {
+		h, lo, cprev := data[i][0], data[i][2], data[i-1][1]
+		up := data[i][0] - data[i-1][0]
+		dn := data[i-1][2] - data[i][2]
+		var curDm float64
+		if dn > up && dn > 0 {
+			curDm = dn
+		}
+		curTr := h - lo
+		if v := math.Abs(h - cprev); v > curTr {
+			curTr = v
+		}
+		if v := math.Abs(lo - cprev); v > curTr {
+			curTr = v
+		}
+		dm = (dm*float64(l-1) + curDm) / float64(l)
+		tr = (tr*float64(l-1) + curTr) / float64(l)
+		if tr == 0 {
+			out[i-l] = math.NaN()
+		} else {
+			out[i-l] = 100 * dm / tr
+		}
+	}
+	return out
+}
+
+// Dx is the Wilder Directional Movement Index: 100 × |+DI − −DI| / (+DI + −DI).
+func Dx(data [][]float64, l int) []float64 {
+	p := Pdi(data, l)
+	m := Mdi(data, l)
+	out := make([]float64, len(p))
+	for i := 0; i < len(p); i++ {
+		sum := p[i] + m[i]
+		if sum == 0 {
+			out[i] = math.NaN()
+		} else {
+			out[i] = 100 * math.Abs(p[i]-m[i]) / sum
+		}
+	}
+	return out
+}
+
+// Adx is the Wilder Average Directional Index — Wilder smoothing of DX.
+func Adx(data [][]float64, l int) []float64 {
+	d := Dx(data, l)
+	if len(d) < l {
+		return nil
+	}
+	var sum float64
+	for i := 0; i < l; i++ {
+		sum += d[i]
+	}
+	prev := sum / float64(l)
+	out := make([]float64, len(d)-l+1)
+	out[0] = prev
+	for i := l; i < len(d); i++ {
+		prev = (prev*float64(l-1) + d[i]) / float64(l)
+		out[i-l+1] = prev
+	}
+	return out
+}
+
+// Adxr is the Average Directional Movement Index Rating, the average
+// of the current ADX and the ADX from `l-1` bars ago.
+func Adxr(data [][]float64, l int) []float64 {
+	a := Adx(data, l)
+	if len(a) < l {
+		return nil
+	}
+	out := make([]float64, len(a)-l+1)
+	for i := l - 1; i < len(a); i++ {
+		out[i-l+1] = (a[i] + a[i-l+1]) / 2
+	}
+	return out
+}
+
+// Emv is the Ease of Movement indicator. Bars are [H, L, V].
+// v2.0.0: returns NaN for bars with zero range or zero volume.
+func Emv(data [][]float64) []float64 {
+	n := len(data)
+	if n < 2 {
+		return nil
+	}
+	out := make([]float64, n-1)
+	for i := 1; i < n; i++ {
+		h, l, v := data[i][0], data[i][1], data[i][2]
+		hp, lp := data[i-1][0], data[i-1][1]
+		move := (h+l)/2 - (hp+lp)/2
+		r := h - l
+		if r == 0 || v == 0 {
+			out[i-1] = math.NaN()
+		} else {
+			out[i-1] = move * r * 10000 / v
+		}
+	}
+	return out
+}
+
+// Kdj augments Stoch with the J line (3K − 2D). The K/D parameter
+// order matches ta.js' kdj signature (length, smoothK, smoothD).
+func Kdj(data [][]float64, l, smoothK, smoothD int) [][]float64 {
+	s := Stoch(data, l, smoothK, smoothD)
+	out := make([][]float64, len(s))
+	for i := 0; i < len(s); i++ {
+		k, d := s[i][0], s[i][1]
+		out[i] = []float64{k, d, 3*k - 2*d}
+	}
+	return out
+}
+
+// Mass is the Mass Index over `l` bars. Bars are [H, L].
+func Mass(data [][]float64, l int) []float64 {
+	n := len(data)
+	rng := make([]float64, n)
+	for i := 0; i < n; i++ {
+		rng[i] = data[i][0] - data[i][1]
+	}
+	e1 := ma.Ema(rng, 9)
+	if len(e1) < 9 {
+		return nil
+	}
+	e2 := ma.Ema(e1, 9)
+	if len(e2) < l {
+		return nil
+	}
+	off := len(e1) - len(e2)
+	ratio := make([]float64, len(e2))
+	for i := 0; i < len(e2); i++ {
+		if e2[i] == 0 {
+			ratio[i] = math.NaN()
+		} else {
+			ratio[i] = e1[i+off] / e2[i]
+		}
+	}
+	var sum float64
+	for i := 0; i < l; i++ {
+		sum += ratio[i]
+	}
+	out := make([]float64, len(ratio)-l+1)
+	out[0] = sum
+	for i := l; i < len(ratio); i++ {
+		sum += ratio[i] - ratio[i-l]
+		out[i-l+1] = sum
+	}
+	return out
+}
+
+// Natr is the Normalized ATR — 100 × ATR / close.
+func Natr(data [][]float64, l int) []float64 {
+	a := Atr(data, l)
+	if len(a) == 0 {
+		return nil
+	}
+	out := make([]float64, len(a))
+	for i := 0; i < len(a); i++ {
+		c := data[i+l-1][1]
+		if c == 0 {
+			out[i] = math.NaN()
+		} else {
+			out[i] = 100 * a[i] / c
+		}
+	}
+	return out
+}
+
+// Nvi is the Negative Volume Index. Bars are [close, volume].
+func Nvi(data [][]float64) []float64 {
+	n := len(data)
+	if n == 0 {
+		return nil
+	}
+	out := make([]float64, n)
+	out[0] = 1000
+	for i := 1; i < n; i++ {
+		cprev := data[i-1][0]
+		if data[i][1] < data[i-1][1] && cprev != 0 {
+			out[i] = out[i-1] * data[i][0] / cprev
+		} else {
+			out[i] = out[i-1]
+		}
+	}
+	return out
+}
+
+// Pvi is the Positive Volume Index. Bars are [close, volume].
+func Pvi(data [][]float64) []float64 {
+	n := len(data)
+	if n == 0 {
+		return nil
+	}
+	out := make([]float64, n)
+	out[0] = 1000
+	for i := 1; i < n; i++ {
+		cprev := data[i-1][0]
+		if data[i][1] > data[i-1][1] && cprev != 0 {
+			out[i] = out[i-1] * data[i][0] / cprev
+		} else {
+			out[i] = out[i-1]
+		}
+	}
+	return out
+}
+
+// Ppo is the Percentage Price Oscillator: 100 × MACD / EMA(data, l2).
+func Ppo(data []float64, l1, l2 int) []float64 {
+	if l1 > l2 {
+		l1, l2 = l2, l1
+	}
+	eb := ma.Ema(data, l2)
+	m := Macd(data, l1, l2)
+	out := make([]float64, len(m))
+	for i := 0; i < len(m); i++ {
+		if eb[i] == 0 {
+			out[i] = math.NaN()
+		} else {
+			out[i] = 100 * m[i] / eb[i]
+		}
+	}
+	return out
+}
+
+// StochRsi is the Stochastic-RSI oscillator: %K and %D of the rolling
+// high/low of RSI over `stochLength` bars.
+func StochRsi(data []float64, rsiLength, stochLength, smoothK, smoothD int) [][]float64 {
+	r := Rsi(data, rsiLength)
+	if len(r) < stochLength {
+		return nil
+	}
+	rawK := make([]float64, len(r)-stochLength+1)
+	for i := stochLength; i <= len(r); i++ {
+		lo, hi := math.Inf(1), math.Inf(-1)
+		for j := i - stochLength; j < i; j++ {
+			if r[j] > hi {
+				hi = r[j]
+			}
+			if r[j] < lo {
+				lo = r[j]
+			}
+		}
+		rng := hi - lo
+		if rng == 0 {
+			rawK[i-stochLength] = math.NaN()
+		} else {
+			rawK[i-stochLength] = 100 * (r[i-1] - lo) / rng
+		}
+	}
+	fastK := ma.Sma(rawK, smoothK)
+	fastD := ma.Sma(fastK, smoothD)
+	if len(fastD) == 0 {
+		return nil
+	}
+	off := len(fastK) - len(fastD)
+	out := make([][]float64, len(fastD))
+	for i := 0; i < len(fastD); i++ {
+		out[i] = []float64{fastK[i+off], fastD[i]}
+	}
+	return out
+}
+
+// Trix is the percent rate-of-change of a triple-smoothed EMA.
+func Trix(data []float64, l int) []float64 {
+	e1 := ma.Ema(data, l)
+	if len(e1) < l {
+		return nil
+	}
+	e2 := ma.Ema(e1, l)
+	if len(e2) < l {
+		return nil
+	}
+	e3 := ma.Ema(e2, l)
+	if len(e3) < 2 {
+		return nil
+	}
+	out := make([]float64, len(e3)-1)
+	for i := 1; i < len(e3); i++ {
+		prev := e3[i-1]
+		if prev == 0 {
+			out[i-1] = math.NaN()
+		} else {
+			out[i-1] = 100 * (e3[i] - prev) / prev
+		}
+	}
+	return out
+}
+
+// Ulcer is the Ulcer Index — RMS percent drawdown from the rolling
+// `l`-bar high.
+func Ulcer(data []float64, l int) []float64 {
+	n := len(data)
+	if n < l {
+		return nil
+	}
+	dd := make([]float64, n)
+	for i := 0; i < n; i++ {
+		hi := math.Inf(-1)
+		start := i - l + 1
+		if start < 0 {
+			start = 0
+		}
+		for j := start; j <= i; j++ {
+			if data[j] > hi {
+				hi = data[j]
+			}
+		}
+		if hi == 0 {
+			dd[i] = 0
+		} else {
+			dd[i] = 100 * (data[i] - hi) / hi
+		}
+	}
+	var sum float64
+	for i := 0; i < l; i++ {
+		sum += dd[i] * dd[i]
+	}
+	out := make([]float64, n-l+1)
+	out[0] = math.Sqrt(sum / float64(l))
+	for i := l; i < n; i++ {
+		sum += dd[i]*dd[i] - dd[i-l]*dd[i-l]
+		out[i-l+1] = math.Sqrt(sum / float64(l))
+	}
+	return out
+}
+
+// Vortex is the Vortex Indicator pair [+VI, −VI]. Bars are [H, C, L].
+func Vortex(data [][]float64, l int) [][]float64 {
+	n := len(data)
+	if n < l+1 {
+		return nil
+	}
+	vmp := make([]float64, n)
+	vmn := make([]float64, n)
+	tr := make([]float64, n)
+	for i := 1; i < n; i++ {
+		h, lo, cprev := data[i][0], data[i][2], data[i-1][1]
+		hprev, lprev := data[i-1][0], data[i-1][2]
+		vmp[i] = math.Abs(h - lprev)
+		vmn[i] = math.Abs(lo - hprev)
+		t := h - lo
+		if v := math.Abs(h - cprev); v > t {
+			t = v
+		}
+		if v := math.Abs(lo - cprev); v > t {
+			t = v
+		}
+		tr[i] = t
+	}
+	var sP, sN, sT float64
+	for i := 1; i <= l; i++ {
+		sP += vmp[i]
+		sN += vmn[i]
+		sT += tr[i]
+	}
+	out := make([][]float64, n-l)
+	if sT == 0 {
+		out[0] = []float64{math.NaN(), math.NaN()}
+	} else {
+		out[0] = []float64{sP / sT, sN / sT}
+	}
+	for i := l + 1; i < n; i++ {
+		sP += vmp[i] - vmp[i-l]
+		sN += vmn[i] - vmn[i-l]
+		sT += tr[i] - tr[i-l]
+		if sT == 0 {
+			out[i-l] = []float64{math.NaN(), math.NaN()}
+		} else {
+			out[i-l] = []float64{sP / sT, sN / sT}
+		}
+	}
+	return out
+}
+
 // Divergence reports per-bar divergence (1) or no-divergence (0) between
 // two series. v2.0.0 fix: no longer mutates either input — the trim to the
 // common tail is done with non-mutating slice expressions.
