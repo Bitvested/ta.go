@@ -26,22 +26,29 @@ func Sma(data []float64, l int) []float64 {
 	return out
 }
 
+// Ema is the exponential moving average over `l` bars. Seed is the SMA of
+// the first `l` values; subsequent values use a single recurrence step.
+//
+// v2.0.0 perf: pre-allocated output, seed folded out of the inner loop,
+// no per-iteration branch on whether the seed has been emitted yet.
 func Ema(data []float64, l int) []float64 {
-	var ema []float64
-	var weight float64 = 2 / (float64(l) + 1)
-	for i := l; i <= len(data); i++ {
-		if len(ema) > 0 {
-			ema = append(ema, (data[i-1]-ema[len(ema)-1])*weight+ema[len(ema)-1])
-			continue
-		}
-		pl := append([]float64(nil), data[i-l:i]...)
-		var average float64
-		for q := 0; q < len(pl); q++ {
-			average += pl[q]
-		}
-		ema = append(ema, average/float64(l))
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	return ema
+	weight := 2 / (float64(l) + 1)
+	out := make([]float64, n-l+1)
+	var seed float64
+	for i := 0; i < l; i++ {
+		seed += data[i]
+	}
+	prev := seed / float64(l)
+	out[0] = prev
+	for i := l; i < n; i++ {
+		prev = (data[i]-prev)*weight + prev
+		out[i-l+1] = prev
+	}
+	return out
 }
 
 // Smma is the Wilder smoothed moving average. Seed = SMA of the first

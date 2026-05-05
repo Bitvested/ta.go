@@ -93,3 +93,18 @@ Before / After at 10k bars:
 Ichimoku and Stoch were left untouched: Ichimoku already matches
 the ta.js v2.0.0 per-window scan structure (pre-alloc applies but
 is small); Stoch already uses a monotonic deque.
+
+#6 movingaverages.Ema — folded seed, pre-allocated output
+==========================================================
+Before:
+BenchmarkEma1k-8     7.5µs/op    25320 B/op   13 allocs/op
+BenchmarkEma10k-8     82µs/op   358041 B/op   20 allocs/op
+BenchmarkEma100k-8   960µs/op  4103180 B/op   29 allocs/op
+
+After:
+BenchmarkEma1k-8     3.1µs/op    8192 B/op    1 allocs/op
+BenchmarkEma10k-8     30µs/op   81920 B/op    1 allocs/op
+BenchmarkEma100k-8   320µs/op  802820 B/op    1 allocs/op
+
+Speedup: 2.5× / 2.7× / 3× (plan target ≥1.5×).
+Allocs O(log n) → 1.
