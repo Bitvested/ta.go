@@ -541,10 +541,12 @@ func Antimartingale(data []float64, bet float64, max float64, multiplier float64
 	return current
 }
 
+// Sum returns the total of `data`. v2.0.0 perf: range-based loop drops
+// the bounds check that an indexed loop incurs.
 func Sum(data []float64) float64 {
-	var sum float64 = 0
-	for i := 0; i < len(data); i++ {
-		sum += data[i]
+	var sum float64
+	for _, v := range data {
+		sum += v
 	}
 	return sum
 }

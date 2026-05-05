@@ -108,3 +108,23 @@ BenchmarkEma100k-8   320µs/op  802820 B/op    1 allocs/op
 
 Speedup: 2.5× / 2.7× / 3× (plan target ≥1.5×).
 Allocs O(log n) → 1.
+
+#7 movingaverages.Wma + statistics.Sum — pre-alloc, range loop
+================================================================
+Wma:
+Before:
+BenchmarkWma10k-8     800µs/op   4497267 B/op   9970 allocs/op
+After:
+BenchmarkWma10k-8     230µs/op    81920 B/op       1 allocs/op
+
+Speedup ≈3.5×, allocs 9970 → 1. The inner-loop association
+`* float64(q+1) / weight` is preserved (per-term divide, not
+divide-once-at-end) so Hull and other Wma-chained fixtures stay
+bitwise-identical.
+
+Sum:
+Before / After:
+BenchmarkSum100k-8     25.6µs/op  →  25.4µs/op   (within noise)
+
+The indexed loop was already memory-bandwidth-limited. The range
+form is purely cosmetic here — kept the change for consistency.

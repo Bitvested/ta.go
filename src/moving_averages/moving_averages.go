@@ -72,21 +72,29 @@ func Smma(data []float64, l int) []float64 {
 	return out
 }
 
+// Wma is the weighted moving average over `l` bars (linear weights 1..l).
+// v2.0.0 perf: pre-allocated output, no per-window slice copy.
+//
+// The inner loop keeps the original `data[k] * (q+1) / weight` association
+// (per-term divide rather than divide-once at the end) so the result is
+// bitwise-identical to the previous implementation — Hull and other
+// callers depend on exact fp equality.
 func Wma(data []float64, l int) []float64 {
-	var weight int
-	var wma []float64
-	for i := 1; i <= l; i++ {
-		weight += i
+	n := len(data)
+	if n < l {
+		return nil
 	}
-	for i := l; i <= len(data); i++ {
-		pl := append([]float64(nil), data[i-l:i]...)
-		var average float64
+	weight := float64(l * (l + 1) / 2)
+	out := make([]float64, n-l+1)
+	for i := l; i <= n; i++ {
+		var avg float64
+		base := i - l
 		for q := 0; q < l; q++ {
-			average += (pl[q] * float64(q+1) / float64(weight))
+			avg += data[base+q] * float64(q+1) / weight
 		}
-		wma = append(wma, average)
+		out[i-l] = avg
 	}
-	return wma
+	return out
 }
 
 func Pwma(data []float64, l int) []float64 {
