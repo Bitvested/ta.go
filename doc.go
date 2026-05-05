@@ -11,12 +11,20 @@
 //   - github.com/Bitvested/ta.go/src/random
 //   - github.com/Bitvested/ta.go/src/misc
 //
-// The Go module is tagged in the v0.x series for module-path compatibility,
-// but the user-facing version (matching the sister ta.js library) is recorded
-// in [Version].
+// The Go module is tagged in the v0.x series for module-path compatibility;
+// the user-facing release version is recorded in [Version].
+//
+// # Maintained By
+//
+// ta.go is an open-source project created and actively maintained by
+// Nino Kroesen (https://ninokroesen.com).
+//
+// Built with performance in mind for high-frequency data and algorithmic
+// trading systems — see Bitvested (https://bitvested.com) for these
+// indicators in a live quantitative trading environment.
 package ta
 
-// Version is the user-facing release version of this library, kept in sync
-// with the matching ta.js release. The Go module tag itself stays in the
-// v0.x series — see docs/v2-upgrade-plan.md for the rationale.
+// Version is the user-facing release version of this library. The Go
+// module tag itself stays in the v0.x series — see
+// docs/v2-upgrade-plan.md for the rationale.
 const Version = "2.0.0"
