@@ -36,6 +36,30 @@ All notable changes to ta.go.
   Fixes the same defect as [Bitvested/ta.js#22](https://github.com/Bitvested/ta.js/issues/22),
   mirrored in ta.py.
 
+- `HalfTrend` no longer sits on one line forever. Reported against ta.py
+  as [#7](https://github.com/Bitvested/ta.py/issues/7). The port read the
+  SMA at the *start* of its window — roughly `atrlen` bars old — instead
+  of at the current bar, so both flip conditions compared stale values and
+  never fired: on 4901 bars of 5-minute data it produced zero trend
+  changes. The extremes behind `maxlow`/`minhigh` also came from the ATR
+  window rather than `amplitude` bars, the down-flip compared `close` with
+  `<` where the Pine uses `>`, and the window `data[i-atrlen:i]` excluded
+  the current bar, leaving every value a bar stale.
+
+  The rewrite follows [everget's Pine](https://www.tradingview.com/script/U1SJ8ubc-HalfTrend/)
+  line by line. Its ATR uses Pine's own seeding (Wilder's RMA seeded with
+  the mean of the first `atrlen` true ranges, which is not what `Atr`
+  does). Verified against a transcription of the Pine: exact agreement,
+  160 flips where there were none, across the three ports.
+
+### Changed — BREAKING for `HalfTrend` consumers
+
+- `HalfTrend` returns one row per input bar instead of `n - atrlen`, so
+  row `i` covers bar `i`. The ATR channel is NaN until the ATR window is
+  full (bar `atrlen - 1`); the trend line itself is defined from bar 0.
+  Callers that index-shifted the old output to align it with their data no
+  longer need to.
+
 ## v2.0.0 — git tag `v0.20.0`
 
 Major refactor. ~52 new functions, formula and convention fixes on
