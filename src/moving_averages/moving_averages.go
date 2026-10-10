@@ -237,8 +237,12 @@ func Hull(data []float64, l int) []float64 {
 	var pl []float64
 	var hma []float64
 	var ewma []float64 = Wma(data, l)
-	var sqn int = int(math.Pow(float64(l), 0.5))
-	var first []float64 = Wma(data, int(l/2))
+	// Round rather than truncate, matching ta.js's Math.round: int(l/2) shortens the
+	// half-length at every odd length, and int(sqrt(l)) flattens the final smoothing
+	// window whenever sqrt rounds up (lengths 8, 14, ...). Both put the output on a
+	// different bar grid than the other ports.
+	var sqn int = int(math.Round(math.Sqrt(float64(l))))
+	var first []float64 = Wma(data, int(math.Round(float64(l)/2)))
 	first = first[len(first)-len(ewma):]
 	for i := 0; i < len(ewma); i++ {
 		pl = append(pl, (first[i]*2)-ewma[i])
