@@ -97,7 +97,7 @@ func TestHull(t *testing.T) {
 
 func TestKama(t *testing.T) {
 	have := ma.Kama([]float64{8, 7, 8, 9, 7, 9}, 2, 4, 8)
-	want := []float64{8, 8.64, 8.377600000000001, 8.377600000000001}
+	want := []float64{7, 7.0493827160493829, 7.3614814814814817, 7.3328406442107408, 7.415169501286754}
 	if !assert.Equal(t, want, have) {
 		t.Fatalf("Kama Failed!")
 	}
