@@ -65,6 +65,15 @@ All notable changes to ta.go.
   series are unchanged to the last bit. Mirrors the same fix in ta.js and
   ta.py.
 
+- `ZigZag`'s pivot bookkeeping matched neither ta.js nor its own documentation.
+  Three defects: the leg reset seeded the running extreme with ±Inf instead of
+  the pivot just recorded, so the next retracement was measured from nothing;
+  the running maximum tracked the low rather than the high; and a low pivot
+  stored the high. On a 300-bar series it disagreed with ta.js in 174 of 298
+  values; it now matches exactly (max Δ 1.4e-14). The existing fixture used a 25%
+  retracement, where the defects cancel out, which is why they survived — a 5%
+  case now pins them.
+
 ### Changed — BREAKING for `HalfTrend` consumers
 
 - `HalfTrend` returns one row per input bar instead of `n - atrlen`, so

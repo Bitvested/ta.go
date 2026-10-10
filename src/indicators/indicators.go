@@ -933,10 +933,18 @@ func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [
 	return out
 }
 
+// ZigZag is the pivot line: while a leg runs, its pivot is extended as price
+// makes new extremes, and a new pivot is recorded once price retraces more than
+// `perc` from the leg's extreme. The returned series is that line interpolated to
+// one value per input bar.
+//
+// A faithful port of the ta.js original. Three details it previously differed on:
+// the leg reset seeds the running extreme with the pivot just recorded rather
+// than ±Inf, the running maximum tracks the high, and a low pivot stores the low.
 func ZigZag(data [][]float64, perc float64) []float64 {
 	var indexes []stats.RecentHighLow
-	min := math.Inf(1)
-	max := math.Inf(-1)
+	mn := math.Inf(1)
+	mx := math.Inf(-1)
 	lmin := false
 	lmax := false
 	for i := 0; i < len(data); i++ {
@@ -945,40 +953,38 @@ func ZigZag(data [][]float64, perc float64) []float64 {
 				indexes[len(indexes)-1].Value = data[i][1]
 				indexes[len(indexes)-1].Index = i
 			}
-			if min >= data[i][1] {
-				min = data[i][1]
+			if mn >= data[i][1] {
+				mn = data[i][1]
 			}
-			hdif := (data[i][0] - min) / min
-			if hdif > perc {
+			if (data[i][0]-mn)/mn > perc {
 				indexes = append(indexes, stats.RecentHighLow{Index: i, Value: data[i][0]})
 				lmax = true
 				lmin = false
-				min = math.Inf(1)
+				mx = data[i][0]
 			}
 		} else if lmax {
 			if indexes[len(indexes)-1].Value <= data[i][0] {
 				indexes[len(indexes)-1].Value = data[i][0]
 				indexes[len(indexes)-1].Index = i
 			}
-			if max <= data[i][1] {
-				max = data[i][1]
+			if mx <= data[i][0] {
+				mx = data[i][0]
 			}
-			ldif := (max - data[i][1]) / data[i][1]
-			if ldif > perc {
+			if (mx-data[i][1])/data[i][1] > perc {
 				indexes = append(indexes, stats.RecentHighLow{Index: i, Value: data[i][1]})
 				lmin = true
 				lmax = false
-				max = math.Inf(-1)
+				mn = data[i][1]
 			}
 		} else {
-			if min >= data[i][1] {
-				min = data[i][1]
+			if mn >= data[i][1] {
+				mn = data[i][1]
 			}
-			if max <= data[i][0] {
-				max = data[i][0]
+			if mx <= data[i][0] {
+				mx = data[i][0]
 			}
-			hdif := (data[i][0] - min) / min
-			ldif := (max - data[i][1]) / max
+			hdif := (data[i][0] - mn) / mn
+			ldif := (mx - data[i][1]) / mx
 			if ldif > perc && hdif < perc {
 				lmin = true
 				indexes = append(indexes, stats.RecentHighLow{Index: 0, Value: data[0][0]})
@@ -987,18 +993,19 @@ func ZigZag(data [][]float64, perc float64) []float64 {
 				lmax = true
 				indexes = append(indexes, stats.RecentHighLow{Index: 0, Value: data[0][1]})
 				indexes = append(indexes, stats.RecentHighLow{Index: i, Value: data[i][0]})
+			} else if ldif > hdif {
+				lmin = true
+				indexes = append(indexes, stats.RecentHighLow{Index: 0, Value: data[0][0]})
+				indexes = append(indexes, stats.RecentHighLow{Index: i, Value: data[i][1]})
 			} else {
-				if ldif > hdif {
-					lmin = true
-					indexes = append(indexes, stats.RecentHighLow{Index: 0, Value: data[0][0]})
-					indexes = append(indexes, stats.RecentHighLow{Index: i, Value: data[i][0]})
-				} else {
-					lmax = true
-					indexes = append(indexes, stats.RecentHighLow{Index: 0, Value: data[0][1]})
-					indexes = append(indexes, stats.RecentHighLow{Index: i, Value: data[i][0]})
-				}
+				lmax = true
+				indexes = append(indexes, stats.RecentHighLow{Index: 0, Value: data[0][1]})
+				indexes = append(indexes, stats.RecentHighLow{Index: i, Value: data[i][0]})
 			}
 		}
+	}
+	if len(indexes) == 0 {
+		return nil
 	}
 	final := []float64{indexes[0].Value}
 	for i := 1; i < len(indexes); i++ {
