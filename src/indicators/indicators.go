@@ -443,17 +443,41 @@ func Asi(data [][]float64) []float64 {
 	return a
 }
 
+// Alligator is the Bill Williams Alligator (jaw, teeth, lips).
+//
+// Rows align to the input bars: the result has len(data) rows and row i covers
+// bar i. Each line is displaced right by its own shift, matching TradingView's
+// plot(..., offset=shift), so row i carries the SMMA value computed at bar
+// i-shift. A line is NaN until bar length-1+shift, which with the defaults is
+// jaw 20, teeth 12, lips 7. Feed it hl2 to reproduce the standard indicator.
 func Alligator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [][]float64 {
-	var ret [][]float64
-	var jaw []float64 = ma.Smma(data, jl)
-	var teeth []float64 = ma.Smma(data, tl)
-	var lips []float64 = ma.Smma(data, ll)
-	teeth = teeth[len(teeth)-len(jaw):]
-	lips = lips[len(lips)-len(jaw):]
-	for i := len(jaw) - 1; i >= 7; i-- {
-		ret = append(ret, []float64{jaw[i-(js-1)], teeth[i-(ts-1)], lips[i-(ls-1)]})
+	n := len(data)
+	jaw := displaced(ma.Smma(data, jl), jl, js, n)
+	teeth := displaced(ma.Smma(data, tl), tl, ts, n)
+	lips := displaced(ma.Smma(data, ll), ll, ls, n)
+	ret := make([][]float64, n)
+	for i := 0; i < n; i++ {
+		ret[i] = []float64{jaw[i], teeth[i], lips[i]}
 	}
 	return ret
+}
+
+// displaced shifts a raw series right by shift bars over an n-bar output,
+// leaving NaN where the line is not yet defined.
+func displaced(series []float64, length int, shift int, n int) []float64 {
+	line := make([]float64, n)
+	for i := range line {
+		line[i] = math.NaN()
+	}
+	start := length - 1 + shift
+	end := start + len(series)
+	if end > n {
+		end = n
+	}
+	for i := start; i < end; i++ {
+		line[i] = series[i-start]
+	}
+	return line
 }
 
 // Pr is Williams %R. Returns NaN when the window range is zero (flat data).

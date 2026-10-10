@@ -2,6 +2,23 @@
 
 All notable changes to ta.go.
 
+## Unreleased
+
+### Fixed
+
+- `Alligator` and `Gator` now align to the input bars. Both returned
+  their rows newest-first and truncated to `n - jl - js + 2` rows, so
+  the output could not be lined up with the input series at all, and
+  each line was displaced by `shift - 1` bars instead of `shift`.
+  `Gator`'s upper histogram also plotted `jaw - teeth` instead of
+  `|jaw - teeth|`, giving the top histogram the wrong sign. Both now
+  emit one row per input bar, with each line displaced right by its own
+  shift, matching TradingView's `plot(..., offset=shift)`, and NaN until
+  that line's first bar (jaw 20, teeth 12, lips 7 with the defaults).
+  `Gator` is now derived from `Alligator`'s displaced lines, and
+  `js=ts=ls=0` reproduces TradingView's Gator Oscillator, which does not
+  displace its lines. Mirrors the same fix in ta.py and ta.js.
+
 ## v2.0.0 — git tag `v0.20.0`
 
 Major refactor. ~52 new functions, formula and convention fixes on

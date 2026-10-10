@@ -1,6 +1,7 @@
 package oscillators_test
 
 import (
+	"math"
 	"testing"
 
 	tu "github.com/Bitvested/ta.go/internal/testutil"
@@ -54,9 +55,19 @@ func TestFisher(t *testing.T) {
 }
 
 func TestGator(t *testing.T) {
-	// v2.0.0: cascades from Smma's Wilder fix.
+	// Derived from Alligator's displaced lines, so the rows carry Alligator's bar
+	// alignment. The upper histogram is |jaw - teeth|, the lower -|teeth - lips|.
 	have := osc.Gator([]float64{8, 7, 8, 9, 7, 8, 9, 6, 7, 8, 6, 8, 10, 8, 7, 9, 8, 7, 9, 6, 7, 9}, 13, 8, 5, 8, 5, 3)
-	want := [][]float64{{-0.08721987687932575, -0.17579145857838796}, {-0.14292064217641176, -0.1174390727798702}, {-0.1506582487087984, -0.1107115635933269}}
+	nan := math.NaN()
+	want := [][]float64{
+		{nan, nan}, {nan, nan}, {nan, nan}, {nan, nan}, {nan, nan}, {nan, nan},
+		{nan, nan}, {nan, nan}, {nan, nan}, {nan, nan}, {nan, nan}, {nan, nan},
+		{nan, -0.1291360000000008}, {nan, -0.3595588000000003},
+		{nan, -0.2618657899999999}, {nan, -0.4630659617499999},
+		{nan, -0.4089415389312503}, {nan, -0.08916909551515584},
+		{nan, -0.13938268776023932}, {nan, -0.24588436885900933},
+		{0.1506582487087984, -0.1107115635933269}, {0.14292064217641176, -0.1174390727798702},
+	}
 	tu.Slice2D(t, have, want, "Gator")
 }
 

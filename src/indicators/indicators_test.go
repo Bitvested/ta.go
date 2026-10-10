@@ -182,9 +182,24 @@ func TestAtr(t *testing.T) {
 }
 
 func TestAlligator(t *testing.T) {
-	// v2.0.0: cascades from Smma's Wilder recurrence + length-N+1 output.
+	// Rows align to the input bars: one row per bar, each line displaced right by
+	// its own shift and NaN until its first bar (jaw 12+8=20, teeth 7+5=12,
+	// lips 4+3=7). Spot-checked by hand: jaw[20] = 101/13 = 7.76923 is the raw
+	// SMMA's seed value landing 8 bars later, teeth[12] = 62/8 = 7.75 likewise.
 	have := ind.Alligator([]float64{8, 7, 8, 9, 7, 8, 9, 6, 7, 8, 6, 8, 10, 8, 7, 9, 8, 7, 9, 6, 7, 9}, 13, 8, 5, 8, 5, 3)
-	want := [][]float64{{7.726445152480656, 7.813665029359981, 7.6378735707815935}, {7.78698224852071, 7.929902890697122, 8.047341963476992}, {7.769230769230769, 7.919889017939568, 7.809177454346241}}
+	nan := math.NaN()
+	want := [][]float64{
+		{nan, nan, nan}, {nan, nan, nan}, {nan, nan, nan}, {nan, nan, nan},
+		{nan, nan, nan}, {nan, nan, nan}, {nan, nan, nan},
+		{nan, nan, 7.8}, {nan, nan, 7.84}, {nan, nan, 8.072},
+		{nan, nan, 7.6575999999999995}, {nan, nan, 7.526079999999999},
+		{nan, 7.75, 7.620863999999999}, {nan, 7.65625, 7.2966912},
+		{nan, 7.69921875, 7.43735296}, {nan, 7.48681640625, 7.949882368},
+		{nan, 7.55096435546875, 7.9599058944}, {nan, 7.857093811035156, 7.76792471552},
+		{nan, 7.874957084655762, 8.014339772416001}, {nan, 7.7655874490737915, 8.0114718179328},
+		{7.769230769230769, 7.919889017939568, 7.809177454346241},
+		{7.78698224852071, 7.929902890697122, 8.047341963476992},
+	}
 	tu.Slice2D(t, have, want, "Alligator")
 }
 

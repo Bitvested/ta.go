@@ -20,15 +20,16 @@ func minf(v []float64) float64 {
 	return v[0]
 }
 
+// Gator is the Gator Oscillator, derived from Alligator's displaced lines so
+// the output keeps Alligator's bar alignment: len(data) rows, row i covering
+// bar i, with |jaw - teeth| as the upper histogram and -|teeth - lips| as the
+// lower one. TradingView's Gator Oscillator does not displace its lines: pass
+// js=ts=ls=0 to match it.
 func Gator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [][]float64 {
-	var ret [][]float64
-	var jaw []float64 = ma.Smma(data, jl)
-	var teeth []float64 = ma.Smma(data, tl)
-	var lips []float64 = ma.Smma(data, ll)
-	teeth = teeth[len(teeth)-len(jaw):]
-	lips = lips[len(lips)-len(jaw):]
-	for i := len(jaw) - 1; i >= (js - 1); i-- {
-		ret = append(ret, []float64{jaw[i-(js-1)] - teeth[i-(ts-1)], -(math.Abs(teeth[i-(ts-1)] - lips[i-(ls-1)]))})
+	lines := ind.Alligator(data, jl, tl, ll, js, ts, ls)
+	ret := make([][]float64, len(lines))
+	for i, row := range lines {
+		ret[i] = []float64{math.Abs(row[0] - row[1]), -math.Abs(row[1] - row[2])}
 	}
 	return ret
 }
@@ -137,6 +138,7 @@ func Ac(data [][]float64, len1 int, len2 int) []float64 {
 //   - Output length normalized to len(data) - l + 1 (drops the trailing slice).
 //   - Norm of (price - min) divided by (max - min), not by max alone.
 //   - Zero-range guard returns NaN propagation through v1.
+//
 // Kvo is the Klinger Volume Oscillator. Bars are [H, C, L, V]. The
 // trend flips when sum(H+C+L) crosses; cumulative measurement (CM)
 // resets to the prior bar's range and accumulates the current range.
