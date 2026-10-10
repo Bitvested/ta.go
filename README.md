@@ -134,19 +134,19 @@ Full table and reproduction instructions in
 
 ## Versioning
 
-The user-facing version is **`2.0.0`**, exported from the root
-package as `ta.Version`. The Git tag is **`v0.20.0`** — the `v0.x`
+The user-facing version is **`2.1.0`**, exported from the root
+package as `ta.Version`. The Git tag is **`v0.21.0`** — the `v0.x`
 prefix lets the existing `github.com/Bitvested/ta.go` import path
 keep working without Go's `/v2` module-path requirement. To pin the
-2.0.0 line specifically:
+2.1.0 line specifically:
 
 ```bash
-go get github.com/Bitvested/ta.go@v0.20.0
+go get github.com/Bitvested/ta.go@v0.21.0
 ```
 
 ```go
 import ta "github.com/Bitvested/ta.go"
-fmt.Println(ta.Version) // "2.0.0"
+fmt.Println(ta.Version) // "2.1.0"
 ```
 
 ## Contributing

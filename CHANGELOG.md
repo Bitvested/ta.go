@@ -2,7 +2,27 @@
 
 All notable changes to ta.go.
 
-## Unreleased
+## 2.1.0 — git tag `v0.21.0`
+
+> ### ⚠️ Read this before upgrading
+>
+> **Four functions return different numbers, and three of them a different number of rows.** Each was verified against ta.js, the reference these ports are built from, and each fix has a test that fails against the old code — but nothing raises, so an existing pipeline will consume the new values silently.
+>
+> | function | what changed |
+> |---|---|
+> | `HalfTrend` | **row count**: `n - atrlen` → `n`. It also produced *zero* trend changes on real data before this release. |
+> | `Alligator`, `Gator` | **row count**: `n - jl - js + 2` → `n`, oldest-first and aligned to the input bars. |
+> | `Kama` | **row count** `n - l1` → `n - l1 + 1`, and **every value** — the smoothing constant had lost its slow term. |
+> | `Hull` | **values**: the half-length and the final smoothing window were truncated instead of rounded, so the output differed from ta.js at every odd length and wherever `sqrt` rounds up (8, 14, …). |
+> | `ZigZag` | **values**: three bookkeeping defects — legs were reset from ±Inf, the running maximum tracked the low, and a low pivot stored the high. |
+>
+> `Er`, `Ar` and `Kelly` are **not** in that list: their values are unchanged. What changed is that a one-sided series no longer depends on `math.Pow(1, +Inf)` happening to be 1.
+
+### Added
+
+- **`Occ` — the Open Close Cross**, following JustUncleL's Pine ([source](https://www.tradingview.com/script/IVjPPt6c-Open-Close-Cross-Alert-R6-by-JustUncleL/)), requested in [Bitvested/ta.py#4](https://github.com/Bitvested/ta.py/issues/4). A moving average of open and of close; the direction is whichever is on top and a flip is the cross. Input rows are `[open, close]`; output rows are `[close basis, open basis, direction]`, aligned to the input bars, NaN until both bases exist. `delay` is the Pine's `delayOffset`. `basisType` accepts `SMA`, `EMA`, `DEMA`, `TEMA`, `WMA`, `SMMA`, `HullMA` and `TMA`; the other four the Pine offers are omitted rather than approximated (LSMA needs an offset this package's `Lsma` does not take, VWMA needs volume in the row, ALMA and SSMA are not implemented). An unrecognised `basisType` returns nil.
+
+### Fixed
 
 ### Fixed
 
@@ -73,6 +93,14 @@ All notable changes to ta.go.
   values; it now matches exactly (max Δ 1.4e-14). The existing fixture used a 25%
   retracement, where the defects cancel out, which is why they survived — a 5%
   case now pins them.
+
+- `Hull` truncated where the reference rounds. Both the half-length and the final
+  smoothing window came from `int()`, so the output disagreed with ta.js at every
+  odd length (half-length) and wherever `sqrt` rounds up — length 8 has sqrt 2.83,
+  rounded to 3 by the reference and floored to 2 here, which also shifted the
+  output onto a different bar grid. Both now use `math.Round`, and a sweep of
+  lengths 2-20 matches ta.js exactly. Found while checking `Occ`'s `HullMA` basis,
+  which inherits it.
 
 ### Changed — BREAKING for `HalfTrend` consumers
 
