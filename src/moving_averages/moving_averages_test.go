@@ -103,6 +103,21 @@ func TestKama(t *testing.T) {
 	}
 }
 
+// Hull's half-length and final smoothing window must round like ta.js's
+// Math.round. int() truncated, so the port disagreed with the reference at every
+// odd length (half-length) and wherever sqrt rounds up — length 8 has sqrt 2.83,
+// which the reference rounds to 3 and this port floored to 2.
+func TestHullRoundingMatchesTheReference(t *testing.T) {
+	eight := []float64{6, 7, 5, 6, 7, 4, 5, 7}
+	tu.Slice(t, ma.Hull(eight, 5),
+		[]float64{5.5555555555555545, 4.866666666666667, 5.48888888888889}, "Hull(5)")
+
+	sixteen := []float64{6, 7, 5, 6, 7, 4, 5, 7, 6, 8, 7, 6, 5, 7, 8, 6}
+	tu.Slice(t, ma.Hull(sixteen, 8),
+		[]float64{6.701851851851853, 7.328703703703703, 7.27037037037037, 6.4907407407407405,
+			6.081481481481482, 6.473148148148151, 6.73240740740741}, "Hull(8)")
+}
+
 func TestCwma(t *testing.T) {
 	have := ma.Cwma([]float64{69, 68, 66, 70, 68, 69}, []float64{1, 2, 3, 5, 8})
 	want := []float64{68.26315789473684, 68.52631578947368}
