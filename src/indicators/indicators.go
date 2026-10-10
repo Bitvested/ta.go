@@ -452,9 +452,9 @@ func Asi(data [][]float64) []float64 {
 // jaw 20, teeth 12, lips 7. Feed it hl2 to reproduce the standard indicator.
 func Alligator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [][]float64 {
 	n := len(data)
-	jaw := displaced(ma.Smma(data, jl), jl, js, n)
-	teeth := displaced(ma.Smma(data, tl), tl, ts, n)
-	lips := displaced(ma.Smma(data, ll), ll, ls, n)
+	jaw := displaced(ma.Smma(data, jl), js, n)
+	teeth := displaced(ma.Smma(data, tl), ts, n)
+	lips := displaced(ma.Smma(data, ll), ls, n)
 	ret := make([][]float64, n)
 	for i := 0; i < n; i++ {
 		ret[i] = []float64{jaw[i], teeth[i], lips[i]}
@@ -462,14 +462,99 @@ func Alligator(data []float64, jl int, tl int, ll int, js int, ts int, ls int) [
 	return ret
 }
 
-// displaced shifts a raw series right by shift bars over an n-bar output,
-// leaving NaN where the line is not yet defined.
-func displaced(series []float64, length int, shift int, n int) []float64 {
+// occBasis returns the moving average OCC's basisType selects. ok is false for a
+// type this package does not provide, which is distinct from a known type returning
+// an empty series because the input is too short.
+//
+// Four of the Pine's twelve options are absent: LSMA takes an offset Lsma has no
+// parameter for, VWMA needs volume in the data row, and ALMA and SSMA (Ehlers
+// SuperSmoother) are not implemented here.
+func occBasis(kind string, src []float64, length int) ([]float64, bool) {
+	switch kind {
+	case "SMA":
+		return ma.Sma(src, length), true
+	case "EMA":
+		return ma.Ema(src, length), true
+	case "DEMA":
+		return ma.Dema(src, length), true
+	case "TEMA":
+		return ma.Tema(src, length), true
+	case "WMA":
+		return ma.Wma(src, length), true
+	case "SMMA":
+		return ma.Smma(src, length), true
+	case "HullMA":
+		return ma.Hull(src, length), true
+	case "TMA":
+		return ma.Sma(ma.Sma(src, length), length), true
+	}
+	return nil, false
+}
+
+// Occ is the Open Close Cross, following JustUncleL's Pine
+// (tradingview.com/script/IVjPPt6c-Open-Close-Cross-Alert-R6-by-JustUncleL/).
+//
+// A moving average of close and of open; the direction is whichever is on top, and
+// a flip is the cross. Input rows are [open, close]. Output rows are
+// [close basis, open basis, direction] with direction "long" or "short", aligned to
+// the input bars, NaN until both bases exist. delay is the Pine's delayOffset, which
+// shifts both bases right.
+//
+// basisType is one of "SMA", "EMA", "DEMA", "TEMA", "WMA", "SMMA", "HullMA" or
+// "TMA"; see occBasis for the four the Pine offers and this package does not. An
+// unrecognised basisType returns nil, matching how this package reports input it
+// cannot use. TradingView's alert conditions, alternate-resolution mode and
+// divergence plot are platform features, not computations, and have no counterpart
+// in a function that returns series.
+func Occ(data [][]float64, basisLen int, basisType string, delay int) [][]interface{} {
+	n := len(data)
+	if basisLen < 1 || delay < 0 {
+		return nil
+	}
+	opens := make([]float64, n)
+	closes := make([]float64, n)
+	for i, row := range data {
+		opens[i] = row[0]
+		closes[i] = row[1]
+	}
+	closeBasis, ok := occBasis(basisType, closes, basisLen)
+	if !ok {
+		return nil
+	}
+	openBasis, _ := occBasis(basisType, opens, basisLen)
+	cb := displaced(closeBasis, delay, n)
+	ob := displaced(openBasis, delay, n)
+	ret := make([][]interface{}, n)
+	for i := 0; i < n; i++ {
+		if math.IsNaN(cb[i]) || math.IsNaN(ob[i]) {
+			ret[i] = []interface{}{math.NaN(), math.NaN(), math.NaN()}
+			continue
+		}
+		direction := "short"
+		if cb[i] > ob[i] {
+			direction = "long"
+		}
+		ret[i] = []interface{}{cb[i], ob[i], direction}
+	}
+	return ret
+}
+
+// displaced shifts a right-aligned series right by shift bars over an n-bar
+// output, leaving NaN where the line is not yet defined.
+//
+// The series' first bar is taken to be n - len(series), which holds for every
+// primitive here because they all end at the last input bar. Deriving it from the
+// length rather than from a period parameter is what lets this serve averages with
+// different warm-ups (DEMA starts at 2*len-2, TEMA at 3*len-3, and so on).
+func displaced(series []float64, shift int, n int) []float64 {
 	line := make([]float64, n)
 	for i := range line {
 		line[i] = math.NaN()
 	}
-	start := length - 1 + shift
+	start := n - len(series) + shift
+	if start < 0 {
+		start = 0
+	}
 	end := start + len(series)
 	if end > n {
 		end = n
