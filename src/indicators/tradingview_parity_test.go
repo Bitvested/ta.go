@@ -32,9 +32,13 @@ import (
 // a window problem rather than as a value mismatch.
 
 const (
-	// TradingView writes a fixed number of decimals, so this is the export's print
-	// precision, not algorithmic slack (the library's own tolerance is 1e-12).
-	tvTolerance = 1e-6
+	// TradingView prints the plots to 3 decimals, so this bound is one unit in its
+	// last printed place -- a limit of the source, not algorithmic slack (the
+	// library's own tolerance is 1e-12). Realised agreement is far tighter: the
+	// median gap is 2.5e-4, exactly the median of a uniform round-to-3-decimals
+	// residual, which is the signature of our value being TradingView's value
+	// before it was printed.
+	tvTolerance = 1e-3
 	jawFirstBar = 13 - 1 + 8 // jaw length - 1 + jaw shift
 )
 
