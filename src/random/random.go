@@ -1,6 +1,6 @@
 // Package random hosts a deterministic seeded PRNG and a small set of
-// sampling helpers (Prng, Pick, Range, Float, Order) that mirror the
-// random/ subpackage of ta.js v2.0.0.
+// sampling helpers (Prng, Pick, Range, Float, Order) used by the Monte
+// Carlo simulator and other stochastic routines.
 //
 // All sampling helpers take an optional rng function — pass nil to
 // fall back to math/rand's package-level source.

@@ -25,6 +25,6 @@
 package ta
 
 // Version is the user-facing release version of this library. The Go
-// module tag itself stays in the v0.x series — see
-// docs/v2-upgrade-plan.md for the rationale.
+// module tag itself stays in the v0.x series — see CHANGELOG.md for the
+// rationale.
 const Version = "2.0.0"
