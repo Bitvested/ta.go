@@ -727,113 +727,123 @@ func FractalsPrice(data [][]float64) [][]float64 {
 	return out
 }
 
-// HalfTrend mirrors the v2.0.0 JS implementation: 4-tuple output
-// [atrHigh, mid, atrLow, "long"|"short"]; loop is `i < len(data)` (one
-// fewer iteration than the previous Go version); direction is set
-// correctly per branch (was always "long" in the old code).
+// HalfTrend follows everget's Pine script
+// (tradingview.com/script/U1SJ8ubc-HalfTrend/), which the v2.0.0 port was
+// transliterated from but did not reproduce: it read the SMA at the start of its
+// window rather than at the current bar, so its flip conditions never fired.
+//
+// One row per input bar: [atrHigh, trend line, atrLow, "long"|"short"]. The ATR
+// channel is NaN until the ATR window is full (bar atrlen-1); the trend line is
+// defined from bar 0, as it is in the Pine.
 func HalfTrend(data [][]float64, atrlen int, amplitude int, deviation float64) [][]interface{} {
-	out := make([][]interface{}, 0)
-	nexttrend := []int{0}
-	trend := []int{0}
-	up := []float64{0}
-	down := []float64{0}
-	for i := atrlen; i < len(data); i++ {
-		pl := data[i-atrlen : i]
-		maxlow := pl[len(pl)-2][2]
-		minhigh := pl[len(pl)-2][0]
-		atrSeq := Atr(pl, atrlen)
-		atr2 := atrSeq[len(atrSeq)-1] / 2
-		dev := deviation * atr2
+	n := len(data)
+	if n == 0 {
+		return [][]interface{}{}
+	}
+	high := make([]float64, n)
+	close := make([]float64, n)
+	low := make([]float64, n)
+	for i := 0; i < n; i++ {
+		high[i], close[i], low[i] = data[i][0], data[i][1], data[i][2]
+	}
 
-		// max(high) / min(low) over the window
-		highprice := math.Inf(-1)
-		lowprice := math.Inf(1)
-		for _, b := range pl {
-			if b[0] > highprice {
-				highprice = b[0]
-			}
-			if b[2] < lowprice {
-				lowprice = b[2]
-			}
+	// atr(atrlen): Wilder's RMA over true range, seeded with the mean of the
+	// first atrlen true ranges. That is Pine's seeding, and not Atr's.
+	tr := make([]float64, n)
+	tr[0] = high[0] - low[0]
+	for i := 1; i < n; i++ {
+		tr[i] = math.Max(high[i]-low[i], math.Max(math.Abs(high[i]-close[i-1]), math.Abs(low[i]-close[i-1])))
+	}
+	atr2 := make([]float64, n)
+	for i := range atr2 {
+		atr2[i] = math.NaN()
+	}
+	if n >= atrlen {
+		var sum float64
+		for i := 0; i < atrlen; i++ {
+			sum += tr[i]
 		}
-		highs := map2d(pl[len(pl)-amplitude:], 0)
-		lows := map2d(pl[len(pl)-amplitude:], 2)
-		highma := ma.Sma(highs, amplitude)
-		lowma := ma.Sma(lows, amplitude)
+		prev := sum / float64(atrlen)
+		atr2[atrlen-1] = prev / 2
+		for i := atrlen; i < n; i++ {
+			prev = (prev*float64(atrlen-1) + tr[i]) / float64(atrlen)
+			atr2[i] = prev / 2
+		}
+	}
 
-		if nexttrend[len(nexttrend)-1] == 1 {
-			if lowprice > maxlow {
-				maxlow = lowprice
+	trend, nexttrend, prevtrend := 0, 0, -1 // prevtrend -1 stands for Pine's na
+	maxlow, minhigh := low[0], high[0]      // nz(low[1], low) / nz(high[1], high) at bar 0
+	up, down := math.NaN(), math.NaN()
+	out := make([][]interface{}, 0, n)
+	for i := 0; i < n; i++ {
+		dev := deviation * atr2[i]
+		start := i - amplitude + 1
+		if start < 0 {
+			start = 0
+		}
+		highprice, lowprice := math.Inf(-1), math.Inf(1)
+		var hsum, lsum float64
+		for k := start; k <= i; k++ {
+			highprice = math.Max(highprice, high[k])
+			lowprice = math.Min(lowprice, low[k])
+			hsum += high[k]
+			lsum += low[k]
+		}
+		// Pine's sma is na until its window is full, and a na comparison is false.
+		highma, lowma := math.NaN(), math.NaN()
+		if i >= amplitude-1 {
+			highma = hsum / float64(amplitude)
+			lowma = lsum / float64(amplitude)
+		}
+
+		if nexttrend == 1 {
+			maxlow = math.Max(lowprice, maxlow)
+			prevLow := low[i]
+			if i > 0 {
+				prevLow = low[i-1]
 			}
-			if highma[0] < maxlow && pl[len(pl)-1][1] < pl[len(pl)-2][2] {
-				trend = append(trend, 1)
-				nexttrend = append(nexttrend, 0)
-				minhigh = pl[len(pl)-2][0]
-			}
-		} else {
-			if highprice < minhigh {
+			if highma < maxlow && close[i] < prevLow {
+				trend, nexttrend = 1, 0
 				minhigh = highprice
 			}
-			if lowma[0] > minhigh && pl[len(pl)-1][1] < pl[len(pl)-2][0] {
-				trend = append(trend, 0)
-				nexttrend = append(nexttrend, 1)
+		} else {
+			minhigh = math.Min(highprice, minhigh)
+			prevHigh := high[i]
+			if i > 0 {
+				prevHigh = high[i-1]
+			}
+			if lowma > minhigh && close[i] > prevHigh {
+				trend, nexttrend = 0, 1
 				maxlow = lowprice
 			}
 		}
 
-		var direction string
-		if trend[len(trend)-1] == 0 {
-			if len(trend) > 1 && trend[len(trend)-2] != 0 {
-				if len(down) < 2 {
-					up = append(up, down[len(down)-1])
-				} else {
-					up = append(up, down[len(down)-2])
-				}
+		var line float64
+		if trend == 0 {
+			if prevtrend != -1 && prevtrend != 0 {
+				up = down // na(down[1]) ? down : down[1]
+			} else if math.IsNaN(up) {
+				up = maxlow
 			} else {
-				if len(up) < 2 {
-					up = append(up, maxlow)
-				} else if up[len(up)-2] > maxlow {
-					up = append(up, up[len(up)-2])
-				} else {
-					up = append(up, maxlow)
-				}
+				up = math.Max(maxlow, up)
 			}
-			direction = "long"
+			line = up
 		} else {
-			if len(trend) > 1 && trend[len(trend)-2] != 1 {
-				if len(up) < 2 {
-					down = append(down, up[len(up)-1])
-				} else {
-					down = append(down, up[len(up)-2])
-				}
+			if prevtrend != -1 && prevtrend != 1 {
+				down = up // na(up[1]) ? up : up[1]
+			} else if math.IsNaN(down) {
+				down = minhigh
 			} else {
-				if len(down) < 2 {
-					down = append(down, minhigh)
-				} else if down[len(down)-2] < minhigh {
-					down = append(down, down[len(down)-2])
-				} else {
-					down = append(down, minhigh)
-				}
+				down = math.Min(minhigh, down)
 			}
+			line = down
+		}
+		direction := "long"
+		if trend != 0 {
 			direction = "short"
 		}
-
-		var anchor float64
-		if direction == "long" {
-			anchor = up[len(up)-1]
-		} else {
-			anchor = down[len(down)-1]
-		}
-		atrHigh := anchor + dev
-		atrLow := anchor - dev
-
-		var mid float64
-		if trend[len(trend)-1] == 0 {
-			mid = up[len(up)-1]
-		} else {
-			mid = down[len(down)-1]
-		}
-		out = append(out, []interface{}{atrHigh, mid, atrLow, direction})
+		out = append(out, []interface{}{line + dev, line, line - dev, direction})
+		prevtrend = trend
 	}
 	return out
 }
