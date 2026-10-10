@@ -53,9 +53,7 @@ func TestMedian(t *testing.T) {
 func TestNormalize(t *testing.T) {
 	have := stats.Normalize([]float64{5, 4, 9, 4}, 0.1)
 	want := []float64{0.2222222222222222, 0.06349206349206349, 0.8571428571428571, 0.06349206349206349}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Normalize Failed!")
-	}
+	tu.Slice(t, have, want, "Normalize")
 }
 
 func TestDenormalize(t *testing.T) {
@@ -116,9 +114,7 @@ func TestNormsinv(t *testing.T) {
 func TestCor(t *testing.T) {
 	have := stats.Cor([]float64{1, 2, 3, 4, 5, 2}, []float64{1, 3, 2, 4, 6, 3})
 	want := 0.8808929232684737
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Cor Failed!")
-	}
+	tu.Scalar(t, have, want, "Cor")
 }
 
 func TestDif(t *testing.T) {
@@ -179,9 +175,7 @@ func TestEr(t *testing.T) {
 func TestAr(t *testing.T) {
 	have := stats.Ar([]float64{0.02, -0.01, 0.03, 0.05, -0.03}, 3)
 	want := []float64{0.03667479679633267, -0.053301281310417566}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Ar Failed!")
-	}
+	tu.Slice(t, have, want, "Ar")
 }
 
 func TestAvgwin(t *testing.T) {
@@ -203,9 +197,7 @@ func TestAvgloss(t *testing.T) {
 func TestSe(t *testing.T) {
 	have := stats.Se([]float64{34, 54, 45, 43, 57, 38, 49}, 10)
 	want := 2.4243661069253055
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Se Failed!")
-	}
+	tu.Scalar(t, have, want, "Se")
 }
 
 func TestKelly(t *testing.T) {

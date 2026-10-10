@@ -229,9 +229,7 @@ func TestFib(t *testing.T) {
 func TestTsi(t *testing.T) {
 	have := ind.Tsi([]float64{1.32, 1.27, 1.42, 1.47, 1.42, 1.45, 1.59}, 3, 2, 2)
 	want := [][]float64{{0.3268608414239478, 0.32038834951456274}, {0.5795418491021003, 0.7058823529411765}}
-	if !assert.Equal(t, want, have) {
-		t.Fatalf("Tsi Failed!")
-	}
+	tu.Slice2D(t, have, want, "Tsi")
 }
 
 func TestZigZag(t *testing.T) {
