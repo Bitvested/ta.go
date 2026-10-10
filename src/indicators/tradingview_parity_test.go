@@ -38,6 +38,21 @@ const (
 	jawFirstBar = 13 - 1 + 8 // jaw length - 1 + jaw shift
 )
 
+// tvCellValue returns the plotted value and whether one is defined. TradingView
+// writes an undefined plot as an empty cell in a CSV export and as NaN in the
+// Pine Logs panel, so both spellings mean "not defined here".
+func tvCellValue(text string) (float64, bool) {
+	text = strings.TrimSpace(text)
+	if text == "" || strings.EqualFold(text, "nan") {
+		return 0, false
+	}
+	value, err := strconv.ParseFloat(text, 64)
+	if err != nil {
+		return 0, false
+	}
+	return value, true
+}
+
 func loadTradingViewExport(t *testing.T) ([]float64, [][]string) {
 	t.Helper()
 
@@ -101,7 +116,7 @@ func TestTradingViewExportBeginsWhereComputationBegan(t *testing.T) {
 
 	firstFilled := -1
 	for i, text := range plots[0] {
-		if text != "" {
+		if _, defined := tvCellValue(text); defined {
 			firstFilled = i
 			break
 		}
@@ -126,12 +141,9 @@ func TestTradingViewJawTeethLipsMatch(t *testing.T) {
 	compared := 0
 	for col, name := range []string{"jaw", "teeth", "lips"} {
 		for i, text := range plots[col] {
-			if text == "" {
+			expected, defined := tvCellValue(text)
+			if !defined {
 				continue
-			}
-			expected, err := strconv.ParseFloat(text, 64)
-			if err != nil {
-				t.Fatalf("%s row %d: unparseable value %q", name, i, text)
 			}
 			actual := have[i][col]
 			if math.IsNaN(actual) {
