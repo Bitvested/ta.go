@@ -251,19 +251,44 @@ func Hull(data []float64, l int) []float64 {
 	return hma
 }
 
+// Kama is Kaufman's Adaptive Moving Average.
+//
+//	ER   = |data[i] - data[i-l1]| / sum(|data[k] - data[k-1]|, k = i-l1+1 .. i)
+//	SC   = (ER * (fast - slow) + slow) ^ 2,  fast = 2/(l2+1), slow = 2/(l3+1)
+//	KAMA = KAMA[i-1] + SC * (data[i] - KAMA[i-1])
+//
+// Seeded with data[l1-1] and emitted from that bar on, so the output is
+// n-l1+1 long. Matches the tulind reference. The volatility sum is carried
+// across bars instead of re-summed per bar, which keeps the run linear.
 func Kama(data []float64, l1 int, l2 int, l3 int) []float64 {
-	ka := Sma(data, l1)
-	ka = []float64{ka[len(ka)-1]}
-	for i := l1 + 1; i < len(data); i++ {
-		var vola float64
-		change := math.Abs(data[i] - data[i-l1])
-		for a := 1; a < l1; a++ {
-			vola += math.Abs(data[i-a] - data[i-a-1])
-		}
-		sc := math.Pow(change/vola*(2/(float64(l2)+1)-2/(float64(l3)+1)+2/(float64(l3)+1)), 2)
-		ka = append(ka, ka[len(ka)-1]+sc*(data[i]-ka[len(ka)-1]))
+	n := len(data)
+	if n < l1 {
+		return nil
 	}
-	return ka
+	var vola float64
+	for i := 1; i < l1; i++ {
+		vola += math.Abs(data[i] - data[i-1])
+	}
+	fast, slow := 2/(float64(l2)+1), 2/(float64(l3)+1)
+	ka := data[l1-1]
+	out := make([]float64, 1, n-l1+1)
+	out[0] = ka
+	for i := l1; i < n; i++ {
+		vola += math.Abs(data[i] - data[i-1])
+		if i > l1 {
+			vola -= math.Abs(data[i-l1] - data[i-l1-1])
+		}
+		// A window with no movement leaves the ratio undefined; treat it as a
+		// one-sided move, which pins the smoothing constant to `fast`.
+		er := 1.0
+		if vola != 0 {
+			er = math.Abs(data[i]-data[i-l1]) / vola
+		}
+		sc := er*(fast-slow) + slow
+		ka += sc * sc * (data[i] - ka)
+		out = append(out, ka)
+	}
+	return out
 }
 
 func Cwma(data []float64, weights []float64) []float64 {

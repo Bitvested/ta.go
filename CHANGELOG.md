@@ -19,6 +19,23 @@ All notable changes to ta.go.
   `js=ts=ls=0` reproduces TradingView's Gator Oscillator, which does not
   displace its lines. Mirrors the same fix in ta.py and ta.js.
 
+- `Kama` now computes Kaufman's adaptive average correctly. Four bugs,
+  all inherited from the ta.js original: the smoothing constant dropped
+  its slow term (`- 2/(l3+1) + 2/(l3+1)` cancelled, leaving `ER * fast`);
+  the volatility window summed `l1-1` one-bar changes instead of `l1`,
+  which let the efficiency ratio exceed 1 and divided by zero on flat
+  input; the seed was the SMA of the *last* window rather than the first,
+  so the opening value was computed from data at the end of the series;
+  and the loop started one bar late, emitting `n - l1` values instead of
+  `n - l1 + 1`.
+
+  The recursion now matches tulind, the reference the benchmarks compare
+  against: bit-identical on short, flat, trending and gapping series, max
+  Δ 1.4e-14 on a 100k random walk. Carrying the volatility sum across
+  bars instead of re-summing it per bar also makes it ~2.5× faster.
+  Fixes the same defect as [Bitvested/ta.js#22](https://github.com/Bitvested/ta.js/issues/22),
+  mirrored in ta.py.
+
 ## v2.0.0 — git tag `v0.20.0`
 
 Major refactor. ~52 new functions, formula and convention fixes on
