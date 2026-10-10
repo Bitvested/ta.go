@@ -1,12 +1,39 @@
-# ta.go
+# ta.go — Technical Analysis for Go
 
-Technical-analysis indicators, oscillators, and statistics for Go.
-Pure-Go, dependency-free, with first-class performance — see
+[![Go Reference](https://pkg.go.dev/badge/github.com/Bitvested/ta.go.svg)](https://pkg.go.dev/github.com/Bitvested/ta.go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Bitvested/ta.go)](https://goreportcard.com/report/github.com/Bitvested/ta.go)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/Bitvested/ta.go)](go.mod)
+[![Release](https://img.shields.io/github/v/release/Bitvested/ta.go)](https://github.com/Bitvested/ta.go/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+**Technical analysis for Go (Golang): 150+ indicators, oscillators, bands, and
+statistics** — RSI, MACD, Bollinger Bands, ATR, ADX, Stochastic, Ichimoku,
+SuperTrend, Parabolic SAR, VWAP, OBV, and 19 moving averages (SMA, EMA, WMA,
+Hull, KAMA, T3, VIDYA, ZLEMA). Includes a goroutine-parallel Monte Carlo
+simulator for backtesting and strategy research.
+
+Pure Go, zero runtime dependencies, no cgo. Ties or beats `go-talib` and
+`cinar/indicator` at 100k bars on every benched indicator — see
 [BENCHMARKS](bench/BENCHMARKS.md).
+
+Built for algorithmic trading, quantitative finance, crypto and stock-market
+analysis, and backtesting systems that need indicators without a TA-Lib C
+dependency.
 
 ```bash
 go get github.com/Bitvested/ta.go@latest
 ```
+
+## Contents
+
+- [Quickstart](#quickstart)
+- [Packages](#packages-and-indicators)
+- [Bar conventions](#bar-conventions)
+- [Upgrading](#upgrading)
+- [Performance](#performance)
+- [Versioning](#versioning)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Quickstart
 
@@ -33,7 +60,7 @@ func main() {
 }
 ```
 
-## Packages
+## Packages and Indicators
 
 | Import path                                          | What's inside |
 |------------------------------------------------------|---------------|
