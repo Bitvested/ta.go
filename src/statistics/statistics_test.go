@@ -172,6 +172,19 @@ func TestEr(t *testing.T) {
 	}
 }
 
+// A side with no observations carries weight zero, so its mean is never taken:
+// a series with no losses returns the geometric mean of its wins. The value is
+// stated rather than left to math.Pow(1, +Inf) happening to be 1.
+func TestErOneSidedSeries(t *testing.T) {
+	tu.Scalar(t, stats.Er([]float64{0.02, 0.01, 0.05, 0.03}), 0.027393981599918238, "Er (no losses)")
+	tu.Scalar(t, stats.Er([]float64{-0.02, -0.01, -0.05}), -0.02681600360399572, "Er (no wins)")
+}
+
+func TestKellyAllWinningSeries(t *testing.T) {
+	tu.Scalar(t, stats.Kelly([]float64{0.02, 0.01, 0.05, 0.03}), 1, "Kelly (no losses)")
+	tu.Scalar(t, stats.Kelly([]float64{-0.02, -0.01, -0.05}), -1.0275549163398736, "Kelly (no wins)")
+}
+
 func TestAr(t *testing.T) {
 	have := stats.Ar([]float64{0.02, -0.01, 0.03, 0.05, -0.03}, 3)
 	want := []float64{0.03667479679633267, -0.053301281310417566}

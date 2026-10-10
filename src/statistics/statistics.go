@@ -367,6 +367,10 @@ func Kmeans(data []float64, clusters int) [][]float64 {
 	return means
 }
 
+// Er is the expected return of a series of returns: each side contributes its
+// geometric mean, weighted by how often it occurs. A side with no observations
+// has weight zero, so its mean is never taken and its term is zero — stated
+// explicitly rather than left to math.Pow(1, +Inf) happening to be 1.
 func Er(data []float64) float64 {
 	var wins []float64
 	var losses []float64
@@ -390,9 +394,15 @@ func Er(data []float64) float64 {
 	for i := 0; i < int(winlen); i++ {
 		wp = wp * wins[i]
 	}
-	var fw float64 = (1.0 / winlen)
-	var fl float64 = (1.0 / loslen)
-	return ((((math.Pow(wp, fw)) - 1) * 100) * win + (((math.Pow(lp, fl)) - 1) * 100) * loss) / 100
+	winTerm := 0.0
+	if winlen > 0 {
+		winTerm = ((math.Pow(wp, 1.0/winlen)) - 1) * 100 * win
+	}
+	lossTerm := 0.0
+	if loslen > 0 {
+		lossTerm = ((math.Pow(lp, 1.0/loslen)) - 1) * 100 * loss
+	}
+	return (winTerm + lossTerm) / 100
 }
 
 func Ar(data []float64, l int) []float64 {

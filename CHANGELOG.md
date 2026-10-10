@@ -52,6 +52,19 @@ All notable changes to ta.go.
   does). Verified against a transcription of the Pine: exact agreement,
   160 flips where there were none, across the three ports.
 
+- `Er` no longer leaves a one-sided series to an exponentiation edge case.
+  It took the geometric mean of both sides regardless of how many
+  observations each had, so a series with no losses relied on
+  `math.Pow(1, +Inf)` happening to return 1 — which is not what the other
+  ports did with the same input: ta.js returned NaN (`1 ** Infinity` is
+  NaN in JS) and ta.py raised `ZeroDivisionError`. An empty side carries
+  weight zero, so its mean is never taken and it contributes nothing; all
+  three now state that explicitly and return identical numbers. `Er` and
+  the `Ar` and `Kelly` built on it return 0.0274, and a Kelly fraction of
+  1, for an all-winning series, and -1.0276 for an all-losing one. Mixed
+  series are unchanged to the last bit. Mirrors the same fix in ta.js and
+  ta.py.
+
 ### Changed — BREAKING for `HalfTrend` consumers
 
 - `HalfTrend` returns one row per input bar instead of `n - atrlen`, so
