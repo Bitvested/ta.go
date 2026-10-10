@@ -240,6 +240,17 @@ func TestZigZag(t *testing.T) {
 	}
 }
 
+// At 25% the retracements are wide enough that the defects in the pivot bookkeeping
+// cancel out; at 5% they do not. This is the case that tells the two apart — the
+// leg reset used to seed the running extreme with ±Inf instead of the new pivot,
+// the running maximum tracked the low rather than the high, and a low pivot stored
+// the high, all of which shifted the interpolated line.
+func TestZigZagTightRetracement(t *testing.T) {
+	have := ind.ZigZag([][]float64{{10, 9}, {12, 10}, {14, 12}, {15, 13}, {16, 15}, {11, 10}, {18, 15}}, 0.05)
+	want := []float64{9, 12, 12.5, 15, 16, 10, 18}
+	tu.Slice(t, have, want, "ZigZag (5%)")
+}
+
 func TestPsar(t *testing.T) {
 	// v2.0.0: downtrend extreme tracks the LOW (data[i][1]), not high.
 	// Fixture extends past the original last bug-quiet bar so the corrected branch is exercised.
